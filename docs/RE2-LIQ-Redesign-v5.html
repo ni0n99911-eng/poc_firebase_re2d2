@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE² — LIQ Below Zone 3 Redesign</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF8F5;
+    --surface: #FFFFFF;
+    --warm: #F8F4EF;
+    --border: #E8E2D8;
+    --border-light: #F0ECE6;
+    --text: #1A1A2E;
+    --text-2: #4A4A5E;
+    --text-3: #8A8A9E;
+    --green: #1B7340;
+    --green-soft: #EBF5EF;
+    --amber: #9E7B1B;
+    --amber-soft: #FDF6E3;
+    --amber-border: #E8D48B;
+    --accent: #2D5F8A;
+    --sage: #6B8F6F;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+  .nav { background: var(--text); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; height: 50px; }
+  .nav-logo { color: #fff; font-weight: 800; font-size: 17px; }
+  .nav-logo span { color: var(--sage); }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a { color: #666; font-size: 13px; font-weight: 500; text-decoration: none; padding: 14px 0; border-bottom: 2px solid transparent; }
+  .nav-links a.on { color: #fff; border-color: var(--green); }
+  .nav-cta { background: var(--green); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  .page { max-width: 1040px; margin: 0 auto; padding: 20px 20px 48px; }
+
+  /* ═══════════ EXISTING ZONES 1-3 (PLACEHOLDER — NO CHANGES) ═══════════ */
+  .existing-zone {
+    background: var(--warm);
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .existing-zone .zone-tag {
+    position: absolute; top: -10px; left: 20px;
+    background: var(--text); color: var(--green);
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 4px;
+  }
+  .existing-zone .zone-desc {
+    font-size: 13px; color: var(--text-3); line-height: 1.6;
+  }
+  .existing-zone .zone-desc strong { color: var(--text-2); }
+
+  /* ═══════════ CHANGE BOUNDARY ═══════════ */
+  .change-line {
+    display: flex; align-items: center; gap: 12px;
+    margin: 28px 0 20px;
+  }
+  .change-line::before, .change-line::after {
+    content: ''; flex: 1; height: 2px; background: var(--green);
+  }
+  .change-line span {
+    font-size: 11px; font-weight: 700; color: var(--green);
+    text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap;
+  }
+
+  /* ═══════════ THE ACTUAL PROPOSAL: TABBED EXPLORE AREA ═══════════ */
+  .explore-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .explore-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--warm);
+    overflow-x: auto;
+  }
+  .explore-tab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    background: none;
+    border-top: none; border-left: none; border-right: none;
+  }
+  .explore-tab:hover { color: var(--text-2); }
+  .explore-tab.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+    background: var(--surface);
+  }
+
+  .explore-panel { padding: 24px; display: none; }
+  .explore-panel.active { display: block; }
+
+  /* ── Tab: Map ── */
+  .map-placeholder {
+    background: #E8E2D8;
+    border-radius: 12px;
+    height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--text-3);
+    position: relative;
+  }
+  .map-legend {
+    position: absolute; bottom: 14px; left: 14px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 11px; color: var(--text-2);
+    display: flex; gap: 14px;
+  }
+  .map-legend-item { display: flex; align-items: center; gap: 5px; }
+  .map-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .map-dot.you { background: var(--green); }
+  .map-dot.comp { background: #E57373; }
+  .map-dot.transit { background: var(--accent); }
+
+  /* ── Tab: Daypart ── */
+  .daypart-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .daypart-card {
+    background: var(--warm); border-radius: 12px; padding: 18px;
+    text-align: center;
+  }
+  .daypart-time { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .daypart-vol { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+  .daypart-label { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .daypart-match {
+    font-size: 11px; font-weight: 600; margin-top: 8px;
+    padding: 3px 8px; border-radius: 12px; display: inline-block;
+  }
+  .daypart-match.high { background: var(--green-soft); color: var(--green); }
+  .daypart-match.med { background: var(--amber-soft); color: var(--amber); }
+  .daypart-match.low { background: #FDF0F0; color: #B33A3A; }
+  .daypart-note { font-size: 12px; color: var(--text-2); margin-top: 16px; line-height: 1.6; padding: 12px; background: var(--surface); border-radius: 8px; border-left: 3px solid var(--green); }
+
+  /* ── Tab: Watch For ── */
+  .watch-item {
+    display: flex; gap: 16px; align-items: baseline;
+    padding: 16px 0;
+  }
+  .watch-item + .watch-item { border-top: 1px solid var(--border-light); }
+  .watch-num { font-size: 24px; font-weight: 800; color: var(--amber); min-width: 40px; }
+  .watch-text h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .watch-text p { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+  .watch-cta { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 6px; cursor: pointer; }
+  .watch-cta:hover { text-decoration: underline; }
+
+  /* ── Tab: Neighborhood ── */
+  .hood-buzz { margin-bottom: 20px; }
+  .hood-buzz h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .hood-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .hood-tag {
+    font-size: 11px; padding: 4px 10px; border-radius: 16px;
+    background: #EEF4EF; color: var(--sage); font-weight: 600;
+  }
+  .hood-text { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+  .hood-recs { margin-top: 20px; }
+  .hood-recs h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .hood-rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .hood-rec {
+    background: var(--warm); border-radius: 10px; padding: 14px;
+    cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
+  }
+  .hood-rec:hover { border-color: var(--green); }
+  .hood-rec-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .hood-rec-score { font-size: 11px; font-weight: 600; color: var(--green); margin-top: 2px; }
+  .hood-rec-why { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+  /* ── Tab: More Details ── */
+  .detail-section { margin-bottom: 20px; }
+  .detail-section h4 {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .working-list { display: flex; flex-direction: column; gap: 8px; }
+  .working-row {
+    display: flex; align-items: baseline; gap: 10px;
+    font-size: 13px; color: var(--text-2); line-height: 1.5;
+    padding: 8px 12px; background: var(--green-soft); border-radius: 8px;
+  }
+  .working-row .check { color: var(--green); font-weight: 700; font-size: 12px; flex-shrink: 0; }
+
+  .factor-list { display: flex; flex-direction: column; gap: 8px; }
+  .factor-row {
+    background: var(--warm); border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .factor-row:hover { background: #F0ECE6; }
+  .factor-header { display: flex; justify-content: space-between; align-items: center; }
+  .factor-name { font-size: 13px; font-weight: 700; color: var(--text); }
+  .factor-weight { font-size: 11px; color: var(--text-3); }
+  .factor-bar {
+    height: 4px; background: var(--border-light); border-radius: 2px;
+    margin-top: 8px; overflow: hidden;
+  }
+  .factor-fill { height: 100%; border-radius: 2px; }
+
+  .block-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .block-stat {
+    background: var(--warm); border-radius: 10px; padding: 14px; text-align: center;
+  }
+  .block-stat .val { font-size: 22px; font-weight: 800; color: var(--text); }
+  .block-stat .lbl { font-size: 10px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .source-list { font-size: 11px; color: var(--text-3); line-height: 1.8; }
+
+  /* ═══════════ TWO COLUMN BELOW EXPLORE ═══════════ */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 14px;
+    margin-top: 14px;
+    align-items: start;
+  }
+
+  /* Co-Pilot */
+  .copilot {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px;
+  }
+  .cp-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .cp-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+  .cp-label { font-size: 13px; font-weight: 700; }
+  .cp-msg {
+    font-size: 13px; color: var(--text-2); line-height: 1.7;
+    padding: 14px; background: var(--warm); border-radius: 10px;
+  }
+  .cp-msg strong { color: var(--text); }
+  .cp-input { display: flex; gap: 8px; margin-top: 10px; }
+  .cp-input input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 12px; }
+  .cp-input button { padding: 9px 14px; background: var(--text); color: #fff; border: none; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  /* Vision IQ placeholder */
+  .vision-placeholder {
+    background: var(--warm); border: 2px dashed var(--border);
+    border-radius: 14px; padding: 24px; text-align: center;
+  }
+  .vision-placeholder .zone-tag {
+    display: inline-block;
+    background: var(--text); color: var(--green);
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .vision-placeholder p { font-size: 12px; color: var(--text-3); }
+
+  /* Bottom */
+  .bottom { display: flex; justify-content: space-between; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .bottom a { font-size: 13px; color: var(--text-3); text-decoration: none; }
+  .btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .btn-go { background: var(--green); color: #fff; border-color: var(--green); }
+  .tm { text-align: center; padding: 20px 0; font-size: 11px; color: var(--text-3); font-style: italic; }
+
+  @media (max-width: 768px) {
+    .explore-tabs { gap: 0; }
+    .daypart-grid { grid-template-columns: 1fr; }
+    .hood-rec-grid { grid-template-columns: 1fr; }
+    .block-stats { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-logo">RE<span>²</span></div>
+  <div class="nav-links">
+    <a class="on" href="#">Location IQ</a>
+    <a href="#">Business Case</a>
+    <a href="#">Dashboard</a>
+  </div>
+  <button class="nav-cta">+ New Analysis</button>
+</div>
+
+<div class="page">
+
+  <!-- ═══════════ EXISTING — NO CHANGES ═══════════ -->
+
+  <div class="existing-zone" style="margin-top: 16px;">
+    <div class="zone-tag">Zone 1 — No change</div>
+    <div class="zone-desc">
+      <strong>Score rings + verdict + why-bullets + action bar.</strong><br>
+      Stays exactly as built. Address, 3 rings (Location/Fit/Vision), verdict strip, why-bullets, Co-Pilot CTA, export, compare.
+    </div>
+  </div>
+
+  <div class="existing-zone">
+    <div class="zone-tag">Zone 2 — No change</div>
+    <div class="zone-desc">
+      <strong>"What matters here" — 3 signal cards.</strong><br>
+      Foot Traffic, Demand Signal, Concept Fit. Kept exactly as built with narrative insights.
+    </div>
+  </div>
+
+  <div class="existing-zone">
+    <div class="zone-tag">Zone 3 — No change</div>
+    <div class="zone-desc">
+      <strong>REACH / DEMAND / ROOM composites.</strong><br>
+      3-panel composite strip with sub-score bars. Kept exactly as built.
+    </div>
+  </div>
+
+  <!-- ═══════════ CHANGE BOUNDARY ═══════════ -->
+
+  <div class="change-line">
+    <span>Changes start here — everything below is the proposal</span>
+  </div>
+
+  <!-- ═══════════ PROPOSED: UNIFIED TABBED EXPLORE AREA ═══════════ -->
+  <!--
+    WHAT CHANGED: Everything that was previously separate scrollable sections
+    (Watch For, Explore Map, Daypart, Block Data, Compare, Neighborhood Buzz,
+    Left Column Intel Card, Location History) is now organized into tabs.
+
+    This replaces ~2000px of vertical scroll with a ~450px tabbed container.
+  -->
+
+  <div class="explore-container">
+    <div class="explore-tabs">
+      <button class="explore-tab active" onclick="switchTab(event, 'map')">Map</button>
+      <button class="explore-tab" onclick="switchTab(event, 'daypart')">Daypart</button>
+      <button class="explore-tab" onclick="switchTab(event, 'watch')">Watch For</button>
+      <button class="explore-tab" onclick="switchTab(event, 'neighborhood')">Neighborhood</button>
+      <button class="explore-tab" onclick="switchTab(event, 'compare')">Compare</button>
+      <button class="explore-tab" onclick="switchTab(event, 'details')">More Details</button>
+    </div>
+
+    <!-- ── Map Tab ── -->
+    <div class="explore-panel active" id="tab-map">
+      <div class="map-placeholder">
+        Interactive map · 10 competitors · transit stops · 0.3mi radius
+        <div class="map-legend">
+          <div class="map-legend-item"><div class="map-dot you"></div> Your location</div>
+          <div class="map-legend-item"><div class="map-dot comp"></div> Competitors (10)</div>
+          <div class="map-legend-item"><div class="map-dot transit"></div> Subway entrances</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Daypart Tab ── -->
+    <div class="explore-panel" id="tab-daypart">
+      <div class="daypart-grid">
+        <div class="daypart-card">
+          <div class="daypart-time">Morning Rush</div>
+          <div class="daypart-vol">12,400</div>
+          <div class="daypart-label">est. commuters · 7–10am</div>
+          <div class="daypart-match high">Strong match for your hours</div>
+        </div>
+        <div class="daypart-card">
+          <div class="daypart-time">Midday</div>
+          <div class="daypart-vol">6,200</div>
+          <div class="daypart-label">est. foot traffic · 11am–2pm</div>
+          <div class="daypart-match med">Moderate — lunch crowd mixed</div>
+        </div>
+        <div class="daypart-card">
+          <div class="daypart-time">Evening</div>
+          <div class="daypart-vol">3,100</div>
+          <div class="daypart-label">est. foot traffic · 5–8pm</div>
+          <div class="daypart-match low">Weak — block quiets after 6pm</div>
+        </div>
+      </div>
+      <div class="daypart-note">
+        <strong>RE² take:</strong> Your 7am–7pm hours capture 85% of the available foot traffic. The morning window (7–10am) alone accounts for more volume than the entire afternoon + evening combined. A 6am–3pm model would capture 90% at lower operating cost.
+      </div>
+    </div>
+
+    <!-- ── Watch For Tab ── -->
+    <div class="explore-panel" id="tab-watch">
+      <div class="watch-item">
+        <div class="watch-num">39</div>
+        <div class="watch-text">
+          <h4>Customer fit is low for this concept</h4>
+          <p>Local residents skew older (median age 42) and higher-income than your 22–35 target. Your real customer here is the weekday commuter, not the weekend neighbor. Weekday grab-and-go model works. Weekend brunch model is riskier.</p>
+          <div class="watch-cta">→ Ask Co-Pilot: "What if I shift hours to 6am–3pm only?"</div>
+        </div>
+      </div>
+      <div class="watch-item">
+        <div class="watch-num">48</div>
+        <div class="watch-text">
+          <h4>Vibrancy drops after 6pm</h4>
+          <p>Evening and weekend foot traffic is below average for Chelsea. The High Line draws daytime visitors but doesn't convert to night traffic on 6th Ave. If your model depends on after-work sit-down visits, budget conservatively.</p>
+          <div class="watch-cta">→ Check the Daypart tab for hourly traffic patterns</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Neighborhood Tab ── -->
+    <div class="explore-panel" id="tab-neighborhood">
+      <div class="hood-buzz">
+        <h4>Chelsea — Neighborhood Buzz</h4>
+        <div class="hood-tags">
+          <span class="hood-tag">Gallery District</span>
+          <span class="hood-tag">High Line Adjacent</span>
+          <span class="hood-tag">Brunch Culture</span>
+          <span class="hood-tag">Fitness Hub</span>
+        </div>
+        <div class="hood-text">
+          Chelsea is seeing a resurgence in independent food & bev. Three specialty coffee shops opened within 0.5mi in the last 18 months — all still operating. The High Line draws 8M+ annual visitors, with 6th Ave catching spillover foot traffic. Strong fitness/wellness culture supports health-conscious coffee concepts.
+        </div>
+      </div>
+      <div class="hood-recs">
+        <h4>Consider these blocks too</h4>
+        <div class="hood-rec-grid">
+          <div class="hood-rec">
+            <div class="hood-rec-name">Hamilton Heights</div>
+            <div class="hood-rec-score">Est. Fit IQ: 81</div>
+            <div class="hood-rec-why">Lower rent, strong commuter flow, fewer direct competitors</div>
+          </div>
+          <div class="hood-rec">
+            <div class="hood-rec-name">Inwood</div>
+            <div class="hood-rec-score">Est. Fit IQ: 76</div>
+            <div class="hood-rec-why">Growing food scene, high traffic near 207th St station</div>
+          </div>
+          <div class="hood-rec">
+            <div class="hood-rec-name">Washington Heights</div>
+            <div class="hood-rec-score">Est. Fit IQ: 74</div>
+            <div class="hood-rec-why">Strong demographic match, 3 coffee concepts thriving</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Compare Tab ── -->
+    <div class="explore-panel" id="tab-compare">
+      <div style="text-align:center; padding: 60px 20px; color: var(--text-3); font-size: 14px;">
+        <div style="font-size: 32px; margin-bottom: 10px;">🔄</div>
+        <strong style="color: var(--text);">Compare up to 3 addresses side-by-side</strong><br>
+        <span>Add another address to see a head-to-head comparison of all scores and signals.</span>
+        <div style="margin-top: 16px;">
+          <input type="text" placeholder="Enter an address to compare..." style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; width: 320px; max-width: 100%;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── More Details Tab ── -->
+    <div class="explore-panel" id="tab-details">
+      <div class="detail-section">
+        <h4>What's working</h4>
+        <div class="working-list">
+          <div class="working-row"><span class="check">✓</span> Transit accessibility is in the top 30% for Chelsea — 14th St station is the anchor</div>
+          <div class="working-row"><span class="check">✓</span> 5-year survival rate (78%) signals a stable commercial block for food & bev</div>
+          <div class="working-row"><span class="check">✓</span> Single-origin positioning has no direct match within 0.3mi — clear differentiation</div>
+          <div class="working-row"><span class="check">✓</span> Income and density demographics align with $8–$12 avg check pricing</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4>Highest-impact scoring factors</h4>
+        <div class="factor-list">
+          <div class="factor-row">
+            <div class="factor-header">
+              <div class="factor-name">Survival Rate</div>
+              <div class="factor-weight">48% weight · 78/100</div>
+            </div>
+            <div class="factor-bar"><div class="factor-fill" style="width:78%;background:var(--green)"></div></div>
+          </div>
+          <div class="factor-row">
+            <div class="factor-header">
+              <div class="factor-name">Neighborhood Health</div>
+              <div class="factor-weight">28% weight · 71/100</div>
+            </div>
+            <div class="factor-bar"><div class="factor-fill" style="width:71%;background:var(--green)"></div></div>
+          </div>
+          <div class="factor-row">
+            <div class="factor-header">
+              <div class="factor-name">Transit Accessibility</div>
+              <div class="factor-weight">16% weight · 72/100</div>
+            </div>
+            <div class="factor-bar"><div class="factor-fill" style="width:72%;background:var(--green)"></div></div>
+          </div>
+          <div class="factor-row">
+            <div class="factor-header">
+              <div class="factor-name">Competitive Density</div>
+              <div class="factor-weight">8% weight · 85/100</div>
+            </div>
+            <div class="factor-bar"><div class="factor-fill" style="width:85%;background:var(--green)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4>Block statistics</h4>
+        <div class="block-stats">
+          <div class="block-stat">
+            <div class="val">$92K</div>
+            <div class="lbl">Median HHI</div>
+          </div>
+          <div class="block-stat">
+            <div class="val">68%</div>
+            <div class="lbl">Age 25–44</div>
+          </div>
+          <div class="block-stat">
+            <div class="val">4.2K</div>
+            <div class="lbl">Pop / sq mi</div>
+          </div>
+          <div class="block-stat">
+            <div class="val">$82</div>
+            <div class="lbl">Avg rent/sqft</div>
+          </div>
+          <div class="block-stat">
+            <div class="val">14</div>
+            <div class="lbl">F&B within 0.3mi</div>
+          </div>
+          <div class="block-stat">
+            <div class="val">3</div>
+            <div class="lbl">Subway entrances</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4>Data sources</h4>
+        <div class="source-list">
+          Census ACS (2023) · MTA turnstile data · NYC DOB permits · PLUTO land use · Foursquare Places API · Google Places API · Yelp Fusion · NYC Open Data (crime) · ACRIS property records · Overpass API (transit) · RE² block group intelligence
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TWO-COL: CO-PILOT + VISION IQ (UNCHANGED) ═══════════ -->
+
+  <div class="two-col">
+    <div class="copilot">
+      <div class="cp-head">
+        <div class="cp-dot"></div>
+        <div class="cp-label">RE² Co-Pilot</div>
+      </div>
+      <div class="cp-msg">
+        This block has strong commuter fundamentals, but the <strong>customer fit gap</strong> (39) is worth thinking through. Local residents skew older than your target — your real customer is the <strong>weekday commuter</strong>. That's fine for grab-and-go, but evening sit-down service gets thinner. Want me to model a 6am–3pm scenario?
+      </div>
+      <div class="cp-input">
+        <input type="text" placeholder="Ask anything about this location..." />
+        <button>Send</button>
+      </div>
+    </div>
+
+    <div class="vision-placeholder">
+      <div class="zone-tag">Vision IQ — No change</div>
+      <p>Vision IQ form, score dial, PRELIM tag, score simulator — all stay exactly as built. No changes proposed.</p>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom">
+    <a href="#">← Dashboard</a>
+    <button class="btn btn-go" style="background:var(--green);color:#fff;border-color:var(--green);">Build Business Case →</button>
+  </div>
+  <div class="tm">Don't work for AI. Make AI work for you.™</div>
+
+</div>
+
+<script>
+function switchTab(e, tabId) {
+  document.querySelectorAll('.explore-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.explore-panel').forEach(p => p.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+</script>
+
+</body>
+</html>

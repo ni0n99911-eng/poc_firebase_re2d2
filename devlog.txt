@@ -1,0 +1,372 @@
+
+> jaredclaw@0.0.1 dev
+> vite dev
+
+
+  [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m2160[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:623:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:623:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:715:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:715:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:716:3 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:716:3 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:733:3 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:733:3 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:872:1 Unused CSS selector ".ms-label"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1035:1 Unused CSS selector ".mod-divider"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1040:1 Unused CSS selector ".mod-coming-soon"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1055:1 Unused CSS selector ".cs-badge"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1072:1 Unused CSS selector ".cs-pill"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1087:1 Unused CSS selector ".cs-tag"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1098:1 Unused CSS selector ".cs-tag-soon"
+https://svelte.dev/e/css_unused_selector
+4:04:08 PM [vite-plugin-svelte] src/routes/+layout.svelte:1492:1 Unused CSS selector ".nav-divider-prominent"
+https://svelte.dev/e/css_unused_selector
+4:04:10 PM [vite-plugin-svelte] src/lib/components/MapView.svelte:39:15 This reference only captures the initial value of `lat`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:10 PM [vite-plugin-svelte] src/lib/components/MapView.svelte:40:15 This reference only captures the initial value of `lng`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:359:23 This reference only captures the initial value of `store`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2017:1 Unused CSS selector ".compass-section"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2024:1 Unused CSS selector ".compass-persona-header"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2027:1 Unused CSS selector ".persona-badge"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2038:1 Unused CSS selector ".persona-tagline"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2058:1 Unused CSS selector ".hero"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2063:1 Unused CSS selector ".hero-badge"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2075:1 Unused CSS selector ".hero-title"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2084:1 Unused CSS selector ".hero-sub"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2261:1 Unused CSS selector ".btn"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2359:2 Unused CSS selector ".hero-title"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2363:2 Unused CSS selector ".hero-sub"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2391:2 Unused CSS selector ".btn"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2409:1 Unused CSS selector ".action-bar"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2418:1 Unused CSS selector ".action-bar-title"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2426:1 Unused CSS selector ".action-bar-buttons"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2432:1 Unused CSS selector ".action-link"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2440:1 Unused CSS selector ".action-link:hover"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2444:1 Unused CSS selector ".action-link:active"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2448:1 Unused CSS selector ".form-label"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2454:1 Unused CSS selector "select"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2466:1 Unused CSS selector "select:focus"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2470:1 Unused CSS selector ".checkbox-row"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2478:1 Unused CSS selector ".checkbox-label"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2483:1 Unused CSS selector ".checkbox-group"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2491:1 Unused CSS selector ".checkbox-group input[type="checkbox"]"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2497:1 Unused CSS selector ".lcs-result"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2507:1 Unused CSS selector ".lcs-hint"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2513:1 Unused CSS selector ".commentary-box"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2522:1 Unused CSS selector ".commentary-title"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2530:1 Unused CSS selector ".commentary-text"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2536:1 Unused CSS selector ".broker-grid"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2542:1 Unused CSS selector ".broker-chip"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2556:1 Unused CSS selector ".broker-chip:hover"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2564:2 Unused CSS selector ".broker-grid"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2569:2 Unused CSS selector ".commentary-box"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2573:2 Unused CSS selector ".action-bar-buttons"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2578:2 Unused CSS selector ".action-bar"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/components/PWABottomNav.svelte:17:28 Redundant role 'navigation'
+https://svelte.dev/e/a11y_no_redundant_roles
+4:04:11 PM [vite-plugin-svelte] src/lib/components/PWABottomNav.svelte:218:1 Unused CSS selector ".nav-fab.active::before"
+https://svelte.dev/e/css_unused_selector
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/SearchSteps.svelte:5:20 This reference only captures the initial value of `steps`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/VacancyListings.svelte:216:6 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/VacancyListings.svelte:216:6 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:27:20 This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:28:12 This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:29:12 This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:297:5 Using `on:mouseenter` to listen to the mouseenter event is deprecated. Use the event attribute `onmouseenter` instead
+https://svelte.dev/e/event_directive_deprecated
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:298:5 Using `on:mouseleave` to listen to the mouseleave event is deprecated. Use the event attribute `onmouseleave` instead
+https://svelte.dev/e/event_directive_deprecated
+4:04:11 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:388:32 Using `on:click` to listen to the click event is deprecated. Use the event attribute `onclick` instead
+https://svelte.dev/e/event_directive_deprecated
+4:04:12 PM [vite-plugin-svelte] src/lib/location/components/DataCoverage.svelte:55:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:12 PM [vite-plugin-svelte] src/lib/location/components/DataCoverage.svelte:55:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:04:12 PM [vite-plugin-svelte] src/lib/location/components/ScoreRingHero.svelte:96:2 Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
+https://svelte.dev/e/element_invalid_self_closing_tag
+4:04:12 PM [vite-plugin-svelte] src/lib/location/components/BusinessModel.svelte:300:4 A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control
+4:04:12 PM [vite-plugin-svelte] src/lib/location/components/BusinessModel.svelte:318:4 A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control
+4:04:12 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:141:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:12 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:203:1 Unused CSS selector ".addr-sub"
+https://svelte.dev/e/css_unused_selector
+4:04:12 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:329:1 Unused CSS selector ".tb-btn.pri"
+https://svelte.dev/e/css_unused_selector
+4:04:12 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:335:1 Unused CSS selector ".tb-btn.pri:hover"
+https://svelte.dev/e/css_unused_selector
+4:04:13 PM [vite-plugin-svelte] src/lib/components/ScoreMetaLine.svelte:150:4 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:04:13 PM [vite-plugin-svelte] src/lib/components/ScoreMetaLine.svelte:150:4 Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions
+4:07:24 PM [vite-plugin-svelte] src/routes/+page.svelte:666:1 Unused CSS selector ".beta-quote"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:623:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:623:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:715:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:715:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:716:3 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:716:3 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:733:3 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:733:3 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:872:1 Unused CSS selector ".ms-label"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1035:1 Unused CSS selector ".mod-divider"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1040:1 Unused CSS selector ".mod-coming-soon"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1055:1 Unused CSS selector ".cs-badge"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1072:1 Unused CSS selector ".cs-pill"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1087:1 Unused CSS selector ".cs-tag"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1098:1 Unused CSS selector ".cs-tag-soon"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+layout.svelte:1492:1 Unused CSS selector ".nav-divider-prominent"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/lib/components/PWABottomNav.svelte:17:28 Redundant role 'navigation'
+https://svelte.dev/e/a11y_no_redundant_roles
+4:07:26 PM [vite-plugin-svelte] src/lib/components/PWABottomNav.svelte:218:1 Unused CSS selector ".nav-fab.active::before"
+https://svelte.dev/e/css_unused_selector
+4:07:26 PM [vite-plugin-svelte] src/routes/+page.svelte:666:1 Unused CSS selector ".beta-quote"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/components/MapView.svelte:39:15 This reference only captures the initial value of `lat`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:29 PM [vite-plugin-svelte] src/lib/components/MapView.svelte:40:15 This reference only captures the initial value of `lng`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:359:23 This reference only captures the initial value of `store`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2017:1 Unused CSS selector ".compass-section"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2024:1 Unused CSS selector ".compass-persona-header"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2027:1 Unused CSS selector ".persona-badge"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2038:1 Unused CSS selector ".persona-tagline"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2058:1 Unused CSS selector ".hero"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2063:1 Unused CSS selector ".hero-badge"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2075:1 Unused CSS selector ".hero-title"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2084:1 Unused CSS selector ".hero-sub"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2261:1 Unused CSS selector ".btn"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2359:2 Unused CSS selector ".hero-title"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2363:2 Unused CSS selector ".hero-sub"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2391:2 Unused CSS selector ".btn"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2409:1 Unused CSS selector ".action-bar"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2418:1 Unused CSS selector ".action-bar-title"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2426:1 Unused CSS selector ".action-bar-buttons"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2432:1 Unused CSS selector ".action-link"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2440:1 Unused CSS selector ".action-link:hover"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2444:1 Unused CSS selector ".action-link:active"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2448:1 Unused CSS selector ".form-label"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2454:1 Unused CSS selector "select"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2466:1 Unused CSS selector "select:focus"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2470:1 Unused CSS selector ".checkbox-row"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2478:1 Unused CSS selector ".checkbox-label"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2483:1 Unused CSS selector ".checkbox-group"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2491:1 Unused CSS selector ".checkbox-group input[type="checkbox"]"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2497:1 Unused CSS selector ".lcs-result"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2507:1 Unused CSS selector ".lcs-hint"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2513:1 Unused CSS selector ".commentary-box"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2522:1 Unused CSS selector ".commentary-title"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2530:1 Unused CSS selector ".commentary-text"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2536:1 Unused CSS selector ".broker-grid"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2542:1 Unused CSS selector ".broker-chip"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2556:1 Unused CSS selector ".broker-chip:hover"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2564:2 Unused CSS selector ".broker-grid"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2569:2 Unused CSS selector ".commentary-box"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2573:2 Unused CSS selector ".action-bar-buttons"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/location/components/AddressAnalyzer.svelte:2578:2 Unused CSS selector ".action-bar"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:141:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:29 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:203:1 Unused CSS selector ".addr-sub"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:329:1 Unused CSS selector ".tb-btn.pri"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/components/NavigationDrawer.svelte:335:1 Unused CSS selector ".tb-btn.pri:hover"
+https://svelte.dev/e/css_unused_selector
+4:07:29 PM [vite-plugin-svelte] src/lib/components/ScoreMetaLine.svelte:150:4 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:29 PM [vite-plugin-svelte] src/lib/components/ScoreMetaLine.svelte:150:4 Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/SearchSteps.svelte:5:20 This reference only captures the initial value of `steps`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:27:20 This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:28:12 This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:29:12 This reference only captures the initial value of `size`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:297:5 Using `on:mouseenter` to listen to the mouseenter event is deprecated. Use the event attribute `onmouseenter` instead
+https://svelte.dev/e/event_directive_deprecated
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:298:5 Using `on:mouseleave` to listen to the mouseleave event is deprecated. Use the event attribute `onmouseleave` instead
+https://svelte.dev/e/event_directive_deprecated
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/RadialCompass.svelte:388:32 Using `on:click` to listen to the click event is deprecated. Use the event attribute `onclick` instead
+https://svelte.dev/e/event_directive_deprecated
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/VacancyListings.svelte:216:6 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/VacancyListings.svelte:216:6 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/DataCoverage.svelte:55:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/DataCoverage.svelte:55:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/ScoreRingHero.svelte:96:2 Self-closing HTML tags for non-void elements are ambiguous — use `<div ...></div>` rather than `<div ... />`
+https://svelte.dev/e/element_invalid_self_closing_tag
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/BusinessModel.svelte:300:4 A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control
+4:07:30 PM [vite-plugin-svelte] src/lib/location/components/BusinessModel.svelte:318:4 A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control
+4:08:18 PM [vite-plugin-svelte] src/routes/app/onboarding/+page.svelte:2169:6 Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
+https://svelte.dev/e/a11y_consider_explicit_label
+4:08:18 PM [vite-plugin-svelte] src/routes/app/onboarding/+page.svelte:3185:1 Unused CSS selector ".triptych-ring-wrap svg"
+https://svelte.dev/e/css_unused_selector
+4:08:20 PM [vite-plugin-svelte] src/routes/app/onboarding/+page.svelte:2169:6 Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
+https://svelte.dev/e/a11y_consider_explicit_label
+4:08:20 PM [vite-plugin-svelte] src/routes/app/onboarding/+page.svelte:3185:1 Unused CSS selector ".triptych-ring-wrap svg"
+https://svelte.dev/e/css_unused_selector
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/27.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/3.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/31.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/4.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/52.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m4:11:54 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m4:15:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m4:15:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m4:15:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/27.js[22m
+[2m4:15:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/3.js[22m
+[2m4:15:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/31.js[22m
+[2m4:15:19 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/4.js[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/52.js[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m4:15:20 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/3.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/4.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/27.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/31.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/52.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m4:16:44 PM[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m

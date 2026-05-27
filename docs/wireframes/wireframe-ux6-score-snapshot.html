@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE² · UX-6 · Score Snapshot — Meta-line + Tooltip</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf7f2; --surface: #ffffff; --surface-alt: #f5f0e8;
+    --border: #e8e2d8; --border-subtle: #ede8e0;
+    --text: #1a1a1a; --text-2: #5A6578; --text-3: #8A95A8;
+    --green: #1a3a2a; --green-light: #e8f2ec;
+    --amber: #B45309; --amber-light: #fef3c7;
+    --red: #DC2626; --red-light: #fee2e2;
+    --blue: #1d4ed8; --blue-light: #dbeafe;
+    --teal: #0D7C6E; --teal-light: #ccfbf1;
+    --score-green: #059669;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ── DOC CHROME ── */
+  .doc-header { background: var(--green); color: white; padding: 28px 40px; }
+  .doc-header h1 { font-size: 20px; font-weight: 800; }
+  .doc-header p { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .doc-nav { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .doc-nav a { font-size: 11px; background: rgba(255,255,255,0.1); color: white; padding: 4px 12px; border-radius: 20px; text-decoration: none; }
+  .page { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
+  .section { margin-bottom: 72px; }
+  .section-hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
+  .section-num { font-size: 11px; font-weight: 800; background: var(--green); color: white; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .section-title { font-size: 18px; font-weight: 800; }
+  .tag { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .tag-new { background: #dcfce7; color: #166534; }
+  hr.divider { border: none; border-top: 2px solid var(--border); margin: 40px 0; }
+
+  /* ── ANNOTATIONS ── */
+  .wf-note { background: #fef08a; border: 1px solid #fde047; border-radius: 6px; padding: 10px 14px; font-size: 11px; color: #713f12; line-height: 1.5; margin: 10px 0 18px; font-style: italic; }
+  .fix-callout { background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; font-size: 12px; color: #166534; line-height: 1.6; margin-top: 16px; }
+  .fix-callout strong { display: block; font-size: 13px; margin-bottom: 6px; }
+  .state-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-2); margin-bottom: 12px; }
+  .spec-block { background: var(--surface-alt); border-radius: 8px; padding: 14px 18px; font-size: 12px; color: var(--text-2); line-height: 1.8; margin-top: 16px; }
+  .spec-block strong { color: var(--text); }
+
+  /* ════════════════════════════════════════
+     META-LINE COMPONENT
+  ════════════════════════════════════════ */
+  .meta-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-3);
+    cursor: pointer;
+    position: relative;
+    /* Tooltip is on hover/tap of the entire meta-line */
+  }
+  .meta-line:hover { color: var(--text-2); }
+  .meta-sep { color: #d1d5db; }
+  .meta-rescore { font-weight: 700; color: var(--score-green); }
+  .meta-rescore.disabled { color: var(--text-3); }
+  .meta-spinner {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border: 1.5px solid var(--text-3);
+    border-top-color: var(--score-green);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .drift-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  /* Tooltip — on hover/tap of meta-line */
+  .meta-tooltip-wrap { position: relative; display: inline-flex; }
+  .tooltip-bubble {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    background: #1a1a1a;
+    color: #f5f5f5;
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 12px 14px;
+    border-radius: 8px;
+    z-index: 200;
+    pointer-events: none;
+    font-style: normal;
+  }
+  .tooltip-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 100%;
+    border: 5px solid transparent;
+    border-top-color: #1a1a1a;
+  }
+  .meta-tooltip-wrap:hover .tooltip-bubble,
+  .meta-tooltip-wrap.show .tooltip-bubble { display: block; }
+
+  /* ════════════════════════════════════════
+     SURFACE A — DASHBOARD SCORE TILES
+  ════════════════════════════════════════ */
+  .dash-card { background: white; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; max-width: 580px; }
+  .dash-card-inner { padding: 16px 18px; }
+  .dash-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .dash-addr { font-size: 14px; font-weight: 700; color: var(--green); }
+  .dash-concept { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .path-label { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; margin-bottom: 6px; }
+  .strong-path { background: #dcfce7; color: #166534; }
+  .workable { background: var(--blue-light); color: var(--blue); }
+  .score-chip-row { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--text-3); cursor: pointer; }
+  /* Score tiles (old prominent style on dashboard — shown for context) */
+  .score-tiles { display: flex; gap: 16px; }
+  .score-tile { text-align: center; }
+  .score-tile-val { font-size: 22px; font-weight: 900; color: var(--score-green); line-height: 1; }
+  .score-tile-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); margin-top: 2px; }
+  .score-tile-grade { font-size: 10px; color: var(--score-green); }
+  /* Meta-line under each tile */
+  .score-tile-meta { font-size: 11px; margin-top: 6px; }
+  .tile-divider { width: 1px; background: var(--border); }
+  .surv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); margin: 12px 0 10px; }
+  .surv-cell .lbl { font-size: 9px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .surv-cell .val { font-size: 19px; font-weight: 900; color: var(--score-green); line-height: 1.1; }
+  .card-footer { background: var(--surface-alt); border-top: 1px solid var(--border-subtle); padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; }
+  .cf-btn { font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; border: none; }
+  .cf-btn.primary { background: var(--green); color: white; }
+  .cf-btn.ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border); }
+
+  /* ════════════════════════════════════════
+     SURFACE B — LOCATION IQ / FIT IQ HEADER
+  ════════════════════════════════════════ */
+  .page-header-mock { background: white; border: 1.5px solid var(--border); border-radius: 12px; padding: 24px 28px; max-width: 580px; }
+  .pgh-top { display: flex; gap: 24px; align-items: flex-start; }
+  .score-ring-wrap { display: flex; flex-direction: column; align-items: center; }
+  .ring-outer { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .ring-outer.loc { background: conic-gradient(var(--score-green) 0% 81%, #e5e7eb 81% 100%); }
+  .ring-outer.fit { background: conic-gradient(var(--teal) 0% 74%, #e5e7eb 74% 100%); }
+  .ring-inner { width: 74px; height: 74px; border-radius: 50%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-val { font-size: 24px; font-weight: 900; line-height: 1; }
+  .ring-val.loc { color: var(--score-green); }
+  .ring-val.fit { color: var(--teal); }
+  .ring-grade { font-size: 11px; font-weight: 700; }
+  .ring-grade.loc { color: var(--score-green); }
+  .ring-grade.fit { color: var(--teal); }
+  .ring-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-3); margin-top: 8px; }
+  .pgh-detail { flex: 1; }
+  .pgh-addr { font-size: 18px; font-weight: 800; color: var(--text); }
+  .pgh-concept { font-size: 13px; color: var(--text-3); margin-top: 2px; margin-bottom: 12px; }
+  .pgh-badge-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+  .badge.prime { background: #dcfce7; color: #166534; }
+  .badge.strong { background: #dcfce7; color: #166534; }
+
+  /* ════════════════════════════════════════
+     RESCORE INTERACTION STATES
+  ════════════════════════════════════════ */
+  .state-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 8px; }
+  .state-box { background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .state-box-lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .state-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .si-default { background: var(--text-3); }
+  .si-active { background: var(--blue); }
+  .si-success { background: var(--score-green); }
+  .si-drift { background: var(--amber); }
+  /* Mini score ring for state examples */
+  .mini-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; }
+  .mini-ring-outer { width: 60px; height: 60px; border-radius: 50%; background: conic-gradient(var(--score-green) 0% 81%, #e5e7eb 81% 100%); display: flex; align-items: center; justify-content: center; }
+  .mini-ring-inner { width: 46px; height: 46px; border-radius: 50%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .mini-ring-val { font-size: 16px; font-weight: 900; color: var(--score-green); line-height: 1; }
+  .mini-ring-grade { font-size: 9px; font-weight: 700; color: var(--score-green); }
+  .mini-ring-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); margin-top: 6px; }
+
+  /* BC Summary score chip (small context) */
+  .bc-score-chip-row { display: flex; gap: 14px; align-items: flex-end; padding: 12px 14px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; max-width: 520px; }
+  .bc-score-chip { display: flex; flex-direction: column; align-items: center; }
+  .bc-chip-val { font-size: 18px; font-weight: 900; color: var(--score-green); line-height: 1; }
+  .bc-chip-grade { font-size: 10px; font-weight: 700; color: var(--score-green); }
+  .bc-chip-lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-3); margin-top: 4px; }
+  .bc-chip-divider { width: 1px; background: var(--border); align-self: stretch; margin: 0 4px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>RE² · UX-6 · Score Snapshot</h1>
+  <p>Meta-line + Disclaimer Tooltip · All 3 Re-score States · Dashboard / Location IQ / Fit IQ / BC Summary</p>
+  <nav class="doc-nav">
+    <a href="#component">Component Spec</a>
+    <a href="#states">Re-score States</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#lociq">Location IQ</a>
+    <a href="#fitiq">Fit IQ</a>
+    <a href="#bcsummary">BC Summary</a>
+  </nav>
+</div>
+
+<div class="page">
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 1: COMPONENT SPEC
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="component">
+    <div class="section-hdr">
+      <span class="section-num">UX-6 · Spec</span>
+      <span class="section-title">Meta-line Component</span>
+      <span class="tag tag-new">NEW</span>
+    </div>
+
+    <div class="wf-note">The meta-line appears directly under every score display (score ring, score tile, or score chip). Typography: 11px, muted grey (#8A95A8). The entire line is the tooltip trigger — hover on desktop, tap on mobile. No separate ⓘ icon needed; the meta-line itself is the affordance.</div>
+
+    <!-- Live interactive demo -->
+    <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 24px 28px; margin-bottom: 24px; display: inline-flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="font-size: 32px; font-weight: 900; color: var(--score-green); line-height: 1;">81</div>
+      <div style="font-size: 12px; font-weight: 700; color: var(--score-green);">B+</div>
+      <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-3); margin-top: 2px;">Location IQ</div>
+      <!-- Meta-line — hover to see tooltip -->
+      <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="margin-top: 6px;">
+        <div class="meta-line">
+          <span>Scored 2 days ago</span>
+          <span class="meta-sep">·</span>
+          <span class="meta-rescore">Re-score ↻</span>
+        </div>
+        <div class="tooltip-bubble">
+          This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.
+        </div>
+      </div>
+      <div style="font-size: 10px; color: var(--text-3); font-style: italic; margin-top: 8px;">↑ Hover (desktop) or tap (mobile) meta-line to show tooltip</div>
+    </div>
+
+    <div class="spec-block">
+      <strong>Component rules</strong>
+      <div style="margin-top: 8px;">
+        <div style="margin-bottom: 6px;"><strong>Relative date format:</strong> "today" · "2 days ago" · "last week" · "March 28" (absolute date if >14 days old).</div>
+        <div style="margin-bottom: 6px;"><strong>Tooltip trigger:</strong> hover/tap on the entire meta-line — not a separate icon. The line itself is the affordance. Tooltip appears above (never below — above score area is clipped on mobile).</div>
+        <div style="margin-bottom: 6px;"><strong>Tooltip copy:</strong> Locked verbatim per BR-5 §5.5 — UX owns visual treatment only, Brain owns copy.</div>
+        <div style="margin-bottom: 6px;"><strong>Placement:</strong> Directly under the score number/grade. No gap above the path label or verdict row — meta-line is the last element under the score display.</div>
+        <div><strong>Surfaces:</strong> Dashboard score tiles (each tile gets its own meta-line under Scored date) · Location IQ page score ring · Fit IQ page score ring · Business Case Summary tab score chips.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 2: RE-SCORE INTERACTION STATES
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="states">
+    <div class="section-hdr">
+      <span class="section-num">UX-6.3</span>
+      <span class="section-title">Re-score — 4 Interaction States</span>
+    </div>
+
+    <div class="state-grid">
+
+      <!-- State 1: Default -->
+      <div class="state-box">
+        <div class="state-box-lbl"><span class="state-indicator si-default"></span> State 1 — Default</div>
+        <div class="mini-ring-wrap">
+          <div class="mini-ring-outer"><div class="mini-ring-inner"><div class="mini-ring-val">81</div><div class="mini-ring-grade">B+</div></div></div>
+          <div class="mini-ring-lbl">Location IQ</div>
+        </div>
+        <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="display:flex;justify-content:center;">
+          <div class="meta-line">
+            <span>Scored 2 days ago</span>
+            <span class="meta-sep">·</span>
+            <span class="meta-rescore">Re-score ↻</span>
+          </div>
+          <div class="tooltip-bubble">
+            This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.
+          </div>
+        </div>
+        <div style="font-size: 10px; color: var(--text-3); font-style: italic; margin-top: 12px; line-height: 1.5;">Default state. Re-score ↻ is a tappable text-button affordance (not a primary CTA). Hover/tap meta-line → tooltip.</div>
+      </div>
+
+      <!-- State 2: Active / Rescoring -->
+      <div class="state-box">
+        <div class="state-box-lbl"><span class="state-indicator si-active"></span> State 2 — Re-scoring in progress</div>
+        <div class="mini-ring-wrap">
+          <div class="mini-ring-outer" style="opacity: 0.5;"><div class="mini-ring-inner"><div class="mini-ring-val">81</div><div class="mini-ring-grade">B+</div></div></div>
+          <div class="mini-ring-lbl">Location IQ</div>
+        </div>
+        <div style="display:flex;justify-content:center;">
+          <div class="meta-line" style="cursor: default; color: var(--text-3);">
+            <span>Scored 2 days ago</span>
+            <span class="meta-sep">·</span>
+            <span class="meta-rescore disabled">Re-scoring… <span class="meta-spinner"></span></span>
+          </div>
+        </div>
+        <div style="font-size: 10px; color: var(--text-3); font-style: italic; margin-top: 12px; line-height: 1.5;">User tapped Re-score. Score ring fades slightly (opacity 0.5). "Re-score ↻" becomes "Re-scoring… [spinner]", link disabled. Tooltip disabled while running.</div>
+      </div>
+
+      <!-- State 3: Success, no drift -->
+      <div class="state-box">
+        <div class="state-box-lbl"><span class="state-indicator si-success"></span> State 3 — Success, score unchanged (≤3pt drift)</div>
+        <div class="mini-ring-wrap">
+          <div class="mini-ring-outer"><div class="mini-ring-inner"><div class="mini-ring-val">82</div><div class="mini-ring-grade">B+</div></div></div>
+          <div class="mini-ring-lbl">Location IQ</div>
+        </div>
+        <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="display:flex;justify-content:center;">
+          <div class="meta-line" style="color: var(--score-green);">
+            <!-- Date flips to "today" or "just now" after successful rescore -->
+            <span>Scored today</span>
+            <span class="meta-sep" style="color: var(--score-green);">·</span>
+            <span class="meta-rescore">Re-score ↻</span>
+          </div>
+          <div class="tooltip-bubble">This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.</div>
+        </div>
+        <div style="font-size: 10px; color: var(--text-3); font-style: italic; margin-top: 12px; line-height: 1.5;">Score updated. Meta-line briefly flashes green ("Scored today"), then fades to muted grey. Score ring updates with new number. No drift dot (delta ≤3 pts — silent update).</div>
+      </div>
+
+      <!-- State 4: Success with drift -->
+      <div class="state-box">
+        <div class="state-box-lbl"><span class="state-indicator si-drift"></span> State 4 — Success, score drifted (>3pt)</div>
+        <div class="mini-ring-wrap">
+          <div class="mini-ring-outer" style="background: conic-gradient(var(--score-green) 0% 85%, #e5e7eb 85% 100%);"><div class="mini-ring-inner"><div class="mini-ring-val" style="color:var(--score-green);">85</div><div class="mini-ring-grade" style="color:var(--score-green);">A-</div></div></div>
+          <div class="mini-ring-lbl">Location IQ</div>
+        </div>
+        <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="display:flex;justify-content:center;">
+          <div class="meta-line">
+            <span>Scored today</span>
+            <!-- Amber drift dot: visible for 24h after >3pt drift -->
+            <span class="drift-dot" title="Score shifted +4 since last run"></span>
+            <span class="meta-sep">·</span>
+            <span class="meta-rescore">Re-score ↻</span>
+          </div>
+          <div class="tooltip-bubble">This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.</div>
+        </div>
+        <!-- Inline drift note (from BR-5 §5.4) -->
+        <div style="margin-top: 8px; font-size: 11px; color: var(--amber); line-height: 1.5; background: var(--amber-light); padding: 6px 10px; border-radius: 6px;">Score shifted +4 since last run. What changed: foot traffic (new weekend data) and competition density.</div>
+        <div style="font-size: 10px; color: var(--text-3); font-style: italic; margin-top: 10px; line-height: 1.5;">Amber dot ● sits in meta-line for 24h. Inline drift note (BR-5 §5.4) appears below score surface. Note disappears after 24h.</div>
+      </div>
+
+    </div><!-- end state-grid -->
+
+    <div class="fix-callout">
+      <strong>Re-score interaction decisions</strong>
+      State 1 (default): meta-line is low-key; Re-score ↻ is a text affordance not a button — it doesn't compete with primary CTAs. State 2 (active): ring dims to signal "not current" while waiting. State 3 (success, silent): date flips to "today", brief green flash, then normalizes. State 4 (drift): amber dot in meta-line for 24h, inline note explains what moved (BR-5 §5.4 copy, Brain-owned). Dot disappears after 24h — no persistent alarm.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 3: DASHBOARD SURFACE
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="dashboard">
+    <div class="section-hdr">
+      <span class="section-num">Surface A</span>
+      <span class="section-title">Dashboard — Score Tiles with Meta-line</span>
+    </div>
+
+    <div class="wf-note">Dashboard shows score tiles in the compact chip (FIX-1.1 approved). Meta-line attaches to the footer area, under the compact "Loc 81 · Fit 74 · Vision 78" chip — it's the source of truth for when the snapshot was taken. One meta-line per card (scores share a snapshot moment). Re-score from the footer updates all three scores simultaneously.</div>
+
+    <div class="dash-card">
+      <div class="dash-card-inner">
+        <div class="dash-card-top">
+          <div>
+            <div class="path-label strong-path">⬤ Strong Path</div>
+            <div class="dash-addr">89 Graham Ave, Williamsburg</div>
+            <div class="dash-concept">Specialty Coffee · Brooklyn</div>
+          </div>
+          <!-- Compact score chip (FIX-1.1 approved) -->
+          <div style="font-size: 11px; color: var(--text-3); cursor: pointer; display: flex; align-items: center; gap: 3px;">
+            Loc 81 · Fit 74 · Vision 78 <span style="font-size: 8px;">▾</span>
+          </div>
+        </div>
+        <!-- Survival grid -->
+        <div class="surv-grid">
+          <div class="surv-cell"><div class="lbl">Cash to open</div><div class="val">$122K</div></div>
+          <div class="surv-cell"><div class="lbl">Runway</div><div class="val">11 mo</div></div>
+          <div class="surv-cell"><div class="lbl">Break-even</div><div class="val">Month 19</div></div>
+          <div class="surv-cell"><div class="lbl">Cushion</div><div class="val">$18K</div></div>
+        </div>
+      </div>
+      <!-- FOOTER — meta-line replaces static date -->
+      <div class="card-footer">
+        <div style="display: flex; gap: 8px;">
+          <button class="cf-btn primary">View full report</button>
+          <button class="cf-btn ghost">Build Business Case</button>
+        </div>
+        <!-- Meta-line in footer: hover/tap = tooltip -->
+        <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')">
+          <div class="meta-line" style="font-size: 10px;">
+            <span>Scored 2 days ago</span>
+            <span class="meta-sep">·</span>
+            <span class="meta-rescore" style="font-size: 10px;">Re-score ↻</span>
+          </div>
+          <div class="tooltip-bubble" style="left: auto; right: 0; transform: none;">
+            This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spec-block" style="max-width: 580px;">
+      <strong>Dashboard placement rule</strong>
+      Single meta-line per card in the footer — all three scores share one snapshot timestamp. Tooltip triggers on the footer meta-line. Re-score ↻ re-runs scorer for this address and updates all three scores + the timestamp simultaneously.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 4: LOCATION IQ SURFACE
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="lociq">
+    <div class="section-hdr">
+      <span class="section-num">Surface B</span>
+      <span class="section-title">Location IQ Page — Score Ring Header</span>
+    </div>
+
+    <div class="page-header-mock">
+      <div class="pgh-top">
+        <!-- Score ring with meta-line underneath -->
+        <div class="score-ring-wrap">
+          <div class="ring-outer loc">
+            <div class="ring-inner">
+              <div class="ring-val loc">81</div>
+              <div class="ring-grade loc">B+</div>
+            </div>
+          </div>
+          <div class="ring-label">Location IQ</div>
+          <!-- Meta-line directly under ring label -->
+          <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="margin-top: 6px;">
+            <div class="meta-line">
+              <span>Scored 2 days ago</span>
+              <span class="meta-sep">·</span>
+              <span class="meta-rescore">Re-score ↻</span>
+            </div>
+            <div class="tooltip-bubble" style="left: 50%; transform: translateX(-50%);">
+              This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.
+            </div>
+          </div>
+        </div>
+        <!-- Page detail -->
+        <div class="pgh-detail">
+          <div class="pgh-addr">89 Graham Ave</div>
+          <div class="pgh-concept">Williamsburg, Brooklyn · Specialty Coffee</div>
+          <div class="pgh-badge-row">
+            <span class="badge prime">Prime Block</span>
+            <span class="badge strong">Strong Path</span>
+          </div>
+          <div style="margin-top: 12px; font-size: 12px; color: var(--text-3); line-height: 1.6;">Top 8% of Brooklyn block groups · Top 12% of NYC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spec-block" style="max-width: 580px;">
+      <strong>Location IQ placement rule</strong>
+      Meta-line sits directly under the ring label ("Location IQ"), centered with the ring. Tooltip opens upward (never downward — ring content below). Re-score ↻ re-runs full scorer for this address and refreshes page.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 5: FIT IQ SURFACE
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="fitiq">
+    <div class="section-hdr">
+      <span class="section-num">Surface C</span>
+      <span class="section-title">Fit IQ Page — Score Ring Header</span>
+    </div>
+
+    <div class="wf-note">Fit IQ gets identical meta-line treatment. Shares the same snapshot timestamp as Location IQ (same scoring run). Re-score from either page re-runs both scores — this is a UX contract note for Brain to honour in the re-score handler.</div>
+
+    <div class="page-header-mock">
+      <div class="pgh-top">
+        <!-- Fit IQ ring — teal colour -->
+        <div class="score-ring-wrap">
+          <div class="ring-outer fit">
+            <div class="ring-inner">
+              <div class="ring-val fit">74</div>
+              <div class="ring-grade fit">C+</div>
+            </div>
+          </div>
+          <div class="ring-label">Fit IQ</div>
+          <!-- Meta-line: same pattern as Location IQ -->
+          <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="margin-top: 6px;">
+            <div class="meta-line">
+              <span>Scored 2 days ago</span>
+              <span class="meta-sep">·</span>
+              <span class="meta-rescore">Re-score ↻</span>
+            </div>
+            <div class="tooltip-bubble" style="left: 50%; transform: translateX(-50%);">
+              This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.
+            </div>
+          </div>
+        </div>
+        <div class="pgh-detail">
+          <div class="pgh-addr">89 Graham Ave</div>
+          <div class="pgh-concept">Williamsburg, Brooklyn · Specialty Coffee</div>
+          <div class="pgh-badge-row">
+            <span class="badge" style="background: var(--teal-light); color: var(--teal);">Concept Fit: Moderate</span>
+          </div>
+          <div style="margin-top: 12px; font-size: 12px; color: var(--text-3); line-height: 1.6;">Foot traffic aligns. Rent at 14% is above the 10% threshold — review before committing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spec-block" style="max-width: 580px;">
+      <strong>Fit IQ placement rule</strong>
+      Identical treatment to Location IQ — meta-line under ring label, same relative date, same tooltip copy. Re-score ↻ on Fit IQ re-runs the same full scorer as Location IQ. Brain handles the re-score endpoint; UX only contracts that both scores update and both meta-lines flip to "Scored today" on success.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════
+       SECTION 6: BUSINESS CASE SUMMARY TAB
+  ══════════════════════════════════════════════ -->
+  <section class="section" id="bcsummary">
+    <div class="section-hdr">
+      <span class="section-num">Surface D</span>
+      <span class="section-title">Business Case Summary Tab — Score Chips</span>
+    </div>
+
+    <div class="wf-note">BC Summary tab shows compact score chips (Loc IQ, Fit IQ, Vision IQ — smaller than the page headers). Meta-line attaches below the chip row. One shared meta-line for all three chips (same scoring run).</div>
+
+    <!-- BC Summary score chip row -->
+    <div style="max-width: 520px;">
+      <div class="bc-score-chip-row">
+        <div class="bc-score-chip">
+          <div class="bc-chip-val">81</div>
+          <div class="bc-chip-grade">B+</div>
+          <div class="bc-chip-lbl">Loc IQ</div>
+        </div>
+        <div class="bc-chip-divider"></div>
+        <div class="bc-score-chip">
+          <div class="bc-chip-val" style="color: var(--teal);">74</div>
+          <div class="bc-chip-grade" style="color: var(--teal);">C+</div>
+          <div class="bc-chip-lbl">Fit IQ</div>
+        </div>
+        <div class="bc-chip-divider"></div>
+        <div class="bc-score-chip">
+          <div class="bc-chip-val" style="color: var(--teal);">78</div>
+          <div class="bc-chip-grade" style="color: var(--teal);">C+</div>
+          <div class="bc-chip-lbl">Vision IQ</div>
+        </div>
+      </div>
+      <!-- Meta-line below chip row -->
+      <div class="meta-tooltip-wrap" onclick="this.classList.toggle('show')" style="margin-bottom: 16px;">
+        <div class="meta-line">
+          <span>Scored 2 days ago</span>
+          <span class="meta-sep">·</span>
+          <span class="meta-rescore">Re-score ↻</span>
+        </div>
+        <div class="tooltip-bubble">
+          This score is a snapshot from your last scoring run. It does not update automatically. Refining your concept details, completing Vision IQ, or periodic updates to neighborhood data can produce variations on re-scoring. Such variations are typically non-material and rarely change the verdict band. Use Re-score to refresh.
+        </div>
+      </div>
+    </div>
+
+    <div class="spec-block" style="max-width: 520px;">
+      <strong>BC Summary placement rule</strong>
+      One meta-line below the chip row (not one per chip). Re-score ↻ navigates user to Location IQ page to run the rescore — it does not trigger a silent background re-score from the Summary tab. This avoids a UI state where numbers change mid-review.
+    </div>
+
+    <div class="fix-callout">
+      <strong>UX-6 delivery summary</strong>
+      Four surfaces covered: Dashboard card footer, Location IQ header, Fit IQ header, BC Summary chip row. Three re-score states + drift dot state specified. Tooltip copy verbatim from BR-5 §5.5 — locked, do not alter. Relative date format: "today / N days ago / last week / [Month Day]" (absolute after 14 days). All interactive demos clickable in this wireframe — tooltip opens on click/hover.
+    </div>
+  </section>
+
+</div>
+
+<script>
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.meta-tooltip-wrap')) {
+      document.querySelectorAll('.meta-tooltip-wrap').forEach(t => t.classList.remove('show'));
+    }
+  });
+</script>
+</body>
+</html>

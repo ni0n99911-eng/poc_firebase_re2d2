@@ -1,0 +1,1383 @@
+{
+  "lat": 40.790594,
+  "lng": -73.9689247,
+  "businessType": "specialty_coffee",
+  "niq": 73,
+  "siq": 88,
+  "tiq": 98,
+  "liq": 70,
+  "locationIQ": 98,
+  "confidence": {
+    "level": "GOOD",
+    "percentage": 76,
+    "band": {
+      "low": 6,
+      "high": 6
+    },
+    "sourceCoverage": [
+      {
+        "source": "Census Demographics",
+        "available": false,
+        "critical": false,
+        "weight": 10,
+        "freshness": "missing",
+        "impact": "Population and demographic data unavailable \u2014 neighborhood demand estimates less reliable"
+      },
+      {
+        "source": "Census Housing",
+        "available": false,
+        "critical": false,
+        "weight": 6,
+        "freshness": "missing",
+        "impact": "Housing and rent data missing \u2014 lease affordability signals degraded"
+      },
+      {
+        "source": "Walk Score",
+        "available": true,
+        "critical": true,
+        "weight": 10.5,
+        "freshness": "live"
+      },
+      {
+        "source": "Health Inspections",
+        "available": true,
+        "critical": false,
+        "weight": 7,
+        "freshness": "live"
+      },
+      {
+        "source": "Crime Data",
+        "available": true,
+        "critical": false,
+        "weight": 6,
+        "freshness": "live"
+      },
+      {
+        "source": "Google Places",
+        "available": true,
+        "critical": false,
+        "weight": 5,
+        "freshness": "live"
+      },
+      {
+        "source": "Market Density",
+        "available": true,
+        "critical": false,
+        "weight": 7,
+        "freshness": "live"
+      },
+      {
+        "source": "Competitor Scan",
+        "available": true,
+        "critical": true,
+        "weight": 13.5,
+        "freshness": "live"
+      },
+      {
+        "source": "Landmarks",
+        "available": true,
+        "critical": false,
+        "weight": 3,
+        "freshness": "live"
+      },
+      {
+        "source": "MTA Ridership",
+        "available": false,
+        "critical": true,
+        "weight": 13.5,
+        "freshness": "missing",
+        "impact": "Subway ridership data missing \u2014 transit demand estimates less precise"
+      },
+      {
+        "source": "Business Licenses",
+        "available": true,
+        "critical": true,
+        "weight": 13.5,
+        "freshness": "live"
+      },
+      {
+        "source": "Building Permits",
+        "available": true,
+        "critical": false,
+        "weight": 7,
+        "freshness": "live"
+      },
+      {
+        "source": "311 Complaints",
+        "available": true,
+        "critical": false,
+        "weight": 6,
+        "freshness": "live"
+      },
+      {
+        "source": "Pedestrian Counts",
+        "available": true,
+        "critical": true,
+        "weight": 13.5,
+        "freshness": "live"
+      },
+      {
+        "source": "PLUTO Tax Lots",
+        "available": true,
+        "critical": true,
+        "weight": 15,
+        "freshness": "live"
+      },
+      {
+        "source": "Sidewalk Caf\u00e9 Permits",
+        "available": true,
+        "critical": true,
+        "weight": 9,
+        "freshness": "live"
+      },
+      {
+        "source": "Liquor Licenses",
+        "available": true,
+        "critical": false,
+        "weight": 5,
+        "freshness": "live"
+      },
+      {
+        "source": "Foursquare Places",
+        "available": false,
+        "critical": false,
+        "weight": 8,
+        "freshness": "missing",
+        "impact": "Foursquare venue data missing \u2014 competitor quality signals degraded"
+      },
+      {
+        "source": "Momentum Trends",
+        "available": true,
+        "critical": false,
+        "weight": 7,
+        "freshness": "live"
+      },
+      {
+        "source": "schools",
+        "available": false,
+        "critical": false,
+        "weight": 4,
+        "freshness": "missing",
+        "impact": "School proximity data missing \u2014 SLA 200-ft rule cannot be verified automatically"
+      }
+    ],
+    "criticalMissing": [
+      "MTA Ridership"
+    ],
+    "recommendation": "Good data coverage (76%). Missing: MTA Ridership. Score is directionally reliable.",
+    "scoreAgreement": {
+      "coefficientOfVariation": 51,
+      "level": "LOW",
+      "explanation": "Sub-scores disagree significantly (CV=51%). Signals contradict each other \u2014 the composite score hides important nuance. Look at individual dimensions."
+    }
+  },
+  "grade": "A+",
+  "breakdown": {
+    "niq": {
+      "population": 50,
+      "lifecycle": 95,
+      "businessEcosystem": 72,
+      "disruption": 17,
+      "transit": 83
+    },
+    "siq": {
+      "walkability": 96,
+      "competitors": 85,
+      "buildingRisk": 28,
+      "landmarks": 50
+    },
+    "tiq": {
+      "cuisineDiversity": 95,
+      "qualityGap": 79,
+      "marketGap": 88
+    }
+  },
+  "signals": [
+    {
+      "layer": "NIQ",
+      "type": "positive",
+      "message": "Healthy business turnover (10% new businesses) \u2014 active market"
+    },
+    {
+      "layer": "NIQ",
+      "type": "positive",
+      "message": "69 liquor licenses (45 bars/restaurants) \u2014 active nightlife corridor"
+    },
+    {
+      "layer": "NIQ",
+      "type": "positive",
+      "message": "High nightlife density (90/100) \u2014 evening foot traffic advantage"
+    },
+    {
+      "layer": "NIQ",
+      "type": "negative",
+      "message": "15 active DOB violations nearby \u2014 building risk elevated"
+    },
+    {
+      "layer": "NIQ",
+      "type": "negative",
+      "message": "182 noise complaints in 3mo \u2014 could impact customer experience"
+    },
+    {
+      "layer": "NIQ",
+      "type": "positive",
+      "message": "High verified foot traffic: 116,290 pedestrians counted at 3 DOT points"
+    },
+    {
+      "layer": "SIQ",
+      "type": "positive",
+      "message": "Walk Score 100 \u2014 highly walkable location"
+    },
+    {
+      "layer": "SIQ",
+      "type": "negative",
+      "message": "High building risk score (65/100) \u2014 inspect thoroughly before signing lease"
+    },
+    {
+      "layer": "SIQ",
+      "type": "negative",
+      "message": "Only 16% commercial zoning \u2014 check use-group restrictions"
+    },
+    {
+      "layer": "SIQ",
+      "type": "positive",
+      "message": "111K sq ft of retail nearby \u2014 established retail corridor"
+    },
+    {
+      "layer": "SIQ",
+      "type": "neutral",
+      "message": "Average building age 126+ years \u2014 charming but check for infrastructure issues"
+    },
+    {
+      "layer": "TIQ",
+      "type": "positive",
+      "message": "28 cuisine types nearby \u2014 diverse food scene attracts adventurous eaters"
+    },
+    {
+      "layer": "TIQ",
+      "type": "positive",
+      "message": "Average restaurant grade below B \u2014 room for a quality-first concept"
+    },
+    {
+      "layer": "TIQ",
+      "type": "neutral",
+      "message": "Average rating 4.3\u2605 \u2014 high quality bar, must match or exceed"
+    },
+    {
+      "layer": "TIQ",
+      "type": "positive",
+      "message": "102 businesses but only 1 direct competitors \u2014 clear market gap"
+    },
+    {
+      "layer": "TIQ",
+      "type": "positive",
+      "message": "Commercial vitality 96/100 \u2014 102 businesses across 8 categories"
+    },
+    {
+      "layer": "SIQ",
+      "type": "positive",
+      "message": "Walk Score 100 (walker's paradise) boosts Location IQ from 98 \u2192 98"
+    },
+    {
+      "layer": "NIQ",
+      "type": "positive",
+      "message": "High commercial density (102 businesses, vitality 96/100) \u2014 likely anchor tenant halo effect (+7 pts)"
+    },
+    {
+      "layer": "TIQ",
+      "type": "positive",
+      "message": "Food underrepresented here (0% vs 21% citywide) \u2014 gap opportunity (+8 pts)"
+    },
+    {
+      "layer": "SIQ",
+      "type": "positive",
+      "message": "Sidewalk cafe corridor (2 active permits on block) \u2014 outdoor dining can add 15-25% revenue (+5 SIQ)"
+    },
+    {
+      "layer": "LIQ",
+      "type": "info",
+      "message": "NYC lease advisory: negotiate a Good Guy Guarantee \u2014 it's market standard and limits personal liability to the lease term. Full personal guarantee without GGG = excessive risk."
+    },
+    {
+      "layer": "LIQ",
+      "type": "info",
+      "message": "Manhattan Commercial Rent Tax (CRT) applies to ground-floor spaces below 96th St with annual rent >$250K (3.9% of excess). Factor into total occupancy cost calculation."
+    },
+    {
+      "layer": "COMPOSITE",
+      "type": "positive",
+      "message": "Strong consensus: 4 of 4 dimensions score well (Neighborhood, Site, Trade Area, Lease) \u2014 high-confidence result"
+    }
+  ],
+  "dataCompleteness": {
+    "available": 15,
+    "total": 19,
+    "missing": [
+      "Census",
+      "Census Housing",
+      "MTA Ridership",
+      "Foursquare"
+    ],
+    "percentage": 79
+  },
+  "sixIndex": {
+    "locationIQ": 64,
+    "grade": "B-",
+    "indices": {
+      "transit": {
+        "score": 95,
+        "weight": 0.08,
+        "label": "Morning Rush Traffic",
+        "description": "Walk-by volume during the 7:30\u201310:00 AM coffee window",
+        "dataSources": 2,
+        "totalSources": 4
+      },
+      "vibrancy": {
+        "score": 16,
+        "weight": 0.03,
+        "label": "Daily Ritual Density",
+        "description": "Concentration of offices, gyms, and commuters that generate repeat daily purchases",
+        "dataSources": 4,
+        "totalSources": 5
+      },
+      "competition": {
+        "score": 80,
+        "weight": 0.08,
+        "label": "Competition Context",
+        "description": "Competitor density and market gap at your price point",
+        "dataSources": 4,
+        "totalSources": 5
+      },
+      "momentum": {
+        "score": 50,
+        "weight": 0.02,
+        "label": "Street-Side Quality",
+        "description": "Sidewalk visibility, pedestrian approachability, and hostility factors",
+        "dataSources": 5,
+        "totalSources": 5
+      },
+      "demographics": {
+        "score": 50,
+        "weight": 0.02,
+        "label": "Demographics Fit",
+        "description": "Area income, education, and spending power calibrated for your ticket price",
+        "dataSources": 0,
+        "totalSources": 2
+      },
+      "safety": {
+        "score": 18,
+        "weight": 0.01,
+        "label": "Safety",
+        "description": "Crime levels, quality of life, and building conditions",
+        "dataSources": 3,
+        "totalSources": 3
+      },
+      "neighborhoodHealth": {
+        "score": 74,
+        "weight": 0.28,
+        "label": "Neighborhood Health",
+        "description": "Average business quality in the area (ratings, reviews, inspections)",
+        "dataSources": 1,
+        "totalSources": 1
+      },
+      "survivalRate": {
+        "score": 79,
+        "weight": 0.48,
+        "label": "Business Success Rate",
+        "description": "Percentage of businesses thriving in this block group",
+        "dataSources": 1,
+        "totalSources": 1
+      }
+    },
+    "conceptType": "specialty_coffee",
+    "conceptLabel": "Specialty Coffee",
+    "archetype": "routine_interceptor",
+    "signals": [
+      {
+        "index": "safety",
+        "type": "negative",
+        "message": "Safety score 21/100 \u2014 elevated crime, 15 violent incidents nearby"
+      },
+      {
+        "index": "safety",
+        "type": "negative",
+        "message": "182 noise complaints in 3mo \u2014 could impact customer experience"
+      },
+      {
+        "index": "safety",
+        "type": "negative",
+        "message": "15 active building violations \u2014 inspect before signing lease"
+      },
+      {
+        "index": "neighborhoodHealth",
+        "type": "positive",
+        "message": "Strong neighborhood business health (74/100)"
+      },
+      {
+        "index": "survivalRate",
+        "type": "positive",
+        "message": "High business success rate in area (79%)"
+      },
+      {
+        "index": "vibrancy",
+        "type": "negative",
+        "message": "Thin daily ritual anchors \u2014 few repeat-visit generators nearby"
+      }
+    ],
+    "sourcesPerIndex": {
+      "transit": [
+        "mtaRidership",
+        "pedestrian",
+        "walkScore",
+        "foursquare"
+      ],
+      "demographics": [
+        "census",
+        "censusHousing"
+      ],
+      "competition": [
+        "competitors",
+        "places",
+        "marketDensity",
+        "inspections",
+        "foursquare"
+      ],
+      "vibrancy": [
+        "dcaLicenses",
+        "sidewalkCafes",
+        "liquorLicenses",
+        "marketDensity",
+        "foursquare"
+      ],
+      "safety": [
+        "crime",
+        "complaints311",
+        "dob"
+      ],
+      "momentum": [
+        "dob",
+        "pluto",
+        "dcaLicenses",
+        "lpc",
+        "momentum"
+      ],
+      "neighborhoodHealth": [
+        "googleRatings",
+        "googleReviews",
+        "dohMHGrades"
+      ],
+      "survivalRate": [
+        "businessTiers"
+      ]
+    },
+    "coffeeDimensions": {
+      "morningFootTraffic": 95,
+      "dailyRitualDensity": 16,
+      "competitionContext": 80,
+      "streetSide": 50,
+      "demographicsFit": 50,
+      "baseViability": 0,
+      "visionMultiplier": 1,
+      "rawComposite": 64
+    },
+    "coffeeDimRawData": {
+      "morningRaw": 14372,
+      "ritualScore": 16,
+      "estimatedDailyRitualPop": 198,
+      "ritualBreakdown": [
+        {
+          "type": "Gym Members",
+          "count": 3,
+          "dailyPop": 198
+        }
+      ],
+      "tierCompetitorCount": 7,
+      "tierAvgRating": 4.4
+    }
+  },
+  "threeScores": {
+    "locationIQ": {
+      "score": 64,
+      "grade": "B-",
+      "conceptType": "specialty_coffee",
+      "conceptLabel": "Specialty Coffee"
+    },
+    "visionIQ": {
+      "score": 63,
+      "available": true
+    },
+    "fitIQ": {
+      "score": 42,
+      "available": true,
+      "components": {
+        "fitScore": 42,
+        "vibrancy": 40,
+        "competition": 60,
+        "conceptType": "specialty_coffee",
+        "linearScore": 37,
+        "marketProof": 36,
+        "boroughBonus": 14.133333333333335,
+        "demographics": 32,
+        "accessibility": 58,
+        "formulaVersion": "coffee-v2.0",
+        "priceIncomeFit": 85,
+        "coffeeDimensions": {
+          "streetSide": 50,
+          "baseViability": 54,
+          "demographicsFit": 32,
+          "competitionContext": 60,
+          "dailyRitualDensity": 13,
+          "morningFootTraffic": 75
+        },
+        "coffeeLocationIQ": 48
+      }
+    }
+  },
+  "verdict": "Viable",
+  "gradeCapped": "D",
+  "gradeCapReason": "Safety score 18 is below our trusted floor (30)",
+  "killFactors": [
+    {
+      "name": "vibrancy",
+      "reason": "Vibrancy scored 16 \u2014 below kill threshold (40). This concept likely can't survive here without a major differentiator.",
+      "threshold": 40,
+      "actual": 16
+    },
+    {
+      "name": "safety",
+      "reason": "Safety scored 18 \u2014 below kill threshold (40). This concept likely can't survive here without a major differentiator.",
+      "threshold": 40,
+      "actual": 18
+    }
+  ],
+  "blockLabel": "Mixed Block",
+  "conceptPulse": {
+    "score": 16,
+    "tier": "Sleepy",
+    "model": "walk-in",
+    "conceptRadiusM": 250,
+    "narrative": "Concept Pulse \u2014 Sleepy (within 250m). Your customers walk here on impulse. Inside your ring this block is calm \u2014 you'll need to pull people in rather than catch them passing by.",
+    "verdict": "Sleepy for a specialty coffee."
+  },
+  "scoreConfidence": "preliminary",
+  "scoreConfidenceReason": "Only 0 of 12 Vision inputs filled \u2014 score may shift as you add more.",
+  "visionCompleteness": 0,
+  "totalVisionInputs": 12,
+  "dataFreshness": {
+    "lastScoredAt": "2026-05-16T20:45:30.355Z",
+    "ageHours": 0,
+    "ageLabel": "Scored 1 min ago",
+    "sources": [
+      {
+        "key": "census",
+        "label": "US Census \u2014 ACS demographics",
+        "category": "demographics",
+        "status": "missing",
+        "fetchedAt": null,
+        "ageHours": null,
+        "updateCadence": "Updated yearly"
+      },
+      {
+        "key": "censusHousing",
+        "label": "US Census \u2014 housing",
+        "category": "demographics",
+        "status": "missing",
+        "fetchedAt": null,
+        "ageHours": null,
+        "updateCadence": "Updated yearly"
+      },
+      {
+        "key": "walkScore",
+        "label": "Walk Score",
+        "category": "transit",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated monthly"
+      },
+      {
+        "key": "mtaRidership",
+        "label": "MTA ridership",
+        "category": "transit",
+        "status": "missing",
+        "fetchedAt": null,
+        "ageHours": null,
+        "updateCadence": "Updated monthly"
+      },
+      {
+        "key": "places",
+        "label": "Google Places",
+        "category": "businesses",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Real-time"
+      },
+      {
+        "key": "foursquare",
+        "label": "Foursquare venues",
+        "category": "businesses",
+        "status": "missing",
+        "fetchedAt": null,
+        "ageHours": null,
+        "updateCadence": "Updated weekly"
+      },
+      {
+        "key": "yelp",
+        "label": "Yelp businesses",
+        "category": "businesses",
+        "status": "missing",
+        "fetchedAt": null,
+        "ageHours": null,
+        "updateCadence": "Updated weekly"
+      },
+      {
+        "key": "competitors",
+        "label": "OpenStreetMap competitors",
+        "category": "businesses",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated weekly"
+      },
+      {
+        "key": "dcaLicenses",
+        "label": "NYC DCA business licenses",
+        "category": "businesses",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated monthly"
+      },
+      {
+        "key": "liquorLicenses",
+        "label": "NY State liquor licenses",
+        "category": "businesses",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated monthly"
+      },
+      {
+        "key": "sidewalkCafes",
+        "label": "NYC sidewalk caf\u00e9 permits",
+        "category": "businesses",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated monthly"
+      },
+      {
+        "key": "inspections",
+        "label": "NYC health inspections",
+        "category": "businesses",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated weekly"
+      },
+      {
+        "key": "crime",
+        "label": "NYPD crime statistics",
+        "category": "safety",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated weekly"
+      },
+      {
+        "key": "complaints311",
+        "label": "NYC 311 complaints",
+        "category": "safety",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Real-time"
+      },
+      {
+        "key": "dob",
+        "label": "NYC DOB permits",
+        "category": "infrastructure",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated daily"
+      },
+      {
+        "key": "pluto",
+        "label": "NYC PLUTO property data",
+        "category": "infrastructure",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated quarterly"
+      },
+      {
+        "key": "lpc",
+        "label": "Landmarks Preservation",
+        "category": "infrastructure",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated as needed"
+      },
+      {
+        "key": "pedestrian",
+        "label": "NYC pedestrian counts",
+        "category": "momentum",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated yearly"
+      },
+      {
+        "key": "momentum",
+        "label": "Neighborhood momentum",
+        "category": "momentum",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated weekly"
+      },
+      {
+        "key": "schools",
+        "label": "NYC school locations",
+        "category": "infrastructure",
+        "status": "missing",
+        "fetchedAt": null,
+        "ageHours": null,
+        "updateCadence": "Updated yearly"
+      },
+      {
+        "key": "propertyTax",
+        "label": "NYC DOF property tax",
+        "category": "infrastructure",
+        "status": "ok",
+        "fetchedAt": "2026-05-16T20:45:30.355Z",
+        "ageHours": 0,
+        "updateCadence": "Updated quarterly"
+      }
+    ],
+    "summary": {
+      "ok": 15,
+      "error": 0,
+      "missing": 6,
+      "total": 21
+    }
+  },
+  "lenses": [
+    {
+      "dimension": "competition",
+      "label": "Competitors",
+      "uxLabel": "Competitors",
+      "score": 80,
+      "tier": "Strong",
+      "weight": 0.08,
+      "description": "Competitor density and market gap at your price point",
+      "verdictLine": "Competitors is 80/100 \u2014 strong for a specialty coffee on this block.",
+      "topSignals": [],
+      "mapHighlights": [
+        "competitor",
+        "similar_business",
+        "co_tenant"
+      ],
+      "copilotPrompt": "Who are the 3 biggest competitors here and how do I differentiate?",
+      "dataSources": {
+        "available": 4,
+        "total": 5
+      }
+    },
+    {
+      "dimension": "transit",
+      "label": "Transit",
+      "uxLabel": "Transit & Access",
+      "score": 95,
+      "tier": "Strong",
+      "weight": 0.08,
+      "description": "Walk-by volume during the 7:30\u201310:00 AM coffee window",
+      "verdictLine": "Transit is 95/100 \u2014 strong for a specialty coffee on this block.",
+      "topSignals": [],
+      "mapHighlights": [
+        "subway",
+        "bus_stop",
+        "bike_share",
+        "walk_node"
+      ],
+      "copilotPrompt": "How do customers actually get to this location?",
+      "dataSources": {
+        "available": 2,
+        "total": 4
+      }
+    },
+    {
+      "dimension": "safety",
+      "label": "Safety",
+      "uxLabel": "Safety",
+      "score": 18,
+      "tier": "Concerning",
+      "weight": 0.01,
+      "description": "Crime levels, quality of life, and building conditions",
+      "verdictLine": "Safety is 18/100 \u2014 concerning. This is a material risk for a specialty coffee.",
+      "topSignals": [
+        {
+          "index": "safety",
+          "type": "negative",
+          "message": "Safety score 21/100 \u2014 elevated crime, 15 violent incidents nearby"
+        }
+      ],
+      "mapHighlights": [
+        "crime_incident",
+        "311_complaint",
+        "police_station"
+      ],
+      "copilotPrompt": "What are the top safety concerns for this block and how do I mitigate them?",
+      "dataSources": {
+        "available": 3,
+        "total": 3
+      }
+    },
+    {
+      "dimension": "demographics",
+      "label": "Demographics",
+      "uxLabel": "Who lives here",
+      "score": 50,
+      "tier": "Average",
+      "weight": 0.02,
+      "description": "Area income, education, and spending power calibrated for your ticket price",
+      "verdictLine": "Demographics is 50/100 \u2014 average. Neither a lever nor a blocker.",
+      "topSignals": [],
+      "mapHighlights": [
+        "census_block",
+        "residential",
+        "daytime_population"
+      ],
+      "copilotPrompt": "Who is the 1-mile population and do they match my target customer?",
+      "dataSources": {
+        "available": 0,
+        "total": 2
+      }
+    },
+    {
+      "dimension": "vibrancy",
+      "label": "Concept Pulse",
+      "uxLabel": "Concept Pulse",
+      "score": 16,
+      "tier": "Concerning",
+      "weight": 0.03,
+      "description": "Concentration of offices, gyms, and commuters that generate repeat daily purchases",
+      "verdictLine": "Concept Pulse \u2014 Sleepy (within 250m). Your customers walk here on impulse. Inside your ring this block is calm \u2014 you'll need to pull people in rather than catch them passing by.",
+      "topSignals": [
+        {
+          "index": "vibrancy",
+          "type": "negative",
+          "message": "Thin daily ritual anchors \u2014 few repeat-visit generators nearby"
+        }
+      ],
+      "mapHighlights": [
+        "foot_traffic",
+        "sidewalk_cafe",
+        "nearby_retail",
+        "pedestrian_count"
+      ],
+      "copilotPrompt": "How busy is this block for my specific concept?",
+      "dataSources": {
+        "available": 4,
+        "total": 5
+      }
+    },
+    {
+      "dimension": "momentum",
+      "label": "Momentum",
+      "uxLabel": "Momentum",
+      "score": 50,
+      "tier": "Average",
+      "weight": 0.02,
+      "description": "Sidewalk visibility, pedestrian approachability, and hostility factors",
+      "verdictLine": "Momentum is 50/100 \u2014 average. Neither a lever nor a blocker.",
+      "topSignals": [],
+      "mapHighlights": [
+        "new_permits",
+        "new_licenses",
+        "development_projects"
+      ],
+      "copilotPrompt": "Is this neighborhood rising or cooling? What should I watch for?",
+      "dataSources": {
+        "available": 5,
+        "total": 5
+      }
+    }
+  ],
+  "confidenceBySource": {
+    "transit": 50,
+    "safety": 100,
+    "demographics": 0,
+    "competition": 80,
+    "vibrancy": 80,
+    "momentum": 100,
+    "vision": 0
+  },
+  "dataSourceQuality": {
+    "competitors": "verified"
+  },
+  "officialCompetitorsInfo": {
+    "items": [
+      {
+        "name": "Birch Coffee",
+        "lat": 40.793337,
+        "lng": -73.967587,
+        "dist": 325.1329269429253,
+        "type": "Competitor"
+      },
+      {
+        "name": "PlantShed",
+        "lat": 40.7935518,
+        "lng": -73.970475,
+        "dist": 353.8406198236479,
+        "type": "Competitor"
+      },
+      {
+        "name": "Dunkin'",
+        "lat": 40.7922978,
+        "lng": -73.9714132,
+        "dist": 282.45447155130665,
+        "type": "Competitor"
+      },
+      {
+        "name": "Picky Barista",
+        "lat": 40.790596,
+        "lng": -73.9688962,
+        "dist": 2.4095837101277433,
+        "type": "Competitor"
+      },
+      {
+        "name": "Patis Bakery",
+        "lat": 40.7920963,
+        "lng": -73.972034,
+        "dist": 310.51808012661286,
+        "type": "Competitor"
+      },
+      {
+        "name": "Panineria - Upper West Side",
+        "lat": 40.7902053,
+        "lng": -73.9734072,
+        "dist": 379.8316858371195,
+        "type": "Competitor"
+      },
+      {
+        "name": "Plum Vietnamese Restaurant",
+        "lat": 40.7930585,
+        "lng": -73.972244,
+        "dist": 391.3831550778221,
+        "type": "Competitor"
+      },
+      {
+        "name": "ARTISAN CAFE",
+        "lat": 40.7899761,
+        "lng": -73.9735632,
+        "dist": 396.49666832904353,
+        "type": "Competitor"
+      }
+    ],
+    "count": 8,
+    "saturationStatus": "Optimal"
+  },
+  "isPartialSeed": false,
+  "reconciled": {
+    "totalEntities": 11,
+    "poiCount": 10,
+    "transitNodes": 0,
+    "demandGenerators": 0,
+    "conflictsResolved": 1,
+    "avgConfidence": 0.73
+  },
+  "extrapolations": [
+    {
+      "extrapolationType": "morning_viability",
+      "category": "time_viability",
+      "title": "Morning viability (7\u201311 AM)",
+      "value": 25,
+      "unit": "score",
+      "interpretation": "Weak morning traffic. Few foot traffic drivers.",
+      "sentiment": "caution",
+      "confidence": 0.5,
+      "confidenceLabel": "estimated",
+      "method": "rule_based",
+      "derivationChain": {
+        "inputs": [
+          {
+            "source": "nyc-pedestrian",
+            "field": "total_pedestrians",
+            "value": 116290,
+            "cacheKey": "pedestrian:40.7906,-73.9689"
+          }
+        ],
+        "logic": "Morning viability score based on transit ridership (peak hours), nearby offices, gyms, and pedestrian counts. Factors: .",
+        "assumptions": [
+          "Morning = 7-11 AM",
+          "Peak transit ratio applied to total ridership",
+          "Office workers generate 60% of morning foot traffic"
+        ]
+      }
+    },
+    {
+      "extrapolationType": "evening_viability",
+      "category": "time_viability",
+      "title": "Evening viability (6\u201311 PM)",
+      "value": 0,
+      "unit": "score",
+      "interpretation": "Weak evening scene. safety score 21/100.",
+      "sentiment": "caution",
+      "confidence": 0.65,
+      "confidenceLabel": "estimated",
+      "method": "rule_based",
+      "derivationChain": {
+        "inputs": [
+          {
+            "source": "nypd-complaints",
+            "field": "crime_score",
+            "value": 21,
+            "cacheKey": "crime:40.7906,-73.9689"
+          }
+        ],
+        "logic": "Evening viability based on nearby restaurants, bars, hotels, safety scores, and transit access.",
+        "assumptions": [
+          "Evening = 6-11 PM",
+          "Crime score inversely affects evening viability",
+          "Subway access critical for after-dark businesses"
+        ]
+      }
+    },
+    {
+      "extrapolationType": "estimated_foot_traffic",
+      "category": "demand_signal",
+      "title": "Estimated daily foot traffic",
+      "value": 93032,
+      "unit": "people/day",
+      "interpretation": "Estimated 93,032 daily passers-by based on 116290 pedestrian survey count.",
+      "sentiment": "great",
+      "confidence": 0.35,
+      "confidenceLabel": "estimated",
+      "method": "statistical_model",
+      "derivationChain": {
+        "inputs": [
+          {
+            "source": "nyc-pedestrian",
+            "field": "total_pedestrians",
+            "value": 116290,
+            "cacheKey": "pedestrian:40.7906,-73.9689"
+          }
+        ],
+        "logic": "Foot traffic estimated from MTA ridership (15% walk-past rate), pedestrian survey data, and nearby office worker count (~150 per office).",
+        "assumptions": [
+          "15% of subway riders walk past nearby storefronts",
+          "~150 workers per office location",
+          "Pedestrian survey data scaled 0.8x (survey captures ~80% of actual)"
+        ]
+      }
+    },
+    {
+      "extrapolationType": "market_saturation",
+      "category": "competitive_position",
+      "title": "Specialty coffee market saturation",
+      "value": 0,
+      "unit": "competitors",
+      "interpretation": "0 direct specialty_coffee competitors within 500m. Market is underserved. 0% chains, avg rating 0/5.",
+      "sentiment": "great",
+      "confidence": 0.73,
+      "confidenceLabel": "high",
+      "method": "cross_reference",
+      "derivationChain": {
+        "inputs": [],
+        "logic": "Counted 0 direct competitors by matching reconciled POIs against business type \"specialty_coffee\". Sources cross-referenced: .",
+        "assumptions": [
+          "500m radius defines the primary competitive zone",
+          "Category matching may miss some indirect competitors"
+        ]
+      }
+    },
+    {
+      "extrapolationType": "crime_risk",
+      "category": "risk_assessment",
+      "title": "Crime risk assessment",
+      "value": 79,
+      "unit": "risk_score",
+      "interpretation": "High crime area \u2014 significant risk for customer safety perception. 114 incidents in area (15 violent, 66 property).",
+      "sentiment": "warning",
+      "confidence": 0.8,
+      "confidenceLabel": "high",
+      "method": "rule_based",
+      "derivationChain": {
+        "inputs": [
+          {
+            "source": "nypd-complaints",
+            "field": "crime_summary",
+            "value": {
+              "score": 21,
+              "total": 114,
+              "violent": 15
+            },
+            "cacheKey": "crime:40.7906,-73.9689"
+          }
+        ],
+        "logic": "Crime score 21/100 from NYPD CompStat data. Higher score = safer area.",
+        "assumptions": [
+          "Crime data may lag 30-90 days",
+          "Score is relative to NYC-wide distribution"
+        ]
+      }
+    },
+    {
+      "extrapolationType": "building_violations",
+      "category": "risk_assessment",
+      "title": "Building violations risk",
+      "value": 200,
+      "unit": "violations",
+      "interpretation": "200 DOB violation(s) on nearby buildings. May indicate aging infrastructure or code enforcement activity.",
+      "sentiment": "warning",
+      "confidence": 0.85,
+      "confidenceLabel": "high",
+      "method": "rule_based",
+      "derivationChain": {
+        "inputs": [
+          {
+            "source": "dob-violations",
+            "field": "violation_count",
+            "value": 200,
+            "cacheKey": "dob:40.7906,-73.9689"
+          }
+        ],
+        "logic": "DOB violations within 300m radius of target location."
+      }
+    }
+  ],
+  "narratives": {
+    "insights": [
+      {
+        "insightType": "verdict",
+        "title": "Specialty coffee Location Assessment",
+        "narrative": "High foot traffic area (~93,032/day). 0 direct specialty_coffee competitors within 500m.",
+        "sentiment": "neutral",
+        "confidence": 0.65,
+        "confidenceLabel": "moderate",
+        "disclosure": "Verdict based on 11 reconciled entities from 16 data sources and 6 extrapolations.",
+        "derivationChain": {
+          "inputs": [
+            {
+              "source": "nyc-pedestrian",
+              "field": "total_pedestrians",
+              "value": 116290,
+              "cacheKey": "pedestrian:40.7906,-73.9689"
+            }
+          ],
+          "logic": "Location verdict synthesized from foot traffic estimates, force multiplier analysis, competitive position, and income alignment."
+        },
+        "extrapolationIds": [
+          "estimated_foot_traffic",
+          "market_saturation"
+        ],
+        "entityIds": [],
+        "generatedBy": "template"
+      },
+      {
+        "insightType": "risk",
+        "title": "Key Risk Factor",
+        "narrative": "High crime area \u2014 significant risk for customer safety perception. 114 incidents in area (15 violent, 66 property).",
+        "sentiment": "warning",
+        "confidence": 0.8,
+        "confidenceLabel": "high",
+        "disclosure": "Risk assessment from nypd-complaints.",
+        "derivationChain": {
+          "inputs": [
+            {
+              "source": "nypd-complaints",
+              "field": "crime_summary",
+              "value": {
+                "score": 21,
+                "total": 114,
+                "violent": 15
+              },
+              "cacheKey": "crime:40.7906,-73.9689"
+            }
+          ],
+          "logic": "Crime score 21/100 from NYPD CompStat data. Higher score = safer area.",
+          "assumptions": [
+            "Crime data may lag 30-90 days",
+            "Score is relative to NYC-wide distribution"
+          ]
+        },
+        "extrapolationIds": [
+          "crime_risk"
+        ],
+        "entityIds": [],
+        "generatedBy": "template"
+      },
+      {
+        "insightType": "recommendation",
+        "title": "Operating Hours Strategy",
+        "narrative": "Morning (25) and evening (0) viability are balanced. This location supports all-day operations.",
+        "sentiment": "caution",
+        "confidence": 0.575,
+        "confidenceLabel": "estimated",
+        "disclosure": "Time-of-day analysis extrapolated from transit patterns, nearby business mix, and crime data. These are estimates, not verified traffic counts.",
+        "derivationChain": {
+          "inputs": [
+            {
+              "source": "nyc-pedestrian",
+              "field": "total_pedestrians",
+              "value": 116290,
+              "cacheKey": "pedestrian:40.7906,-73.9689"
+            },
+            {
+              "source": "nypd-complaints",
+              "field": "crime_score",
+              "value": 21,
+              "cacheKey": "crime:40.7906,-73.9689"
+            }
+          ],
+          "logic": "Compared morning viability (25/100) vs evening viability (0/100) to determine optimal operating window.",
+          "assumptions": [
+            "Morning = 7-11 AM",
+            "Peak transit ratio applied to total ridership",
+            "Office workers generate 60% of morning foot traffic",
+            "Evening = 6-11 PM",
+            "Crime score inversely affects evening viability",
+            "Subway access critical for after-dark businesses"
+          ]
+        },
+        "extrapolationIds": [
+          "morning_viability",
+          "evening_viability"
+        ],
+        "entityIds": [],
+        "generatedBy": "template"
+      },
+      {
+        "insightType": "disclosure",
+        "title": "How This Analysis Was Built",
+        "narrative": "This report draws on 16 of 21 available data sources. 10 businesses were identified and deduplicated across Google Places, Foursquare, Yelp, and OpenStreetMap. 1 data conflicts were resolved via majority vote or weighted averaging. 6 extrapolations were generated with an average confidence of 65%. Data coverage is 76% \u2014 strong.",
+        "sentiment": "neutral",
+        "confidence": 1,
+        "confidenceLabel": "verified",
+        "disclosure": "This is a meta-disclosure about the analysis methodology. All claims here are factual descriptions of the processing pipeline.",
+        "derivationChain": {
+          "inputs": [
+            {
+              "source": "pipeline_metadata",
+              "field": "source_coverage",
+              "value": {
+                "available": 16,
+                "total": 21,
+                "pct": 76
+              },
+              "cacheKey": "meta:processing_run"
+            }
+          ],
+          "logic": "Summary of Layer 1 (16 raw sources), Layer 2 (11 entities, 1 conflicts), Layer 3 (6 extrapolations, 65% avg confidence)."
+        },
+        "extrapolationIds": [],
+        "entityIds": [],
+        "generatedBy": "template"
+      }
+    ],
+    "totalInsights": 4,
+    "mode": "local",
+    "processingMs": 0,
+    "overallVerdict": "This location presents challenges for a specialty_coffee. The data suggests headwinds that would need creative solutions to overcome. (Based on 16 data sources, 11 entities, 6 extrapolations)",
+    "overallSentiment": "caution",
+    "transparencyNote": "This analysis is based on 16 real data sources and 6 extrapolations. Each insight shows its confidence level and exactly which data points informed it. Extrapolations are clearly labeled \u2014 they represent our best inference from available data, not verified facts."
+  },
+  "pipeline": {
+    "version": "v1.2",
+    "layers": {
+      "layer1": {
+        "sources": 16,
+        "total": 21,
+        "ms": 68
+      },
+      "qualityGate": {
+        "grade": "B",
+        "action": "proceed",
+        "issues": 0,
+        "ms": 60
+      },
+      "layer2": {
+        "entities": 11,
+        "conflicts": 1,
+        "ms": 60
+      },
+      "layer3": {
+        "extrapolations": 6,
+        "avgConfidence": 0.65,
+        "ms": 1
+      },
+      "layer4": {
+        "insights": 4,
+        "mode": "local",
+        "ms": 0
+      },
+      "haikuExtractor": {
+        "extracted": true,
+        "ms": 60
+      },
+      "sonnetAnalyst": {
+        "analyzed": true,
+        "ms": 0
+      }
+    },
+    "totalMs": 162
+  },
+  "rawIntelErrors": [
+    "Foursquare: returned null (API may be unreachable or returned no data)",
+    "Yelp: returned null (API may be unreachable or returned no data)",
+    "Census: returned null (API may be unreachable or returned no data)",
+    "Census Housing: returned null (API may be unreachable or returned no data)",
+    "MTA Ridership: Hard ceiling timeout \u2014 source did not complete in time",
+    "Schools: returned null (API may be unreachable or returned no data)"
+  ],
+  "fetchedAt": "2026-05-16T20:45:30.355Z",
+  "coffeeDimensions": {
+    "morningFootTraffic": 95,
+    "dailyRitualDensity": 16,
+    "competitionContext": 80,
+    "streetSide": 50,
+    "demographicsFit": 50,
+    "baseViability": 0,
+    "visionMultiplier": 1,
+    "rawComposite": 64
+  },
+  "coffeeWatchOuts": [
+    {
+      "id": "W3",
+      "title": "Thin habitual anchors",
+      "explanation": "Few offices, gyms, or commuter exits nearby to generate daily repeat visits.",
+      "severity": "important",
+      "dataSource": "computeDailyRitualDensity",
+      "icon": "\ud83d\udd04"
+    },
+    {
+      "id": "W5",
+      "title": "Saturated with quality",
+      "explanation": "7 direct competitors nearby averaging 4.4 stars \u2014 you need a strong differentiator.",
+      "severity": "important",
+      "dataSource": "blendCompetitorPricing",
+      "icon": "\u2694\ufe0f"
+    },
+    {
+      "id": "W9",
+      "title": "Premium price, mixed demographics",
+      "explanation": "At $8.50/ticket, the area median income ($75K) may limit your daily customer base.",
+      "severity": "important",
+      "dataSource": "census + session",
+      "icon": "\ud83d\udcb0"
+    }
+  ],
+  "formulaVersion": "coffee-v2.0",
+  "scoredAt": "2026-05-16T20:45:39.113Z",
+  "storedScore": false,
+  "_timeout": {
+    "ceilingMs": 6800,
+    "dataTier": "cold",
+    "locationQuality": "developing",
+    "actualMs": 342
+  }
+}

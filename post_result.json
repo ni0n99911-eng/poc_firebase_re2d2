@@ -1,0 +1,89 @@
+{
+  "visionIQ": {
+    "score": 100,
+    "grade": "A+",
+    "weights": {
+      "transit": 0.09,
+      "demographics": 0.07333333333333333,
+      "competition": 0.125,
+      "vibrancy": 0.062,
+      "safety": 0.01,
+      "momentum": 0.02,
+      "neighborhoodHealth": 0.22927666666666663,
+      "survivalRate": 0.39038999999999996
+    },
+    "components": {
+      "transit": 8.55,
+      "demographics": 3.67,
+      "competition": 10,
+      "vibrancy": 0.99,
+      "safety": 0.18,
+      "momentum": 1,
+      "neighborhoodHealth": 16.97,
+      "survivalRate": 30.84
+    },
+    "archetype": "destination_pull",
+    "isDynamic": true,
+    "conceptType": "specialty_coffee",
+    "answersUsed": 3
+  },
+  "fitIQ": {
+    "score": 78,
+    "grade": "B",
+    "gradeCapReason": "Safety score 18 is below our trusted floor (30)",
+    "isDynamic": true,
+    "source": "live",
+    "locationIQWeight": 0.6,
+    "visionIQWeight": 0.4
+  },
+  "killFactors": [
+    {
+      "name": "vibrancy",
+      "reason": "Vibrancy scored 16 \u2014 below kill threshold (40).",
+      "threshold": 40,
+      "actual": 16
+    },
+    {
+      "name": "safety",
+      "reason": "Safety scored 18 \u2014 below kill threshold (40).",
+      "threshold": 40,
+      "actual": 18
+    }
+  ],
+  "scoreConfidence": "preliminary",
+  "scoreConfidenceReason": "Only 3 of 12 Vision inputs filled \u2014 score may shift as you add more.",
+  "visionCompleteness": 0.25,
+  "confidenceBySource": {
+    "vision": 25
+  },
+  "totalVisionInputs": 12,
+  "maxUpside": 0,
+  "perFieldImpact": {
+    "coffee_price": {
+      "questionId": "coffee_price",
+      "question": "What's your price point for a typical drink?",
+      "maxPoints": 6,
+      "answered": true,
+      "rationale": "A $4 drip coffee needs volume and competes with everyone. A $10+ specialty drink needs destination customers with high income."
+    },
+    "coffee_format": {
+      "questionId": "coffee_format",
+      "question": "What's the format?",
+      "maxPoints": 6,
+      "answered": true,
+      "rationale": "A grab-and-go window lives on foot traffic. A sit-down caf\u00e9 needs vibrancy and longer dwell time."
+    },
+    "coffee_hours": {
+      "questionId": "coffee_hours",
+      "question": "What hours are you planning?",
+      "maxPoints": 6,
+      "answered": true,
+      "rationale": "Morning-only needs AM commuter traffic. All-day needs lunch and afternoon crowds too."
+    }
+  },
+  "visionImpactSummary": {
+    "totalQuestions": 3,
+    "answeredCount": 3,
+    "unansweredCount": 0
+  }
+}

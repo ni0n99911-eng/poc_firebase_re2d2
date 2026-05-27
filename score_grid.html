@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE² Score Grid — 600 6th Avenue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --surface: #131829;
+    --surface2: #1a2035;
+    --border: rgba(255,255,255,0.06);
+    --text: #e8eaf0;
+    --text-dim: #8891a5;
+    --accent: #6c5ce7;
+    --accent2: #00cec9;
+    --gold: #fdcb6e;
+    --green: #00b894;
+    --red: #e17055;
+    --orange: #f39c12;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #e8eaf0, #a29bfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+  .header .concept-tags {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .header .concept-tags span {
+    background: rgba(108,92,231,0.12);
+    border: 1px solid rgba(108,92,231,0.25);
+    color: #a29bfe;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 14px;
+  }
+
+  /* Giant Score */
+  .hero-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 44px;
+  }
+  .score-ring {
+    position: relative;
+    width: 180px;
+    height: 180px;
+  }
+  .score-ring svg {
+    transform: rotate(-90deg);
+  }
+  .score-ring .track {
+    fill: none;
+    stroke: var(--surface2);
+    stroke-width: 10;
+  }
+  .score-ring .fill {
+    fill: none;
+    stroke: url(#scoreGrad);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    animation: fillRing 1.8s ease-out forwards;
+  }
+  @keyframes fillRing {
+    to { stroke-dashoffset: var(--ring-offset); }
+  }
+  .score-ring .center-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-ring .iq-number {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, #00cec9, #6c5ce7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .score-ring .iq-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .score-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .score-meta .grade-badge {
+    font-size: 44px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold), #f8a500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .score-meta .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .score-meta .meta-row .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    flex-shrink: 0;
+  }
+  .score-meta .meta-row strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .dim-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(108,92,231,0.3);
+  }
+  .dim-card .dim-num {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    font-size: 48px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.03);
+    line-height: 1;
+  }
+  .dim-card .dim-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .dim-card .dim-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .dim-card .dim-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .dim-card .dim-weight {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .dim-card .score-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .dim-card .dim-score {
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .dim-card .dim-max {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+  .dim-card .dim-weighted {
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-bottom: 4px;
+    margin-left: auto;
+  }
+
+  /* Score bar */
+  .score-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.2s ease-out;
+  }
+
+  .dim-card .detail {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .dim-card .detail strong {
+    color: var(--text);
+  }
+
+  /* Composite row */
+  .composite-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+  }
+  .composite-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .composite-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+  }
+  .composite-item {
+    text-align: center;
+  }
+  .composite-item .ci-value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .composite-item .ci-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Tier table */
+  .tier-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+  }
+  .tier-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .tier-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tier-table th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+  .tier-table td {
+    padding: 12px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tier-table tr.active {
+    background: rgba(108,92,231,0.08);
+  }
+  .tier-table tr.active td {
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .tier-table .tier-name { font-weight: 500; }
+  .tier-table .tier-grade {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Signals */
+  .signals-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+  }
+  .signals-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .signal-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .signal-item:last-child { border-bottom: none; }
+  .signal-item .signal-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Station list in dim1 */
+  .station-list {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .station-list .st { color: var(--accent2); font-weight: 500; }
+
+  /* Color helpers */
+  .c-green { color: var(--green); }
+  .c-gold { color: var(--gold); }
+  .c-red { color: var(--red); }
+  .c-accent { color: var(--accent); }
+
+  .bg-green { background: rgba(0,184,148,0.15); }
+  .bg-gold { background: rgba(253,203,110,0.15); }
+  .bg-red { background: rgba(225,112,85,0.15); }
+  .bg-accent { background: rgba(108,92,231,0.15); }
+</style>
+</head>
+<body>
+
+<svg style="position:absolute;width:0;height:0">
+  <defs>
+    <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6c5ce7"/>
+      <stop offset="50%" stop-color="#00cec9"/>
+      <stop offset="100%" stop-color="#00b894"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="badge">RE² Intelligence Engine</div>
+  <h1>600 6th Avenue, New York, NY 10011</h1>
+  <div class="subtitle">Chelsea / Flatiron · Manhattan · Census Tract 40.739, -73.995</div>
+  <div class="concept-tags">
+    <span>🥤 Premium Protein</span>
+    <span>🍵 Matcha</span>
+    <span>⚡ Magnesium</span>
+    <span>💰 $9.00 Ticket</span>
+    <span>🏋️ Fitness / Wellness</span>
+  </div>
+</div>
+
+<!-- HERO SCORE -->
+<div class="hero-score">
+  <div class="score-ring" style="--ring-offset: 10">
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle class="track" cx="90" cy="90" r="80"/>
+      <circle class="fill" cx="90" cy="90" r="80"/>
+    </svg>
+    <div class="center-text">
+      <div class="iq-number">98</div>
+      <div class="iq-label">Location IQ</div>
+    </div>
+  </div>
+  <div class="score-meta">
+    <div class="grade-badge">A+</div>
+    <div class="meta-row"><div class="dot"></div>Raw Composite: <strong>87.2</strong></div>
+    <div class="meta-row"><div class="dot"></div>Vision: <strong>Highly Differentiated (×1.12)</strong></div>
+    <div class="meta-row"><div class="dot"></div>9 subway stations within 800m</div>
+  </div>
+</div>
+
+<!-- DIMENSION GRID -->
+<div class="grid">
+
+  <!-- DIM 1 -->
+  <div class="dim-card">
+    <div class="dim-num">1</div>
+    <div class="dim-header">
+      <div class="dim-icon" style="background:rgba(0,184,148,0.15);">🚶</div>
+      <div>
+        <div class="dim-title">Morning Foot Traffic</div>
+        <div class="dim-weight">Weight: 40%</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="dim-score c-green">95</div>
+      <div class="dim-max">/ 100</div>
+      <div class="dim-weighted">→ 38.0 pts</div>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" style="width:95%;background:linear-gradient(90deg,#00b894,#00cec9)"></div>
+    </div>
+    <div class="detail">
+      <strong>31,594</strong> estimated morning passersby<br>
+      9 MTA stations × 10K avg daily × 35% morning fraction
+    </div>
+    <div class="station-list">
+      <span class="st">14 St/6 Av</span> (1 2 3 L F M) 285m · 
+      <span class="st">18 St</span> (1) 294m · 
+      <span class="st">23 St</span> (F M) 431m ·
+      <span class="st">14 St/8 Av</span> (A C E L) 600m · 
+      <span class="st">14 St–Union Sq</span> (4 5 6 L N Q R W) 625m
+      <span style="color:var(--text-dim)">+4 more</span>
+    </div>
+  </div>
+
+  <!-- DIM 2 -->
+  <div class="dim-card">
+    <div class="dim-num">2</div>
+    <div class="dim-header">
+      <div class="dim-icon" style="background:rgba(108,92,231,0.15);">☕</div>
+      <div>
+        <div class="dim-title">Daily Ritual Density</div>
+        <div class="dim-weight">Weight: 25%</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="dim-score c-green">95</div>
+      <div class="dim-max">/ 100</div>
+      <div class="dim-weighted">→ 23.8 pts</div>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" style="width:95%;background:linear-gradient(90deg,#6c5ce7,#a29bfe)"></div>
+    </div>
+    <div class="detail">
+      <strong>7,906</strong> est. daily customers<br>
+      Commuters: 9 stations × 10K × 8% = 7,200<br>
+      Residents: 4,713 × 15% = 706<br>
+      Anchors: 0 (Overpass API down)
+    </div>
+  </div>
+
+  <!-- DIM 3 -->
+  <div class="dim-card">
+    <div class="dim-num">3</div>
+    <div class="dim-header">
+      <div class="dim-icon" style="background:rgba(253,203,110,0.15);">⚔️</div>
+      <div>
+        <div class="dim-title">Competition Context</div>
+        <div class="dim-weight">Weight: 15%</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="dim-score c-gold">90</div>
+      <div class="dim-max">/ 100</div>
+      <div class="dim-weighted">→ 13.5 pts</div>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" style="width:90%;background:linear-gradient(90deg,#fdcb6e,#f8a500)"></div>
+    </div>
+    <div class="detail">
+      <strong>0</strong> competitors found (API down)<br>
+      Sentiment: N/A · Base score: 90<br>
+      <span style="color:var(--orange)">⚠ Inflated — real count likely 10–15 cafés</span><br>
+      <span style="color:var(--green)">Few direct protein/matcha competitors</span>
+    </div>
+  </div>
+
+  <!-- DIM 4 -->
+  <div class="dim-card">
+    <div class="dim-num">4</div>
+    <div class="dim-header">
+      <div class="dim-icon" style="background:rgba(255,255,255,0.06);">🛣️</div>
+      <div>
+        <div class="dim-title">Street-Side</div>
+        <div class="dim-weight">Weight: 10%</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="dim-score" style="color:var(--text-dim)">50</div>
+      <div class="dim-max">/ 100</div>
+      <div class="dim-weighted">→ 5.0 pts</div>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" style="width:50%;background:linear-gradient(90deg,#636e72,#b2bec3)"></div>
+    </div>
+    <div class="detail">
+      Default score — no street-side data source<br>
+      <span style="color:var(--text-dim)">6th Ave: high-visibility, heavy pedestrian avenue</span>
+    </div>
+  </div>
+
+  <!-- DIM 5 -->
+  <div class="dim-card">
+    <div class="dim-num">5</div>
+    <div class="dim-header">
+      <div class="dim-icon" style="background:rgba(0,206,201,0.15);">👥</div>
+      <div>
+        <div class="dim-title">Demographics Fit</div>
+        <div class="dim-weight">Weight: 10%</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="dim-score c-green">69</div>
+      <div class="dim-max">/ 100</div>
+      <div class="dim-weighted">→ 6.9 pts</div>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" style="width:69%;background:linear-gradient(90deg,#00cec9,#55efc4)"></div>
+    </div>
+    <div class="detail">
+      Median Income: <strong>$152,018</strong> ✅ supports $9 ticket<br>
+      Bachelor's+: <strong>42%</strong><br>
+      Premium income score: 68 (blended 65/35)
+    </div>
+  </div>
+
+  <!-- DIM 6 -->
+  <div class="dim-card" style="opacity:0.4">
+    <div class="dim-num">6</div>
+    <div class="dim-header">
+      <div class="dim-icon" style="background:rgba(255,255,255,0.04);">🏗️</div>
+      <div>
+        <div class="dim-title">Base Viability</div>
+        <div class="dim-weight">Weight: 0% (disabled)</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="dim-score" style="color:var(--text-dim)">—</div>
+      <div class="dim-max"></div>
+      <div class="dim-weighted" style="color:var(--text-dim)">→ 0.0 pts</div>
+    </div>
+    <div class="score-bar-bg">
+      <div class="score-bar-fill" style="width:0%"></div>
+    </div>
+    <div class="detail" style="color:var(--text-dim)">
+      Dimension disabled in current engine config
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPOSITE BREAKDOWN -->
+<div class="composite-section">
+  <h3>Composite Calculation</h3>
+  <div class="composite-grid">
+    <div class="composite-item">
+      <div class="ci-value c-green">38.0</div>
+      <div class="ci-label">Dim 1 × 0.40</div>
+    </div>
+    <div class="composite-item">
+      <div class="ci-value" style="color:var(--accent)">23.8</div>
+      <div class="ci-label">Dim 2 × 0.25</div>
+    </div>
+    <div class="composite-item">
+      <div class="ci-value c-gold">13.5</div>
+      <div class="ci-label">Dim 3 × 0.15</div>
+    </div>
+    <div class="composite-item">
+      <div class="ci-value" style="color:var(--text-dim)">5.0</div>
+      <div class="ci-label">Dim 4 × 0.10</div>
+    </div>
+    <div class="composite-item">
+      <div class="ci-value" style="color:var(--accent2)">6.9</div>
+      <div class="ci-label">Dim 5 × 0.10</div>
+    </div>
+    <div class="composite-item">
+      <div class="ci-value" style="font-size:32px;font-weight:900;background:linear-gradient(135deg,#00cec9,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">87.2</div>
+      <div class="ci-label">Raw Composite</div>
+    </div>
+  </div>
+</div>
+
+<!-- TIER TABLE -->
+<div class="tier-section">
+  <h3>Score by Vision Tier</h3>
+  <table class="tier-table">
+    <thead>
+      <tr>
+        <th>Vision Tier</th>
+        <th>Multiplier</th>
+        <th>Location IQ</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tier-name">Commodity</td>
+        <td>× 0.60</td>
+        <td>52</td>
+        <td><span class="tier-grade" style="background:rgba(225,112,85,0.15);color:var(--red)">C</span></td>
+      </tr>
+      <tr>
+        <td class="tier-name">Standard</td>
+        <td>× 0.85</td>
+        <td>74</td>
+        <td><span class="tier-grade" style="background:rgba(253,203,110,0.15);color:var(--gold)">B+</span></td>
+      </tr>
+      <tr>
+        <td class="tier-name">Differentiated</td>
+        <td>× 1.00</td>
+        <td>87</td>
+        <td><span class="tier-grade" style="background:rgba(0,184,148,0.15);color:var(--green)">A</span></td>
+      </tr>
+      <tr class="active">
+        <td class="tier-name">Highly Differentiated ←</td>
+        <td>× 1.12</td>
+        <td>98</td>
+        <td><span class="tier-grade" style="background:rgba(0,206,201,0.2);color:var(--accent2)">A+</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SIGNALS -->
+<div class="signals-section">
+  <h3>Key Signals</h3>
+  <div class="signal-item">
+    <span class="signal-icon">🟢</span>
+    <span><strong>Strong morning foot traffic</strong> — 31,594 estimated passersby from 9 subway stations</span>
+  </div>
+  <div class="signal-item">
+    <span class="signal-icon">🟢</span>
+    <span><strong>Strong ritual density</strong> — 7,906 estimated daily customers (commuters + residents)</span>
+  </div>
+  <div class="signal-item">
+    <span class="signal-icon">🟢</span>
+    <span><strong>Premium demographics</strong> — $152K median income easily supports $9 ticket</span>
+  </div>
+  <div class="signal-item">
+    <span class="signal-icon">🟡</span>
+    <span><strong>Competition data incomplete</strong> — Overpass API returned 406; real competitor count unknown</span>
+  </div>
+  <div class="signal-item">
+    <span class="signal-icon">🟡</span>
+    <span><strong>Anchor data missing</strong> — Gyms, offices, cowork spaces not captured (API down)</span>
+  </div>
+  <div class="signal-item">
+    <span class="signal-icon">⚪</span>
+    <span><strong>Street-side defaulted</strong> — No street visibility data; 6th Ave is a major pedestrian corridor</span>
+  </div>
+</div>
+
+</body>
+</html>

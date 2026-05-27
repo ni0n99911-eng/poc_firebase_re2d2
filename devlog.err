@@ -1,0 +1,42 @@
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+[2m4:11:54 PM[22m [31m[1m[vite][22m[39m [31m[2m(ssr)[22m[39m [31mError when evaluating SSR module /@fs/C:/sandbox_re_squared/jared_prod/repo/node_modules/@sveltejs/kit/src/runtime/server/index.js: Failed to load url /.svelte-kit/generated/server/internal.js (resolved id: C:/sandbox_re_squared/jared_prod/repo/.svelte-kit/generated/server/internal.js) in C:/sandbox_re_squared/jared_prod/repo/node_modules/@sveltejs/kit/src/runtime/server/index.js. Does the file exist?[39m
+      at loadAndTransform (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:22663:33)
+      at async fetchModule (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:33993:15)
+      at async handleInvoke (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:25834:21)
+      at async EventEmitter.listenerForInvokeHandler (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:25889:13)
+[2m4:11:54 PM[22m [31m[1m[vite][22m[39m [31m[2m(ssr)[22m[39m [31mError when evaluating SSR module /@fs/C:/sandbox_re_squared/jared_prod/repo/node_modules/@sveltejs/kit/src/runtime/server/index.js: Failed to load url /.svelte-kit/generated/server/internal.js (resolved id: C:/sandbox_re_squared/jared_prod/repo/.svelte-kit/generated/server/internal.js) in C:/sandbox_re_squared/jared_prod/repo/node_modules/@sveltejs/kit/src/runtime/server/index.js. Does the file exist?[39m
+      at loadAndTransform (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:22663:33)
+      at async fetchModule (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:33993:15)
+      at async handleInvoke (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:25834:21)
+      at async EventEmitter.listenerForInvokeHandler (file:///C:/sandbox_re_squared/jared_prod/repo/node_modules/vite/dist/node/chunks/config.js:25889:13)
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.
+Auth: no cached user, letting through: invalid jwt form. a jwt consists of three parts separated by dots.

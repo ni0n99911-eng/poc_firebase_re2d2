@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RE² Launch Checklist — UX Polish Spec</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: #212529;
+      background: #F8F9FA;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a5e3f 0%, #227546 100%);
+      color: #fff;
+      padding: 40px 32px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 32px;
+    }
+
+    .toc {
+      background: #fff;
+      border: 1px solid #E9ECEF;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+
+    .toc h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a5e3f;
+    }
+
+    .toc ol {
+      list-style: none;
+      counter-reset: item;
+    }
+
+    .toc li {
+      counter-increment: item;
+      margin-bottom: 8px;
+    }
+
+    .toc li:before {
+      content: counter(item) ". ";
+      font-weight: 600;
+      color: #1a5e3f;
+    }
+
+    .toc a {
+      color: #2E75B6;
+      text-decoration: none;
+    }
+
+    .toc a:hover { text-decoration: underline; }
+
+    .spec-section {
+      background: #fff;
+      border: 1px solid #E9ECEF;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .spec-section h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a5e3f;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .spec-id {
+      display: inline-block;
+      background: #E8F5E9;
+      color: #1a5e3f;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-section > p {
+      color: #6C757D;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .subsection {
+      margin-top: 20px;
+    }
+
+    .subsection h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #343A40;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subsection h3:before {
+      content: "▸";
+      color: #1a5e3f;
+    }
+
+    .subsection p, .subsection ul {
+      font-size: 13px;
+      color: #495057;
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    .subsection ul {
+      margin-left: 20px;
+    }
+
+    .subsection li {
+      margin-bottom: 6px;
+    }
+
+    .code-block {
+      background: #F8F9FA;
+      border-left: 3px solid #1a5e3f;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      color: #212529;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    .acceptance {
+      background: #F0F7FF;
+      border: 1px solid #B3D9FF;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .acceptance h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1B4965;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .acceptance ol {
+      margin-left: 20px;
+    }
+
+    .acceptance li {
+      font-size: 12px;
+      color: #3F5F7F;
+      margin-bottom: 6px;
+    }
+
+    .file-ref {
+      display: inline-block;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'Monaco', monospace;
+      font-size: 11px;
+      color: #c83221;
+    }
+
+    .note {
+      background: #FFFBEB;
+      border-left: 3px solid #F39C12;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #92400E;
+    }
+
+    .note strong { color: #78350F; }
+
+    footer {
+      text-align: center;
+      color: #6C757D;
+      font-size: 12px;
+      padding: 24px 32px;
+      border-top: 1px solid #E9ECEF;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 24px 16px; }
+      header { padding: 28px 16px; }
+      header h1 { font-size: 24px; }
+      .spec-section { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RE² Launch Checklist</h1>
+    <p>UX Polish Specification — First-Time Owner Onboarding</p>
+  </header>
+
+  <div class="container">
+    <div class="toc">
+      <h2>Specification Index</h2>
+      <ol>
+        <li><a href="#ux-ck-01">Sidebar Navigation Entry</a></li>
+        <li><a href="#ux-ck-02">Responsive Layout (Mobile / 768px)</a></li>
+        <li><a href="#ux-ck-03">Print Stylesheet</a></li>
+        <li><a href="#ux-ck-04">Accessibility Audit</a></li>
+        <li><a href="#ux-ck-05">Session/Store Handoff</a></li>
+        <li><a href="#ux-ck-06">Visual Polish & Animations</a></li>
+        <li><a href="#ux-ck-07">Filter Chip Count Badges</a></li>
+      </ol>
+    </div>
+
+    <!-- UX-CK-01 -->
+    <div class="spec-section" id="ux-ck-01">
+      <h2>
+        <span class="spec-id">UX-CK-01</span>
+        Sidebar Navigation Entry
+      </h2>
+      <p>Add "Launch Checklist" to the NavigationDrawer with rocket icon, positioned after "Business Case" in the module flow.</p>
+
+      <div class="subsection">
+        <h3>Overview</h3>
+        <p>The Launch Checklist is Module 3 in the UX-D hub model. It must appear in NavigationDrawer.svelte with:</p>
+        <ul>
+          <li>Label: "Launch Checklist"</li>
+          <li>Short label: "Checklist" (for mobile truncation)</li>
+          <li>Icon: Rocket emoji or SVG icon (🚀)</li>
+          <li>Path: /app/checklist</li>
+          <li>Unlock state: Available after Business Case visited</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Implementation Details</h3>
+        <p>File: <span class="file-ref">src/lib/components/NavigationDrawer.svelte</span></p>
+        <p>The module is already defined in the modules array (num: 3). Verify:</p>
+        <ul>
+          <li>Module 3 label = "Launch Checklist" (currently correct)</li>
+          <li>Lock state: <code>locked: false</code> (always unlocked, but next: true only after Business Case)</li>
+          <li>Icon renders as rocket emoji in module list</li>
+          <li>Active state highlights when /app/checklist is current path</li>
+          <li>Disabled state shows "Coming soon" if Business Case not yet visited</li>
+        </ul>
+        <div class="code-block">
+{ num: 3, label: 'Launch Checklist', short: 'Checklist', path: '/app/checklist', locked: false, done: hasVisitedChecklist, next: hasVisitedBusinessPlan && !hasVisitedChecklist }
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Visual States</h3>
+        <ul>
+          <li><strong>Locked:</strong> Gray text, disabled cursor, "Coming soon" badge</li>
+          <li><strong>Available:</strong> Normal text, blue underline on hover</li>
+          <li><strong>Active:</strong> Bold text, blue background or left border highlight</li>
+          <li><strong>Done:</strong> Green checkmark next to label</li>
+        </ul>
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>Module 3 "Launch Checklist" appears after "Business Case" in NavigationDrawer</li>
+          <li>Rocket icon (🚀) renders before label text</li>
+          <li>Disabled state shows if Business Case not visited</li>
+          <li>Active state highlights when user is on /app/checklist</li>
+          <li>Done checkmark appears after first visit (hasVisitedChecklist = true)</li>
+          <li>Clicking navigates to /app/checklist (no console errors)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- UX-CK-02 -->
+    <div class="spec-section" id="ux-ck-02">
+      <h2>
+        <span class="spec-id">UX-CK-02</span>
+        Responsive Layout (Mobile / 768px)
+      </h2>
+      <p>All components adapt gracefully on screens ≤768px (iPad, tablet, mobile). Layout should be tested at 375px, 768px, and 1024px breakpoints.</p>
+
+      <div class="subsection">
+        <h3>Breakpoint Strategy</h3>
+        <ul>
+          <li><strong>Mobile (≤375px):</strong> Full-width single column, font sizing reduced 10%</li>
+          <li><strong>Tablet (376–768px):</strong> 2-column grids where applicable, sticky headers</li>
+          <li><strong>Desktop (>768px):</strong> 4-column grids, full spacing</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Component-Level Breakpoints</h3>
+
+        <p><strong>ChecklistProgress (Progress Bar)</strong></p>
+        <ul>
+          <li>Desktop: Horizontal layout with stats on right</li>
+          <li>Tablet (≤768px): Stack vertically; phase dots scroll horizontally</li>
+          <li>Phase dots: Always visible, scroll if overflow</li>
+        </ul>
+
+        <p><strong>ChecklistFilters (Filter Chips)</strong></p>
+        <ul>
+          <li>Desktop: Grid of filter chips, wrapping allowed</li>
+          <li>Tablet: Horizontal scroll container, snap to edges</li>
+          <li>Chip size: Reduce padding 2px on mobile</li>
+          <li>Badge count: Always visible (no hiding on mobile)</li>
+        </ul>
+
+        <p><strong>ChecklistPhase (Phase Headers)</strong></p>
+        <ul>
+          <li>Remain sticky on all breakpoints (position: sticky; top: 0)</li>
+          <li>Z-index: 10 to layer above task cards</li>
+          <li>Font size: 16px desktop, 14px mobile</li>
+        </ul>
+
+        <p><strong>ChecklistItem (Task Cards)</strong></p>
+        <ul>
+          <li>Desktop: Flex layout with checkbox, body, Find a Pro, cost badge</li>
+          <li>Tablet: Flex direction row, cost badge on right</li>
+          <li>Mobile: Stack Find a Pro button above cost badge (or hide button if space limited)</li>
+          <li>Notes textarea: Full width on all breakpoints</li>
+        </ul>
+
+        <p><strong>ChecklistCostSummary (Summary Cards)</strong></p>
+        <ul>
+          <li>Desktop: 4-column grid</li>
+          <li>Tablet: 2-column grid</li>
+          <li>Mobile: 1-column stack</li>
+          <li>Card padding: 16px on mobile, 20px on tablet+</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Navigation & Spacing</h3>
+        <ul>
+          <li>Content padding: 32px desktop, 16px tablet, 14px mobile</li>
+          <li>PageNav buttons: Full width on mobile (≤375px)</li>
+          <li>No-session warning: Adjust padding for small screens</li>
+        </ul>
+      </div>
+
+      <div class="code-block">
+/* Example: ChecklistCostSummary responsive grid */
+@media (max-width: 768px) {
+  .cost-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .cost-grid { grid-template-columns: 1fr; }
+}
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>All components stack vertically on mobile (375px)</li>
+          <li>Filter chips horizontally scroll on tablet/mobile</li>
+          <li>Phase headers remain sticky on all breakpoints</li>
+          <li>Cost summary cards: 4-col desktop → 2-col tablet → 1-col mobile</li>
+          <li>Task cards remain readable with checkbox, name, meta visible</li>
+          <li>Find a Pro button behavior: visible desktop, hidden mobile (or layout adjusted)</li>
+          <li>Notes textarea full width on all breakpoints</li>
+          <li>No horizontal scrolling at 375px (except intentional chip scroll)</li>
+          <li>All text remains readable (min 12px font on mobile)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- UX-CK-03 -->
+    <div class="spec-section" id="ux-ck-03">
+      <h2>
+        <span class="spec-id">UX-CK-03</span>
+        Print Stylesheet
+      </h2>
+      <p>Print view should show all tasks expanded with notes inline, no navigation or buttons, optimized for 8.5" x 11" paper.</p>
+
+      <div class="subsection">
+        <h3>Elements to Hide</h3>
+        <ul>
+          <li>NavigationDrawer (sidebar)</li>
+          <li>PageNav (back/next buttons)</li>
+          <li>ChecklistProgress (progress bar header)</li>
+          <li>ChecklistFilters (filter chip row)</li>
+          <li>Find a Pro button</li>
+          <li>MarketplaceBanner</li>
+          <li>Checklist no-session warning</li>
+          <li>Cost summary cards (optional: can show as final summary)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Elements to Show / Modify</h3>
+        <ul>
+          <li>All ChecklistPhase headers: bold, black text on white</li>
+          <li>All ChecklistItem cards: expanded by default, borders visible</li>
+          <li>Task notes: inline, no textarea styling, regular text</li>
+          <li>Checkboxes: print as [✓] or [ ] (checked/unchecked)</li>
+          <li>Cost badges: visible next to task name</li>
+          <li>Priority labels: print in color or as text (e.g., "[DO NOW]")</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Page Break Rules</h3>
+        <ul>
+          <li><code>page-break-inside: avoid</code> on .task cards (prevent mid-card breaks)</li>
+          <li><code>page-break-inside: avoid</code> on ChecklistPhase sections</li>
+          <li>Allow breaks between phases if needed</li>
+          <li>Margins: 0.5" on all sides</li>
+        </ul>
+      </div>
+
+      <div class="code-block">
+@media print {
+  .cl-page { background: #fff; }
+  .navigation-drawer, .page-nav, .checklist-progress, .checklist-filters,
+  .find-pro, .marketplace-banner, .cl-no-session { display: none !important; }
+
+  .task { page-break-inside: avoid; border: 1px solid #000; }
+  .task-check { border: 1px solid #000; }
+  .task-check.checked::after { content: '✓'; }
+  .cost-grid { display: none; } /* or: display: grid; for summary footer */
+
+  body { font-size: 11pt; line-height: 1.5; }
+  .task-name { font-weight: bold; }
+}
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>Print preview hides all navigation elements (drawer, PageNav, etc.)</li>
+          <li>All task cards print with no page breaks mid-card</li>
+          <li>Task notes appear inline (not in textarea)</li>
+          <li>Checkboxes print as [ ] or [✓]</li>
+          <li>Cost and priority labels visible in print</li>
+          <li>Document fits on standard 8.5x11" pages (no overflow)</li>
+          <li>Print to PDF produces clean, readable output</li>
+          <li>No color dependencies (works in grayscale too)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- UX-CK-04 -->
+    <div class="spec-section" id="ux-ck-04">
+      <h2>
+        <span class="spec-id">UX-CK-04</span>
+        Accessibility Audit
+      </h2>
+      <p>All interactive elements must be keyboard-accessible and announced correctly to screen readers. WCAG 2.1 AA compliance required.</p>
+
+      <div class="subsection">
+        <h3>Checkbox Accessibility</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistItem.svelte</span></p>
+        <ul>
+          <li><code>role="checkbox"</code> on .task-check button ✓ (already implemented)</li>
+          <li><code>aria-checked="true|false"</code> reflecting item.done state ✓</li>
+          <li><code>aria-label</code> with task name: "Mark complete: {name}" or "Unmark: {name}" ✓</li>
+          <li><strong>Keyboard:</strong> Enter/Space toggles checkbox (already handled by onclick)</li>
+          <li>Focus visible: 2px outline on :focus-visible</li>
+          <li>Tab order: Checkbox before body, natural reading order</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Phase Collapse/Expand</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistPhase.svelte</span></p>
+        <ul>
+          <li>Phase header: <code>role="button"</code></li>
+          <li><code>aria-expanded="true|false"</code> reflecting collapsed state</li>
+          <li><code>aria-label</code>: "{phase.name} (X of Y tasks complete)"</li>
+          <li><strong>Keyboard:</strong> Enter/Space toggles expand (already implemented)</li>
+          <li>Focus visible: 2px outline</li>
+          <li>Chevron icon: <code>aria-hidden="true"</code> (decorative)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Filter Chips</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistFilters.svelte</span></p>
+        <ul>
+          <li>Each chip: <code>role="button"</code> or <code>&lt;button&gt;</code> element</li>
+          <li><code>aria-pressed="true|false"</code> for toggle buttons</li>
+          <li><code>aria-label</code>: "{filter} (X tasks)"</li>
+          <li>Focus visible: 2px outline</li>
+          <li>Active state: Announce "selected" or "active" in label</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Progress Bar & Indicators</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistProgress.svelte</span></p>
+        <ul>
+          <li>Progress bar: <code>role="progressbar"</code></li>
+          <li><code>aria-valuenow={pct}</code></li>
+          <li><code>aria-valuemin="0"</code></li>
+          <li><code>aria-valuemax="100"</code></li>
+          <li><code>aria-label="Checklist {pct}% complete"</code></li>
+          <li>Phase dots: <code>aria-hidden="true"</code> (visual only)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Form Fields (Notes Textarea)</h3>
+        <ul>
+          <li>Textarea: <code>aria-label="Notes for {item.name}"</code></li>
+          <li>Placeholder visible when empty</li>
+          <li>Focus visible: 3px blue outline</li>
+          <li>Error messages (if any): <code>aria-describedby</code></li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Announcements for State Changes</h3>
+        <ul>
+          <li><strong>Checkbox toggle:</strong> Add live region announcement: "Task {name} marked complete" / "Task {name} unmarked"</li>
+          <li><strong>Filter change:</strong> "Showing {count} tasks: {filter} filter applied"</li>
+          <li><strong>Phase expand/collapse:</strong> "Phase expanded" / "Phase collapsed"</li>
+          <li>Use <code>aria-live="polite"</code> region for non-intrusive updates</li>
+          <li>Use <code>aria-atomic="true"</code> to announce full message on each update</li>
+        </ul>
+        <div class="code-block">
+&lt;div class="sr-only" role="status" aria-live="polite" aria-atomic="true"&gt;
+  {screenReaderMessage}
+&lt;/div&gt;
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Screen Reader-Only Text</h3>
+        <p>Add utility class for visually hidden but accessible text:</p>
+        <div class="code-block">
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+        </div>
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>All checkboxes have role="checkbox" and aria-checked</li>
+          <li>All phase headers have role="button" and aria-expanded</li>
+          <li>All filter chips have aria-label with count badge</li>
+          <li>Progress bar has role="progressbar" with aria-valuenow/min/max</li>
+          <li>Tab order is logical: checkbox → body → notes (if visible)</li>
+          <li>Space/Enter keys toggle checkboxes and phase headers</li>
+          <li>Focus visible on all interactive elements</li>
+          <li>Screen reader announces task completion state changes</li>
+          <li>Filter changes announced to screen readers</li>
+          <li>NVDA/JAWS/VoiceOver testing confirms all elements readable</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- UX-CK-05 -->
+    <div class="spec-section" id="ux-ck-05">
+      <h2>
+        <span class="spec-id">UX-CK-05</span>
+        Session/Store Handoff
+      </h2>
+      <p>Verify the checklist page correctly reads and persists context (location, concept) from localStorage and Supabase. Test navigation flows to ensure no data loss.</p>
+
+      <div class="subsection">
+        <h3>Storage Keys & Format</h3>
+        <ul>
+          <li><strong>re2_launchpad:</strong> <code>{ conceptType: 'specialty_coffee', conceptLabel: 'Specialty Coffee' }</code></li>
+          <li><strong>re2_session:</strong> <code>{ analyzedAddress, neighborhood, locationIQ, geoid, ... }</code></li>
+          <li><strong>re2_checklist:</strong> <code>{ items: [{ id, done, notes }, ...] }</code></li>
+          <li><strong>re2_checklist_visited:</strong> <code>'true'</code> (marks checklist as completed)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Initialization on Mount</h3>
+        <p>File: <span class="file-ref">src/routes/app/checklist/+page.svelte</span></p>
+        <p>Current implementation (onMount):</p>
+        <ol>
+          <li>Read conceptType from re2_launchpad (default: 'specialty_coffee')</li>
+          <li>Load item template via getItemsForConcept(conceptKey)</li>
+          <li>Restore done/notes from re2_checklist</li>
+          <li>Read location/concept labels from re2_session + re2_launchpad</li>
+          <li>Mark page visited: re2_checklist_visited = 'true'</li>
+        </ol>
+        <p><strong>Verify:</strong> All keys parse correctly with try/catch; no unhandled exceptions on corrupt JSON.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>Persistence on Change</h3>
+        <p>Debounced save (300ms) on any item toggle/note update:</p>
+        <ul>
+          <li>Save to localStorage (primary)</li>
+          <li>Sync to Supabase via /api/checklist-sync (secondary, non-blocking)</li>
+          <li>locationId extracted from geoid or analyzedAddress</li>
+          <li>Payload: <code>{ locationId, items: [{ itemId, done, notes }, ...] }</code></li>
+          <li>Silent fail if API error (localStorage already saved)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Navigation Test Cases</h3>
+        <p><strong>Scenario 1: BC → Checklist → BC</strong></p>
+        <ul>
+          <li>Start on Business Case page, mark items as done</li>
+          <li>Navigate to Checklist (via PageNav or sidebar)</li>
+          <li>Toggle a few tasks, add notes</li>
+          <li>Back to Business Case (PageNav), then forward to Checklist</li>
+          <li><strong>Expected:</strong> All checked items and notes persist (no loss)</li>
+        </ul>
+
+        <p><strong>Scenario 2: Checklist → Dashboard → back</strong></p>
+        <ul>
+          <li>Mark all tasks complete, add notes to 2–3 items</li>
+          <li>Navigate to Dashboard</li>
+          <li>Back to Checklist (browser back button)</li>
+          <li><strong>Expected:</strong> All state restored; no blank/lost items</li>
+        </ul>
+
+        <p><strong>Scenario 3: Multi-tab session</strong></p>
+        <ul>
+          <li>Open Checklist in Tab A, mark item 1 done</li>
+          <li>In Tab B, open same location, open Checklist</li>
+          <li>Mark item 2 done in Tab B, refresh Tab A</li>
+          <li><strong>Expected:</strong> Tab A reflects changes (or shows stale data with refresh note)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>No-Session Handling</h3>
+        <ul>
+          <li>If locationIQ = 0, show nudge banner: "You haven't analyzed a location yet."</li>
+          <li>Banner includes link to /app/location</li>
+          <li>Checklist items still load (default concept), but full context unavailable</li>
+          <li>No auto-redirect (let user decide)</li>
+        </ul>
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>Checklist loads correct concept (specialty coffee by default)</li>
+          <li>Location name/concept label populate from session</li>
+          <li>Checked items and notes restore from localStorage on reload</li>
+          <li>Sync to Supabase succeeds without blocking UI</li>
+          <li>Navigation (BC → CL → BC) preserves all state</li>
+          <li>No data loss on back/forward navigation</li>
+          <li>No-session banner shows if location not analyzed</li>
+          <li>Corrupt localStorage JSON does not crash page (try/catch handles)</li>
+          <li>Multiple concepts show different item sets (verify with concept switch)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- UX-CK-06 -->
+    <div class="spec-section" id="ux-ck-06">
+      <h2>
+        <span class="spec-id">UX-CK-06</span>
+        Visual Polish &amp; Animations
+      </h2>
+      <p>Match the HTML mockup pixel-perfect with smooth animations, proper spacing, and consistent color usage throughout all components.</p>
+
+      <div class="subsection">
+        <h3>Progress Bar Animation</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistProgress.svelte</span></p>
+        <ul>
+          <li><strong>Gradient:</strong> Linear gradient from #27AE60 (green) → #2E75B6 (blue) left-to-right</li>
+          <li><strong>Animation:</strong> 0.5s ease-out transition on width change</li>
+          <li><strong>Height:</strong> 6px</li>
+          <li><strong>Border radius:</strong> 3px (half height, rounded caps)</li>
+          <li>Background track: #E9ECEF (light gray)</li>
+        </ul>
+        <div class="code-block">
+.progress-fill {
+  background: linear-gradient(to right, #27AE60, #2E75B6);
+  transition: width 0.5s ease-out;
+  height: 100%;
+  border-radius: 3px;
+}
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Phase Dots (Progress Indicators)</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistProgress.svelte</span></p>
+        <ul>
+          <li><strong>Default state (no progress):</strong> 10px circle, #DEE2E6 (light gray border), #fff fill</li>
+          <li><strong>Active state (partial progress):</strong> 10px circle, #2E75B6 (blue border), #2E75B6 fill, 60% opacity</li>
+          <li><strong>Done state (all complete):</strong> 10px circle, #27AE60 (green border), #27AE60 fill, 100% opacity</li>
+          <li><strong>Animation:</strong> 0.3s ease transition on state change</li>
+          <li>Label below each dot (first word of phase name, 10px font)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Checkbox Styling</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistItem.svelte</span></p>
+        <ul>
+          <li><strong>Default:</strong> 22px × 22px, #DEE2E6 border, #fff fill, 2px border</li>
+          <li><strong>Hover:</strong> Border color → #27AE60 (green)</li>
+          <li><strong>Checked:</strong> #27AE60 background, white ✓ checkmark (font-weight: 700, font-size: 13px)</li>
+          <li><strong>Animation:</strong> 0.2s ease on background/border change</li>
+          <li>Border radius: 6px</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Done State (Task Card)</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistItem.svelte</span></p>
+        <ul>
+          <li><strong>Card opacity:</strong> 0.6 when .done class applied</li>
+          <li><strong>Task name:</strong> text-decoration: line-through, color: #ADB5BD</li>
+          <li><strong>All other text:</strong> Inherit reduced opacity from card</li>
+          <li>Checkbox remains fully visible (opacity: 1) to show completed state</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Phase Collapse/Expand Chevron</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistPhase.svelte</span></p>
+        <ul>
+          <li><strong>Icon:</strong> Chevron down (▼) or SVG chevron icon</li>
+          <li><strong>Rotation:</strong> 0° (pointing down) when expanded, 180° when collapsed</li>
+          <li><strong>Animation:</strong> 0.3s ease-out rotation</li>
+          <li>Color: #6C757D (medium gray)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Find a Pro Button</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistItem.svelte</span></p>
+        <ul>
+          <li><strong>Enabled state:</strong> #2E75B6 text, #2E75B6 border, #fff background</li>
+          <li><strong>Hover (enabled):</strong> #2E75B6 background, #fff text</li>
+          <li><strong>Disabled state (coming-soon):</strong> #DEE2E6 border, #ADB5BD text, no background</li>
+          <li><strong>Disabled cursor:</strong> default (not pointer)</li>
+          <li><strong>Button disabled attribute:</strong> Present when no proType or marketplace unavailable</li>
+          <li>Label includes arrow icon: "Find a Pro ↗"</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>General Polish</h3>
+        <ul>
+          <li><strong>Font family:</strong> Inter / DM Sans (match global)</li>
+          <li><strong>Colors:</strong> Consistent green (#27AE60), blue (#2E75B6), grays (#6C757D, #ADB5BD)</li>
+          <li><strong>Spacing:</strong> Consistent 8px/12px/16px/24px grid</li>
+          <li><strong>Border radius:</strong> 6–12px depending on component</li>
+          <li><strong>Shadows:</strong> Subtle 0 2px 8px rgba(0,0,0,0.08) on hover/focus</li>
+          <li><strong>Transitions:</strong> All state changes use 0.2–0.5s ease/ease-out</li>
+        </ul>
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>Progress bar fills smoothly with green-to-blue gradient</li>
+          <li>Progress bar animation: 0.5s ease, no jank</li>
+          <li>Phase dots show 3 states correctly (default/active/done)</li>
+          <li>Checkbox toggle shows white checkmark when checked</li>
+          <li>Done task card fades to 0.6 opacity, text strike-through</li>
+          <li>Phase chevron rotates 180° smoothly when collapsing</li>
+          <li>Find a Pro button disabled state shows gray border/text</li>
+          <li>All hover states have smooth 0.15–0.2s transitions</li>
+          <li>Colors match mockup exactly (no off-shade greens/blues)</li>
+          <li>No layout shift on state changes (animations don't affect layout)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- UX-CK-07 -->
+    <div class="spec-section" id="ux-ck-07">
+      <h2>
+        <span class="spec-id">UX-CK-07</span>
+        Filter Chip Count Badges
+      </h2>
+      <p>Display count badges on all filter chips (All, To Do, Done, Now, Soon, Later) showing the number of matching tasks. Active chip uses navy background + white text.</p>
+
+      <div class="subsection">
+        <h3>Badge Display</h3>
+        <p>File: <span class="file-ref">src/lib/components/checklist/ChecklistFilters.svelte</span></p>
+        <ul>
+          <li><strong>All chip:</strong> Count of all items in current concept</li>
+          <li><strong>To Do chip:</strong> Count of items where done === false</li>
+          <li><strong>Done chip:</strong> Count of items where done === true</li>
+          <li><strong>Now chip:</strong> Count of items where priority === 'now'</li>
+          <li><strong>Soon chip:</strong> Count of items where priority === 'soon'</li>
+          <li><strong>Later chip:</strong> Count of items where priority === 'later'</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Badge Styling</h3>
+        <ul>
+          <li><strong>Position:</strong> Inline or top-right corner of chip (floating badge style)</li>
+          <li><strong>Background:</strong> Inherit from chip (or #fff on colored backgrounds)</li>
+          <li><strong>Size:</strong> 16–20px diameter (small circle or rounded pill)</li>
+          <li><strong>Font:</strong> 10px, font-weight: 700, centered text</li>
+          <li><strong>Padding:</strong> 2px (circle) or 2px 6px (pill)</li>
+          <li>Zero counts: Show "0" (do not hide)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Active Chip State</h3>
+        <ul>
+          <li><strong>Background:</strong> #1a3a52 (navy) or #1B4965 (darker blue)</li>
+          <li><strong>Text color:</strong> #fff (white)</li>
+          <li><strong>Border:</strong> None (or 1px solid #1a3a52)</li>
+          <li><strong>Badge on active chip:</strong> Show count in white on navy (high contrast)</li>
+        </ul>
+      </div>
+
+      <div class="subsection">
+        <h3>Chip Layout Example</h3>
+        <div class="code-block">
+Chip: "All"
+├─ Text: "All"
+└─ Badge: "51" (circle, top-right)
+
+Active Chip: "To Do" (navy background)
+├─ Text: "To Do" (white)
+└─ Badge: "23" (white text on navy circle)
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Badge Count Logic</h3>
+        <p>All counts are recalculated on item state change (toggle done, change priority).</p>
+        <ul>
+          <li>Counts reflect real-time state (no lag)</li>
+          <li>Counts reset if filter applied (show filtered count)</li>
+          <li><strong>Example:</strong> If 51 total items, 23 to-do, 28 done → badges show [51] [23] [28]</li>
+        </ul>
+      </div>
+
+      <div class="acceptance">
+        <h4>Acceptance Criteria</h4>
+        <ol>
+          <li>All filter chips display count badges</li>
+          <li>"All" badge shows total item count</li>
+          <li>"To Do" badge shows count of unchecked items</li>
+          <li>"Done" badge shows count of checked items</li>
+          <li>"Now" / "Soon" / "Later" badges show counts per priority</li>
+          <li>Active chip background is navy (#1a3a52 or #1B4965)</li>
+          <li>Active chip text is white</li>
+          <li>Badge on active chip is visible (white text on navy)</li>
+          <li>Counts update instantly when item toggled</li>
+          <li>Counts show "0" if no items match filter</li>
+          <li>Badge positioning is consistent across all chips</li>
+          <li>No layout shift when count changes (1–3 digits)</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="note">
+      <strong>Implementation Note:</strong> All file paths reference src/ relative to repo root. When committing changes, ensure branch name follows pattern <code>ux/checklist-polish-*</code> and all components type-check without errors.
+    </div>
+
+    <div class="note">
+      <strong>Testing Requirements:</strong> Before marking spec complete, test on:
+      <ul style="margin-top: 8px;">
+        <li>Desktop (1440px): Chrome, Firefox, Safari</li>
+        <li>Tablet (768px): iPad, Chrome DevTools</li>
+        <li>Mobile (375px): iPhone, Android</li>
+        <li>Print: Chrome, Firefox print preview</li>
+        <li>Accessibility: NVDA, JAWS, macOS VoiceOver</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <p>RE² Launch Checklist — UX Polish Specification</p>
+    <p style="margin-top: 8px; font-size: 11px;">Generated April 9, 2026 | Checklist thread (UX-only)</p>
+  </footer>
+</body>
+</html>

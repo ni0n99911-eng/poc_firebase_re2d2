@@ -1,0 +1,312 @@
+{
+  "coffee": {
+    "conceptPrompt": "Tell us about your coffee concept",
+    "placeholder": "e.g., Protein coffee + smoothie bar, grab-and-go, near a gym",
+    "questions": [
+      {
+        "id": "service_model",
+        "label": "How will customers order?",
+        "question": "How will customers order?",
+        "icon": "🛒",
+        "type": "single",
+        "coaching": "This determines your layout, staffing, and which locations work best. Grab-and-go spots thrive near transit; sit-down cafes need residential density and parking.",
+        "smbInsight": "Grab-and-go concepts can do 2-3x the volume in the same space, but average tickets are 30% lower.",
+        "options": [
+          { "value": "grab_and_go", "label": "Grab & Go", "icon": "🏃", "scoringHint": { "transit": 0.05 } },
+          { "value": "sit_down", "label": "Sit-Down Café", "icon": "🪑", "scoringHint": { "vibrancy": 0.05 } },
+          { "value": "hybrid", "label": "Both", "icon": "☕", "scoringHint": {} },
+          { "value": "not_sure", "label": "Not sure yet", "icon": "🤷", "scoringHint": {} }
+        ]
+      },
+      {
+        "id": "peak_hours",
+        "label": "When's your rush?",
+        "question": "When's your rush?",
+        "icon": "⏰",
+        "type": "single",
+        "coaching": "We're asking because it completely changes which addresses work for you. Morning commuter spots need to be within 200 feet of a subway exit. All-day spots need parking and residential density.",
+        "smbInsight": "Most first-time coffee founders don't realize the time-of-day match is more important than total foot traffic.",
+        "options": [
+          { "value": "morning", "label": "Morning commuters", "icon": "🌅", "scoringHint": { "transit": 0.05 } },
+          { "value": "all_day", "label": "All-day hangout", "icon": "☀️", "scoringHint": { "vibrancy": 0.03 } },
+          { "value": "afternoon", "label": "Afternoon / Evening", "icon": "🌙", "scoringHint": { "vibrancy": 0.05, "safety": 0.03 } },
+          { "value": "not_sure", "label": "Not sure yet", "icon": "🤷", "scoringHint": {} }
+        ]
+      },
+      {
+        "id": "target_customer",
+        "label": "Who's your core customer?",
+        "question": "Who's your core customer?",
+        "icon": "👥",
+        "type": "single",
+        "coaching": "Your target customer determines the neighborhood income level, foot traffic type, and even what time of day matters most for your location.",
+        "smbInsight": "Remote worker cafes have higher dwell times but lower turnover — you need higher ticket prices to compensate.",
+        "options": [
+          { "value": "commuters", "label": "Commuters", "icon": "🚇", "scoringHint": { "transit": 0.05 } },
+          { "value": "remote_workers", "label": "Remote Workers", "icon": "💻", "scoringHint": { "vibrancy": 0.05 } },
+          { "value": "neighborhood", "label": "Neighborhood Locals", "icon": "🏘️", "scoringHint": { "demographics": 0.05 } },
+          { "value": "students", "label": "Students", "icon": "🎓", "scoringHint": { "demographics": 0.03, "vibrancy": 0.03 } },
+          { "value": "not_sure", "label": "Not sure yet", "icon": "🤷", "scoringHint": {} }
+        ]
+      }
+    ]
+  },
+  "restaurant": {
+    "conceptPrompt": "Tell us about your restaurant concept",
+    "placeholder": "e.g., Upscale Korean BBQ with full cocktail bar, dinner only",
+    "questions": [
+      {
+        "id": "meal_period",
+        "label": "What's your primary meal period?",
+        "type": "single",
+        "options": [
+          { "value": "lunch", "label": "Lunch-Driven", "icon": "🥗", "scoringHint": { "transit": 0.05 } },
+          { "value": "dinner", "label": "Dinner-Focused", "icon": "🍷", "scoringHint": { "safety": 0.05, "vibrancy": 0.03 } },
+          { "value": "all_day", "label": "All-Day Dining", "icon": "🍽️", "scoringHint": { "demographics": 0.03 } },
+          { "value": "late_night", "label": "Late Night", "icon": "🌙", "scoringHint": { "vibrancy": 0.05, "safety": 0.05 } }
+        ]
+      },
+      {
+        "id": "price_point",
+        "label": "What's your average check?",
+        "type": "single",
+        "options": [
+          { "value": "budget", "label": "Under $15", "icon": "💵", "scoringHint": { "transit": 0.03, "demographics": -0.03 } },
+          { "value": "mid", "label": "$15–$35", "icon": "💳", "scoringHint": {} },
+          { "value": "upscale", "label": "$35–$75", "icon": "✨", "scoringHint": { "demographics": 0.05 } },
+          { "value": "fine", "label": "$75+", "icon": "🥂", "scoringHint": { "demographics": 0.08, "transit": -0.05 } }
+        ]
+      },
+      {
+        "id": "service_style",
+        "label": "What's your service model?",
+        "type": "single",
+        "options": [
+          { "value": "fast_casual", "label": "Fast Casual", "icon": "🏃", "scoringHint": { "transit": 0.05 } },
+          { "value": "full_service", "label": "Full Service", "icon": "🪑", "scoringHint": { "vibrancy": 0.03 } },
+          { "value": "counter", "label": "Counter Service", "icon": "🔔", "scoringHint": { "transit": 0.03 } }
+        ]
+      }
+    ]
+  },
+  "gym": {
+    "conceptPrompt": "Tell us about your fitness concept",
+    "placeholder": "e.g., Women's CrossFit box with childcare, morning focus",
+    "questions": [
+      {
+        "id": "fitness_type",
+        "label": "What kind of fitness?",
+        "type": "single",
+        "options": [
+          { "value": "boutique", "label": "Boutique Studio", "icon": "🧘", "scoringHint": { "demographics": 0.05 } },
+          { "value": "crossfit", "label": "CrossFit / HIIT", "icon": "🏋️", "scoringHint": { "vibrancy": 0.03 } },
+          { "value": "traditional", "label": "Traditional Gym", "icon": "💪", "scoringHint": { "demographics": 0.03, "competition": 0.03 } },
+          { "value": "personal_training", "label": "Personal Training", "icon": "🎯", "scoringHint": { "demographics": 0.05 } }
+        ]
+      },
+      {
+        "id": "peak_schedule",
+        "label": "When do most members come in?",
+        "type": "single",
+        "options": [
+          { "value": "early_morning", "label": "Early AM (5–8am)", "icon": "🌅", "scoringHint": { "transit": 0.05 } },
+          { "value": "evening", "label": "After Work (5–8pm)", "icon": "🌆", "scoringHint": { "transit": 0.03, "safety": 0.03 } },
+          { "value": "flexible", "label": "All Day / Flexible", "icon": "⏰", "scoringHint": { "vibrancy": 0.03 } }
+        ]
+      },
+      {
+        "id": "target_demo",
+        "label": "Who's your ideal member?",
+        "type": "single",
+        "options": [
+          { "value": "young_pros", "label": "Young Professionals", "icon": "👔", "scoringHint": { "demographics": 0.05, "vibrancy": 0.03 } },
+          { "value": "families", "label": "Families", "icon": "👨‍👩‍👧", "scoringHint": { "demographics": 0.05, "safety": 0.03 } },
+          { "value": "athletes", "label": "Serious Athletes", "icon": "🏆", "scoringHint": { "competition": 0.03 } },
+          { "value": "seniors", "label": "Active Seniors", "icon": "🧓", "scoringHint": { "safety": 0.05, "transit": 0.03 } }
+        ]
+      }
+    ]
+  },
+  "dentist": {
+    "conceptPrompt": "Tell us about your dental practice",
+    "placeholder": "e.g., Family general dentistry, pediatric focus, Saturday hours",
+    "questions": [
+      {
+        "id": "practice_type",
+        "label": "What kind of practice?",
+        "type": "single",
+        "options": [
+          { "value": "general", "label": "General / Family", "icon": "👨‍👩‍👧", "scoringHint": { "demographics": 0.05 } },
+          { "value": "cosmetic", "label": "Cosmetic", "icon": "✨", "scoringHint": { "demographics": 0.05, "vibrancy": 0.03 } },
+          { "value": "pediatric", "label": "Pediatric", "icon": "👶", "scoringHint": { "demographics": 0.08, "safety": 0.03 } },
+          { "value": "specialty", "label": "Ortho / Specialty", "icon": "🦷", "scoringHint": { "competition": 0.05 } }
+        ]
+      },
+      {
+        "id": "patient_source",
+        "label": "How will patients find you?",
+        "type": "single",
+        "options": [
+          { "value": "walk_in", "label": "Walk-Ins Welcome", "icon": "🚶", "scoringHint": { "transit": 0.05, "vibrancy": 0.03 } },
+          { "value": "referral", "label": "Referral-Based", "icon": "🤝", "scoringHint": { "competition": 0.03 } },
+          { "value": "insurance", "label": "Insurance Networks", "icon": "📋", "scoringHint": { "demographics": 0.03 } }
+        ]
+      }
+    ]
+  },
+  "spa": {
+    "conceptPrompt": "Tell us about your spa or salon concept",
+    "placeholder": "e.g., Luxury day spa focused on bridal parties and corporate wellness",
+    "questions": [
+      {
+        "id": "spa_type",
+        "label": "What's your specialty?",
+        "type": "single",
+        "options": [
+          { "value": "day_spa", "label": "Day Spa", "icon": "🧖", "scoringHint": { "demographics": 0.05 } },
+          { "value": "hair_salon", "label": "Hair Salon", "icon": "💇", "scoringHint": { "vibrancy": 0.03 } },
+          { "value": "nail_studio", "label": "Nail Studio", "icon": "💅", "scoringHint": { "transit": 0.03, "vibrancy": 0.03 } },
+          { "value": "med_spa", "label": "Med Spa", "icon": "💉", "scoringHint": { "demographics": 0.08 } }
+        ]
+      },
+      {
+        "id": "clientele",
+        "label": "Who's your ideal client?",
+        "type": "single",
+        "options": [
+          { "value": "luxury", "label": "Luxury / Premium", "icon": "👑", "scoringHint": { "demographics": 0.05 } },
+          { "value": "everyday", "label": "Everyday Affordable", "icon": "🌟", "scoringHint": { "transit": 0.03, "demographics": -0.03 } },
+          { "value": "events", "label": "Events & Bridal", "icon": "💐", "scoringHint": { "vibrancy": 0.05 } }
+        ]
+      }
+    ]
+  },
+  "bodega": {
+    "conceptPrompt": "Tell us about your store concept",
+    "placeholder": "e.g., 24-hour deli with fresh juice bar and hot food counter",
+    "questions": [
+      {
+        "id": "store_type",
+        "label": "What's your focus?",
+        "type": "single",
+        "options": [
+          { "value": "classic_deli", "label": "Classic Deli / Bodega", "icon": "🥪", "scoringHint": { "demographics": 0.03 } },
+          { "value": "specialty", "label": "Specialty / Gourmet", "icon": "🧀", "scoringHint": { "demographics": 0.05, "vibrancy": 0.03 } },
+          { "value": "convenience", "label": "Convenience / Essentials", "icon": "🛒", "scoringHint": { "transit": 0.03, "demographics": 0.03 } }
+        ]
+      },
+      {
+        "id": "hours",
+        "label": "What are your hours?",
+        "type": "single",
+        "options": [
+          { "value": "24hr", "label": "24 Hours", "icon": "🌙", "scoringHint": { "safety": 0.05, "transit": 0.03 } },
+          { "value": "early_late", "label": "6am – Midnight", "icon": "🕐", "scoringHint": { "safety": 0.03 } },
+          { "value": "standard", "label": "Standard (7am – 10pm)", "icon": "☀️", "scoringHint": {} }
+        ]
+      }
+    ]
+  },
+  "bakery": {
+    "conceptPrompt": "Tell us about your bakery concept",
+    "placeholder": "e.g., Sourdough bakery with morning coffee service, wholesale accounts",
+    "questions": [
+      {
+        "id": "bakery_type",
+        "label": "What's your bake?",
+        "type": "single",
+        "options": [
+          { "value": "artisan_bread", "label": "Artisan Bread", "icon": "🍞", "scoringHint": { "demographics": 0.03 } },
+          { "value": "pastry_cafe", "label": "Pastry + Café", "icon": "🥐", "scoringHint": { "transit": 0.05, "vibrancy": 0.03 } },
+          { "value": "custom_cakes", "label": "Custom Cakes / Events", "icon": "🎂", "scoringHint": { "demographics": 0.05 } },
+          { "value": "wholesale", "label": "Wholesale + Retail", "icon": "📦", "scoringHint": { "competition": 0.03 } }
+        ]
+      },
+      {
+        "id": "peak_time",
+        "label": "When's your busiest window?",
+        "type": "single",
+        "options": [
+          { "value": "early_morning", "label": "Early Morning (6–9am)", "icon": "🌅", "scoringHint": { "transit": 0.05 } },
+          { "value": "mid_morning", "label": "Mid-Morning (9–12pm)", "icon": "☀️", "scoringHint": { "vibrancy": 0.03 } },
+          { "value": "all_day", "label": "All Day", "icon": "⏰", "scoringHint": {} }
+        ]
+      }
+    ]
+  },
+  "barber": {
+    "conceptPrompt": "Tell us about your barbershop concept",
+    "placeholder": "e.g., High-end grooming lounge, appointments only, beard specialist",
+    "questions": [
+      {
+        "id": "vibe",
+        "label": "What's the vibe?",
+        "type": "single",
+        "options": [
+          { "value": "classic", "label": "Classic Neighborhood", "icon": "💈", "scoringHint": { "demographics": 0.03, "safety": 0.03 } },
+          { "value": "premium", "label": "Premium / Lounge", "icon": "🥃", "scoringHint": { "demographics": 0.05, "vibrancy": 0.03 } },
+          { "value": "quick_cuts", "label": "Quick Cuts / Walk-In", "icon": "✂️", "scoringHint": { "transit": 0.05 } }
+        ]
+      },
+      {
+        "id": "booking",
+        "label": "How do clients book?",
+        "type": "single",
+        "options": [
+          { "value": "walk_in", "label": "Walk-Ins Only", "icon": "🚶", "scoringHint": { "transit": 0.05 } },
+          { "value": "appointment", "label": "Appointments Only", "icon": "📅", "scoringHint": { "demographics": 0.03 } },
+          { "value": "both", "label": "Both", "icon": "🔄", "scoringHint": {} }
+        ]
+      }
+    ]
+  },
+  "boutique": {
+    "conceptPrompt": "Tell us about your retail concept",
+    "placeholder": "e.g., Curated vintage streetwear, consignment model, Instagram-first",
+    "questions": [
+      {
+        "id": "retail_type",
+        "label": "What do you sell?",
+        "type": "single",
+        "options": [
+          { "value": "fashion", "label": "Fashion / Apparel", "icon": "👗", "scoringHint": { "vibrancy": 0.05, "demographics": 0.03 } },
+          { "value": "vintage", "label": "Vintage / Thrift", "icon": "🕰️", "scoringHint": { "vibrancy": 0.05 } },
+          { "value": "home", "label": "Home / Lifestyle", "icon": "🏠", "scoringHint": { "demographics": 0.05 } },
+          { "value": "specialty", "label": "Specialty / Niche", "icon": "🎯", "scoringHint": { "competition": 0.05 } }
+        ]
+      },
+      {
+        "id": "traffic_model",
+        "label": "How will people discover you?",
+        "type": "single",
+        "options": [
+          { "value": "foot_traffic", "label": "Foot Traffic / Street", "icon": "🚶", "scoringHint": { "transit": 0.05, "vibrancy": 0.03 } },
+          { "value": "destination", "label": "Destination / Online-to-Offline", "icon": "📱", "scoringHint": { "demographics": 0.03 } },
+          { "value": "anchor", "label": "Near an Anchor Store", "icon": "🏬", "scoringHint": { "vibrancy": 0.05 } }
+        ]
+      }
+    ]
+  },
+  "florist": {
+    "conceptPrompt": "Tell us about your floral concept",
+    "placeholder": "e.g., Wedding + event florals with a walk-in retail front",
+    "questions": [
+      {
+        "id": "floral_focus",
+        "label": "What's your main business?",
+        "type": "single",
+        "options": [
+          { "value": "events", "label": "Events & Weddings", "icon": "💒", "scoringHint": { "demographics": 0.05 } },
+          { "value": "walk_in", "label": "Walk-In Retail", "icon": "🌸", "scoringHint": { "transit": 0.05, "vibrancy": 0.03 } },
+          { "value": "subscription", "label": "Subscriptions & Delivery", "icon": "📦", "scoringHint": { "demographics": 0.03 } },
+          { "value": "plants", "label": "Plants & Garden", "icon": "🌿", "scoringHint": { "vibrancy": 0.03, "demographics": 0.03 } }
+        ]
+      }
+    ]
+  },
+  "_meta": {
+    "version": "1.0.0",
+    "description": "Persona-specific onboarding questions for RE² concept flow. Each question's scoringHint adjusts the base persona weights — positive values boost that index, negative values reduce it. Hints are additive deltas on the base weights from persona-defaults.json.",
+    "scoringHintNotes": "Values represent additive weight adjustments (e.g., +0.05 means add 5 percentage points to that index weight). After applying hints, weights are re-normalized to sum to 1.0."
+  }
+}

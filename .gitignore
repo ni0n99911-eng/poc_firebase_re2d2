@@ -1,0 +1,42 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Claude Cowork internal
+.claude/worktrees/
+
+# macOS/VirtioFS duplicate artifacts ("file 2.ext" ghost files created by VirtioFS)
+# There are 142 of these in the working tree. They must never be committed.
+*\ 2.*
+*\ 2/
+
+# Large data/calibration files — not needed for Netlify build
+data-sources/
+reports/
+scripts/socrata-data/
+npm-install.log
+svelte-check-full.txt
+*[[:space:]]2.svelte
+*[[:space:]]2.ts
+*[[:space:]]3.svelte
+*[[:space:]]3.ts

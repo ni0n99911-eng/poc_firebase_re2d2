@@ -1,0 +1,112 @@
+{
+  "coffee": {
+    "label": "Specialty Coffee / Café",
+    "emoji": "☕",
+    "heroCopy": "Your morning rush. Your corner. Your score.",
+    "archetype": "The Community Curator",
+    "conceptPlaceholder": "e.g., Protein coffee + smoothie bar, grab-and-go, near a gym",
+    "weights": { "transit": 0.30, "competition": 0.15, "demographics": 0.15, "vibrancy": 0.20, "safety": 0.10, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Rush", "competition": "Blue Ocean", "demographics": "The Tribe", "vibrancy": "Force Multiplier", "safety": "The Shield", "momentum": "The Wave" },
+    "bizType": "Specialty Coffee / Café",
+    "bizCategory": "coffee"
+  },
+  "restaurant": {
+    "label": "Restaurant",
+    "emoji": "🍽️",
+    "heroCopy": "Your cuisine. Your crowd. Your score.",
+    "archetype": "The Experience Architect",
+    "conceptPlaceholder": "e.g., Upscale Korean BBQ with full cocktail bar, dinner only",
+    "weights": { "transit": 0.20, "competition": 0.15, "demographics": 0.20, "vibrancy": 0.15, "safety": 0.20, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Draw", "competition": "White Space", "demographics": "The Palette", "vibrancy": "The Scene", "safety": "Night Watch", "momentum": "The Wave" },
+    "bizType": "Restaurant / Fast Casual",
+    "bizCategory": "restaurant"
+  },
+  "gym": {
+    "label": "Fitness Studio",
+    "emoji": "🏋️",
+    "heroCopy": "Your tribe. Your energy. Your score.",
+    "archetype": "The Transformation Leader",
+    "conceptPlaceholder": "e.g., Women's CrossFit box with childcare, morning focus",
+    "weights": { "transit": 0.15, "competition": 0.15, "demographics": 0.30, "vibrancy": 0.25, "safety": 0.10, "momentum": 0.05 },
+    "spokeLabels": { "transit": "The Commute", "competition": "Open Mat", "demographics": "The Pack", "vibrancy": "Wellness Corridor", "safety": "The Wave", "momentum": "Dawn Patrol" },
+    "bizType": "Fitness / Wellness Studio",
+    "bizCategory": "fitness"
+  },
+  "dentist": {
+    "label": "Dental Practice",
+    "emoji": "🦷",
+    "heroCopy": "Your patients. Your practice. Your score.",
+    "archetype": "The Practice Builder",
+    "conceptPlaceholder": "e.g., Family general dentistry, pediatric focus, Saturday hours",
+    "weights": { "transit": 0.10, "competition": 0.30, "demographics": 0.25, "vibrancy": 0.15, "safety": 0.10, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Drive-By", "competition": "Chair Gap", "demographics": "The Families", "vibrancy": "The Strip", "safety": "Safe Walk", "momentum": "The Wave" },
+    "bizType": "Professional Services",
+    "bizCategory": "services"
+  },
+  "spa": {
+    "label": "Spa / Wellness",
+    "emoji": "🧖",
+    "heroCopy": "Your sanctuary. Your clientele. Your score.",
+    "archetype": "The Sanctuary Creator",
+    "conceptPlaceholder": "e.g., Luxury day spa focused on bridal parties and corporate wellness",
+    "weights": { "transit": 0.10, "competition": 0.10, "demographics": 0.25, "vibrancy": 0.25, "safety": 0.20, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Reach", "competition": "Uncharted", "demographics": "The Clientele", "vibrancy": "The Corridor", "safety": "The Haven", "momentum": "The Wave" },
+    "bizType": "Barbershop / Salon",
+    "bizCategory": "salon"
+  },
+  "bodega": {
+    "label": "Bodega / Convenience",
+    "emoji": "🏪",
+    "heroCopy": "Your block. Your community. Your score.",
+    "archetype": "The Neighborhood Anchor",
+    "conceptPlaceholder": "e.g., 24-hour deli with fresh juice bar and hot food counter",
+    "weights": { "transit": 0.15, "competition": 0.15, "demographics": 0.35, "vibrancy": 0.05, "safety": 0.15, "momentum": 0.15 },
+    "spokeLabels": { "transit": "The Corner", "competition": "Block Claim", "demographics": "The Block", "vibrancy": "The Anchor", "safety": "Block Watch", "momentum": "The Wave" },
+    "bizType": "Grocery / Specialty Food",
+    "bizCategory": "grocery"
+  },
+  "bakery": {
+    "label": "Bakery",
+    "emoji": "🥐",
+    "heroCopy": "Your mornings. Your neighborhood. Your score.",
+    "archetype": "The Morning Ritual Maker",
+    "conceptPlaceholder": "e.g., Sourdough bakery with morning coffee service, wholesale accounts",
+    "weights": { "transit": 0.25, "competition": 0.20, "demographics": 0.25, "vibrancy": 0.15, "safety": 0.05, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Rush", "competition": "Blue Ocean", "demographics": "The Tribe", "vibrancy": "Force Multiplier", "safety": "The Shield", "momentum": "The Wave" },
+    "bizType": "Specialty Coffee / Café",
+    "bizCategory": "coffee"
+  },
+  "barber": {
+    "label": "Barbershop / Salon",
+    "emoji": "💈",
+    "heroCopy": "Your chair. Your regulars. Your score.",
+    "archetype": "The Neighborhood Institution",
+    "conceptPlaceholder": "e.g., High-end grooming lounge, appointments only, beard specialist",
+    "weights": { "transit": 0.20, "competition": 0.10, "demographics": 0.30, "vibrancy": 0.10, "safety": 0.20, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Commute", "competition": "Open Mat", "demographics": "The Pack", "vibrancy": "The Scene", "safety": "Block Watch", "momentum": "The Wave" },
+    "bizType": "Barbershop / Salon",
+    "bizCategory": "salon"
+  },
+  "boutique": {
+    "label": "Boutique Retail",
+    "emoji": "👗",
+    "heroCopy": "Your style. Your discovery. Your score.",
+    "archetype": "The Taste Curator",
+    "conceptPlaceholder": "e.g., Curated vintage streetwear, consignment model, Instagram-first",
+    "weights": { "transit": 0.20, "competition": 0.10, "demographics": 0.25, "vibrancy": 0.20, "safety": 0.15, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Rush", "competition": "Blue Ocean", "demographics": "The Tribe", "vibrancy": "The Corridor", "safety": "The Shield", "momentum": "The Wave" },
+    "bizType": "Retail Store",
+    "bizCategory": "retail"
+  },
+  "florist": {
+    "label": "Florist",
+    "emoji": "💐",
+    "heroCopy": "Your beauty. Your block. Your score.",
+    "archetype": "The Impulse Alchemist",
+    "conceptPlaceholder": "e.g., Wedding + event florals with a walk-in retail front",
+    "weights": { "transit": 0.30, "competition": 0.05, "demographics": 0.20, "vibrancy": 0.20, "safety": 0.15, "momentum": 0.10 },
+    "spokeLabels": { "transit": "The Rush", "competition": "Blue Ocean", "demographics": "The Tribe", "vibrancy": "Force Multiplier", "safety": "The Shield", "momentum": "The Wave" },
+    "bizType": "Retail Store",
+    "bizCategory": "retail"
+  }
+}

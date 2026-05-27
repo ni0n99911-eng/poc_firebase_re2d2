@@ -1,0 +1,52 @@
+#!/bin/sh
+# RE² pre-commit hook
+# 1. Catches macOS duplicate files (e.g. "+page 2.svelte") that break SvelteKit's
+#    route manifest builder — it throws on any file starting with "+" that has a space.
+# 2. Prevents committing plain .ts files that contain Svelte 5 runes ($state, $derived, $effect)
+#    — these are not processed by the Svelte compiler and will silently fail in production.
+
+# Check 1: macOS duplicate route files
+bad=$(find src/routes -name "+* *.svelte" -o -name "+* *.ts" 2>/dev/null)
+
+if [ -n "$bad" ]; then
+  echo ""
+  echo "❌  Pre-commit blocked: macOS duplicate route file(s) detected:"
+  echo ""
+  echo "$bad" | sed 's/^/   /'
+  echo ""
+  echo "   Delete these files before committing:"
+  echo "   git rm --cached <file>  (if staged)"
+  echo "   rm <file>               (to delete)"
+  echo ""
+  exit 1
+fi
+
+# Check 2: Svelte 5 runes in plain .ts files (not .svelte.ts)
+# Get all staged .ts files (excluding .svelte.ts) in src/
+staged_ts=$(git diff --cached --name-only --diff-filter=ACM -- 'src/**/*.ts' | grep -v '\.svelte\.ts$')
+
+rune_files=""
+for file in $staged_ts; do
+  if [ -f "$file" ]; then
+    if grep -q '\$state(\|\$derived(\|\$effect(' "$file"; then
+      rune_files="$rune_files$file"$'\n'
+    fi
+  fi
+done
+
+if [ -n "$rune_files" ]; then
+  echo ""
+  echo "❌  Pre-commit blocked: Svelte 5 runes found in plain .ts file(s):"
+  echo ""
+  echo "$rune_files" | sed 's/^/   /'
+  echo ""
+  echo "   Svelte runes ($state, $derived, $effect) are only processed in .svelte.ts files."
+  echo "   They will silently fail in plain .ts files during production builds."
+  echo ""
+  echo "   Solution: Rename the file(s) to .svelte.ts"
+  echo "   Example:  git mv src/lib/myfile.ts src/lib/myfile.svelte.ts"
+  echo ""
+  exit 1
+fi
+
+exit 0

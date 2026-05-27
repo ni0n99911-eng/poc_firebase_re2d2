@@ -1,0 +1,110 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Lens → Watch Out propagation > Average lens propagates as info 1`] = `
+[
+  {
+    "description": "Moderate activity in the trade area.",
+    "dimension": "vibrancy",
+    "icon": "🏙️",
+    "severity": "info",
+    "source": "lens",
+    "title": "Concept Pulse — Average (48/100)",
+  },
+]
+`;
+
+exports[`Lens → Watch Out propagation > Concerning lens propagates as critical 1`] = `
+[
+  {
+    "description": "Safety score is deeply concerning for this block.",
+    "dimension": "safety",
+    "icon": "🛡️",
+    "severity": "critical",
+    "source": "lens",
+    "title": "Safety — Concerning (22/100)",
+  },
+]
+`;
+
+exports[`Lens → Watch Out propagation > Weak lens propagates as important 1`] = `
+[
+  {
+    "description": "Transit access is limited on this block.",
+    "dimension": "transit",
+    "icon": "🚇",
+    "severity": "important",
+    "source": "lens",
+    "title": "Transit — Weak (35/100)",
+  },
+]
+`;
+
+exports[`Multiple lenses > different dimensions both propagate 1`] = `
+[
+  {
+    "description": "Bad safety.",
+    "dimension": "safety",
+    "icon": "🛡️",
+    "severity": "critical",
+    "source": "lens",
+    "title": "Safety — Concerning (28/100)",
+  },
+  {
+    "description": "Bad transit.",
+    "dimension": "transit",
+    "icon": "🚇",
+    "severity": "important",
+    "source": "lens",
+    "title": "Transit — Weak (35/100)",
+  },
+  {
+    "description": "Moderate.",
+    "dimension": "vibrancy",
+    "icon": "🏙️",
+    "severity": "info",
+    "source": "lens",
+    "title": "Concept Pulse — Average (48/100)",
+  },
+]
+`;
+
+exports[`Universal scoring-data warnings > full universal snapshot 1`] = `
+[
+  {
+    "description": "This area has a lower safety score. Visit at night before committing — check lighting, foot traffic, and overall feel.",
+    "icon": "⚠️",
+    "severity": "important",
+    "title": "Safety Concern",
+  },
+  {
+    "description": "Limited transit access. Your customers will primarily need to drive or walk — verify parking availability.",
+    "icon": "🚌",
+    "severity": "info",
+    "title": "Limited Transit Access",
+  },
+  {
+    "description": "High competitor density in this area. You need a clear differentiator — same-concept stores nearby will split your foot traffic.",
+    "icon": "🏪",
+    "severity": "important",
+    "title": "Crowded Market",
+  },
+  {
+    "description": "The local demographics may not align with your target customer. Check household income, age distribution, and daytime population.",
+    "icon": "📊",
+    "severity": "important",
+    "title": "Demographics Mismatch",
+  },
+  {
+    "description": "Your concept’s trade-area ring is calm. Works well for destination businesses, bookings, or referral-driven concepts — riskier for walk-in dependent ones that need spillover traffic.",
+    "icon": "🚶",
+    "severity": "info",
+    "title": "Quiet Concept Pulse",
+  },
+  {
+    "description": "Permit activity and new business openings are trending down. This could mean the area is stagnating — or that rents are about to drop.",
+    "icon": "📉",
+    "severity": "info",
+    "title": "Declining Area Momentum",
+  },
+]
+`;

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE² · UX-2 · Business Case — All Patches</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf7f2; --surface: #ffffff; --surface-alt: #f5f0e8;
+    --border: #e8e2d8; --border-subtle: #ede8e0;
+    --text: #1a1a1a; --text-2: #5A6578; --text-3: #8A95A8;
+    --green: #1a3a2a; --green-light: #e8f2ec;
+    --amber: #B45309; --amber-light: #fef3c7;
+    --red: #DC2626; --red-light: #fee2e2;
+    --blue: #1d4ed8; --blue-light: #dbeafe;
+    --score-green: #059669;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+  .doc-header { background: var(--green); color: white; padding: 28px 40px; }
+  .doc-header h1 { font-size: 20px; font-weight: 800; }
+  .doc-header p { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .doc-nav { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .doc-nav a { font-size: 11px; background: rgba(255,255,255,0.1); color: white; padding: 4px 12px; border-radius: 20px; text-decoration: none; }
+  .page { max-width: 1040px; margin: 0 auto; padding: 48px 32px; }
+  .section { margin-bottom: 80px; }
+  .section-hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
+  .section-num { font-size: 11px; font-weight: 800; background: var(--green); color: white; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .section-title { font-size: 18px; font-weight: 800; }
+  .tag { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .tag-new { background: #dcfce7; color: #166534; }
+  .tag-fix { background: var(--amber-light); color: var(--amber); }
+  hr.divider { border: none; border-top: 2px solid var(--border); margin: 40px 0; }
+  .state-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-2); margin-bottom: 12px; }
+  .wf-note { background: #fef08a; border: 1px solid #fde047; border-radius: 6px; padding: 10px 14px; font-size: 11px; color: #713f12; line-height: 1.5; margin: 0 0 18px; font-style: italic; }
+  .fix-callout { background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; font-size: 12px; color: #166534; line-height: 1.6; margin-top: 16px; }
+  .fix-callout strong { display: block; font-size: 13px; margin-bottom: 6px; }
+
+  /* BC layout */
+  .bc-wrap { display: grid; grid-template-columns: 230px 1fr; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; background: white; margin-bottom: 28px; }
+  .bc-sidebar { background: var(--surface-alt); border-right: 1px solid var(--border); padding: 18px; }
+  .bc-sidebar-title { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+  .bc-sidebar-sub { font-size: 11px; color: var(--text-3); margin-bottom: 16px; }
+  .bc-input-group { margin-bottom: 12px; }
+  .bc-input-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-3); margin-bottom: 5px; display: block; }
+  .bc-input-field { width: 100%; background: white; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--text); }
+  .bc-input-field.warn { border-color: var(--amber); color: var(--amber); }
+  .bc-input-field.danger { border-color: var(--red); color: var(--red); }
+  .bc-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  .sidebar-note { font-size: 10px; color: var(--text-3); font-style: italic; line-height: 1.5; }
+  .bc-main { padding: 20px; }
+
+  /* Verdict */
+  .bc-verdict { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .bc-verdict.danger-border { border-color: #fca5a5; }
+  .verdict-label { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 8px; }
+  .vl-strong { background: #dcfce7; color: #166534; }
+  .vl-workable { background: var(--blue-light); color: var(--blue); }
+  .vl-tight { background: var(--amber-light); color: var(--amber); }
+  .vl-rethink { background: var(--red-light); color: var(--red); }
+  .bc-verdict-copy { font-size: 12px; color: var(--text-2); line-height: 1.6; }
+
+  /* Scenario bar */
+  .scenario-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .scenario-bar-label { font-size: 11px; font-weight: 700; color: var(--text-2); white-space: nowrap; }
+  .scenario-bar-note { font-size: 10px; color: var(--text-3); }
+  .sc-btn { padding: 5px 11px; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); background: white; color: var(--text-2); }
+  .sc-btn.exp.active { background: var(--green); color: white; border-color: var(--green); }
+  .sc-btn.opt.active { background: var(--score-green); color: white; border-color: var(--score-green); }
+  .sc-btn.str.active { background: var(--amber); color: white; border-color: var(--amber); }
+
+  /* Survival grid — PATCH 2.1 */
+  .surv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .surv-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 12px 10px; }
+  .surv-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-3); margin-bottom: 4px; }
+  .surv-val { font-size: 22px; font-weight: 900; line-height: 1.1; }
+  .sv-green { color: var(--score-green); }
+  .sv-amber { color: var(--amber); }
+  .sv-red { color: var(--red); }
+
+  /* Break-even 3-point bar */
+  .be-range { margin-top: 8px; }
+  .be-track { display: flex; align-items: flex-start; }
+  .be-point { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .be-dot { width: 8px; height: 8px; border-radius: 50%; margin-bottom: 4px; }
+  .be-dot.opt { background: var(--score-green); }
+  .be-dot.base { width: 10px; height: 10px; background: var(--green); margin-bottom: 3px; }
+  .be-dot.str { background: var(--amber); }
+  .be-dot.str-red { background: var(--red); }
+  .be-line { flex: 1; height: 2px; background: #e5e7eb; margin-top: 4px; }
+  .be-val { font-size: 10px; font-weight: 700; line-height: 1; }
+  .be-val.opt { color: var(--score-green); }
+  .be-val.base { color: var(--green); font-size: 11px; }
+  .be-val.str { color: var(--amber); }
+  .be-val.str-red { color: var(--red); }
+  .be-sub { font-size: 9px; color: var(--text-3); margin-top: 2px; }
+
+  /* Kill factor chips — PATCH 2.2 (below grid) */
+  .kf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .kf-chip { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 5px 11px; border-radius: 20px; background: var(--amber-light); color: var(--amber); border: 1px solid #fcd34d; }
+
+  /* Kill factor banner — PATCH 2.3 (top of main) */
+  .kf-banner { background: var(--red-light); border: 1.5px solid #fca5a5; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; font-weight: 700; color: #991b1b; }
+
+  /* Partial seed nudge — PATCH 2.4 */
+  .seed-nudge { border: 1.5px dashed #d1d5db; border-radius: 10px; padding: 28px 20px; text-align: center; background: #fafafa; margin-bottom: 14px; }
+  .seed-nudge-copy { font-size: 13px; color: var(--text-3); line-height: 1.6; margin-bottom: 16px; }
+  .seed-nudge-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; padding: 10px 22px; background: var(--green); color: white; border-radius: 8px; cursor: pointer; border: none; }
+
+  /* FICO */
+  .fico-block { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--text-2); line-height: 1.6; }
+  .fico-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-3); margin-bottom: 4px; }
+
+  .patch-badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: var(--green); color: white; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>RE² · UX-2 · Business Case — All 4 Patches</h1>
+  <p>2.1 Asymmetric range bars · 2.2 Kill factor chips below grid · 2.3 Multi-factor red banner · 2.4 isPartialSeed nudge</p>
+  <nav class="doc-nav">
+    <a href="#summary">Patch summary</a>
+    <a href="#state-a">State A: 0 kill factors</a>
+    <a href="#state-b">State B: 1 kill factor</a>
+    <a href="#state-c">State C: 2+ kill factors</a>
+    <a href="#state-d">State D: isPartialSeed</a>
+    <a href="#reference">Reference</a>
+  </nav>
+</div>
+
+<div class="page">
+
+  <!-- ── PATCH SUMMARY ── -->
+  <section class="section" id="summary">
+    <div class="section-hdr">
+      <span class="section-num">UX-2</span>
+      <span class="section-title">Patch Summary</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px;">
+      <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px;">
+        <div class="patch-badge">2.1</div><span style="font-size: 13px; font-weight: 800;">Asymmetric range bars</span>
+        <div style="font-size: 12px; color: var(--text-2); line-height: 1.6; margin-top: 8px;">Break-Even Month only: 3-point bar <code>Opt / Base / Stressed</code>. Cash to Open, Runway, Cushion = single number, no bar.</div>
+      </div>
+      <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px;">
+        <div class="patch-badge">2.2</div><span style="font-size: 13px; font-weight: 800;">Kill factor chips</span>
+        <div style="font-size: 12px; color: var(--text-2); line-height: 1.6; margin-top: 8px;">Amber pill chips directly <strong>below survival grid</strong>. 0 → nothing. 1 → 1 chip. 2+ → chips AND banner.</div>
+      </div>
+      <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px;">
+        <div class="patch-badge">2.3</div><span style="font-size: 13px; font-weight: 800;">Multi-factor red banner</span>
+        <div style="font-size: 12px; color: var(--text-2); line-height: 1.6; margin-top: 8px;">Red strip at <strong>top of main area</strong>, 2+ kill factors. Format: <code>⚠ 2 kill factors active: Rent 14% · Runway 2 months</code>. Verdict → Rethink.</div>
+      </div>
+      <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 16px;">
+        <div class="patch-badge">2.4</div><span style="font-size: 13px; font-weight: 800;">isPartialSeed nudge</span>
+        <div style="font-size: 12px; color: var(--text-2); line-height: 1.6; margin-top: 8px;">Dashed grey card replaces 4 survival boxes. <strong>Two elements:</strong> plain-text body copy + separate "Build Business Case →" button.</div>
+      </div>
+    </div>
+    <div style="background: var(--surface-alt); border-radius: 8px; padding: 14px 18px; font-size: 12px; color: var(--text-2); line-height: 1.8;">
+      <strong style="color: var(--text);">Locked — do not touch:</strong> FICO block copy · Verdict vocabulary (Strong Path / Workable / Tight / Stretch / Rethink) · Four survival number names and order · "Your plan is taking shape" headline.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── STATE A: 0 KILL FACTORS ── -->
+  <section class="section" id="state-a">
+    <div class="section-hdr">
+      <span class="section-num">State A</span>
+      <span class="section-title">0 Kill Factors — Clean Verdict</span>
+    </div>
+    <div class="wf-note">No kill factors active. Verdict renders in natural colour. No chips, no banner. Break-Even shows 3-point range. Other 3 numbers = single values only.</div>
+
+    <div class="bc-wrap">
+      <div class="bc-sidebar">
+        <div class="bc-sidebar-title">Adjust your inputs</div>
+        <div class="bc-sidebar-sub">Numbers update instantly.</div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Monthly rent</span><div class="bc-input-field">$5,500 / mo</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Personal capital</span><div class="bc-input-field">$90,000</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Buildout budget</span><div class="bc-input-field">$122,000</div></div>
+        <div class="bc-divider"></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Daily transactions</span><div class="bc-input-field">180 / day</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Avg ticket</span><div class="bc-input-field">$9.50</div></div>
+        <div class="bc-divider"></div>
+        <div class="sidebar-note">Scenario (Optimistic / Expected / Stressed) is set on the right, next to your survival numbers.</div>
+      </div>
+      <div class="bc-main">
+        <!-- No banner -->
+        <div class="bc-verdict">
+          <div class="verdict-label vl-workable">Workable</div>
+          <div class="bc-verdict-copy">Rent at 8% is within threshold. Runway covers pre-opening. No structural blockers. Break-even at Month 18 is ahead of 71% of NYC specialty coffee openings.</div>
+        </div>
+        <div class="scenario-bar">
+          <span class="scenario-bar-label">Scenario:</span>
+          <button class="sc-btn opt">Optimistic</button>
+          <button class="sc-btn exp active">Expected</button>
+          <button class="sc-btn str">Stressed</button>
+          <span class="scenario-bar-note">— changes Break-Even range below</span>
+        </div>
+        <!-- PATCH 2.1: survival grid -->
+        <div class="surv-grid">
+          <div class="surv-card">
+            <div class="surv-lbl">Cash to open</div>
+            <div class="surv-val sv-green">$167K</div>
+            <!-- No range bar -->
+          </div>
+          <div class="surv-card">
+            <div class="surv-lbl">Months of runway</div>
+            <div class="surv-val sv-green">18 mo</div>
+            <!-- No range bar -->
+          </div>
+          <div class="surv-card">
+            <div class="surv-lbl">Break-even month</div>
+            <div class="surv-val sv-green">Month 18</div>
+            <!-- PATCH 2.1: 3-point bar — only Break-Even -->
+            <div class="be-range">
+              <div class="be-track">
+                <div class="be-point"><div class="be-dot opt"></div><div class="be-val opt">14</div><div class="be-sub">Opt</div></div>
+                <div class="be-line"></div>
+                <div class="be-point"><div class="be-dot base"></div><div class="be-val base">18</div><div class="be-sub">Base</div></div>
+                <div class="be-line"></div>
+                <div class="be-point"><div class="be-dot str"></div><div class="be-val str">28</div><div class="be-sub">Stressed</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="surv-card">
+            <div class="surv-lbl">Cushion needed</div>
+            <div class="surv-val sv-green">$0</div>
+            <!-- No range bar -->
+          </div>
+        </div>
+        <!-- PATCH 2.2: 0 kill factors → no chips -->
+        <div class="fico-block">
+          <div class="fico-label">Credit Assessment</div>
+          SBA Ready — you qualify for the best rates
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── STATE B: 1 KILL FACTOR ── -->
+  <section class="section" id="state-b">
+    <div class="section-hdr">
+      <span class="section-num">State B</span>
+      <span class="section-title">1 Kill Factor — Amber Chip Below Grid</span>
+    </div>
+    <div class="wf-note">Rent Kill active (14% vs 10% threshold). Verdict demoted 1 tier but keeps its label colour — not forced to Rethink. 1 amber chip below survival grid. No banner.</div>
+
+    <div class="bc-wrap">
+      <div class="bc-sidebar">
+        <div class="bc-sidebar-title">Adjust your inputs</div>
+        <div class="bc-sidebar-sub">Numbers update instantly.</div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Monthly rent</span><div class="bc-input-field warn">$9,200 / mo ⚠</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Personal capital</span><div class="bc-input-field">$65,000</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Buildout budget</span><div class="bc-input-field">$122,000</div></div>
+        <div class="bc-divider"></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Daily transactions</span><div class="bc-input-field">180 / day</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Avg ticket</span><div class="bc-input-field">$9.50</div></div>
+        <div class="bc-divider"></div>
+        <div class="sidebar-note">Scenario (Optimistic / Expected / Stressed) is set on the right, next to your survival numbers.</div>
+      </div>
+      <div class="bc-main">
+        <!-- No banner (only 1 kill factor) -->
+        <div class="bc-verdict">
+          <div class="verdict-label vl-workable">Workable</div>
+          <div class="bc-verdict-copy">Rent is eating 14% of projected revenue — above the 10% threshold for specialty coffee. Break-even is pushed further out. Negotiate rent down or increase volume.</div>
+        </div>
+        <div class="scenario-bar">
+          <span class="scenario-bar-label">Scenario:</span>
+          <button class="sc-btn opt">Optimistic</button>
+          <button class="sc-btn exp active">Expected</button>
+          <button class="sc-btn str">Stressed</button>
+          <span class="scenario-bar-note">— changes Break-Even range below</span>
+        </div>
+        <div class="surv-grid">
+          <div class="surv-card"><div class="surv-lbl">Cash to open</div><div class="surv-val sv-amber">$167K</div></div>
+          <div class="surv-card"><div class="surv-lbl">Months of runway</div><div class="surv-val sv-green">11 mo</div></div>
+          <div class="surv-card">
+            <div class="surv-lbl">Break-even month</div>
+            <div class="surv-val sv-amber">Month 24</div>
+            <div class="be-range">
+              <div class="be-track">
+                <div class="be-point"><div class="be-dot opt"></div><div class="be-val opt">18</div><div class="be-sub">Opt</div></div>
+                <div class="be-line"></div>
+                <div class="be-point"><div class="be-dot base"></div><div class="be-val base">24</div><div class="be-sub">Base</div></div>
+                <div class="be-line"></div>
+                <div class="be-point"><div class="be-dot str"></div><div class="be-val str">38</div><div class="be-sub">Stressed</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="surv-card"><div class="surv-lbl">Cushion needed</div><div class="surv-val sv-amber">$18K</div></div>
+        </div>
+        <!-- PATCH 2.2: 1 chip below grid -->
+        <div class="kf-chips">
+          <span class="kf-chip">⚠ Rent 14% — above 10% threshold</span>
+        </div>
+        <div class="fico-block"><div class="fico-label">Credit Assessment</div>Good — SBA possible with documentation, consider traditional</div>
+      </div>
+    </div>
+
+    <div class="fix-callout">
+      <strong>State B notes</strong>
+      Chip sits directly below the last survival card, before the FICO block. Verdict Workable keeps its blue — demotion is to the tier, not a forced colour override. Sidebar rent field gets amber border + ⚠ to link input to consequence.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── STATE C: 2+ KILL FACTORS ── -->
+  <section class="section" id="state-c">
+    <div class="section-hdr">
+      <span class="section-num">State C</span>
+      <span class="section-title">2+ Kill Factors — Red Banner + Rethink</span>
+    </div>
+    <div class="wf-note">2 kill factors: Rent Kill + Thin Runway. Red banner fires at top of main area. Copy = single-line pipe-separated list. Verdict forced to Rethink colour. Chips still render below grid.</div>
+
+    <div class="bc-wrap">
+      <div class="bc-sidebar">
+        <div class="bc-sidebar-title">Adjust your inputs</div>
+        <div class="bc-sidebar-sub">Numbers update instantly.</div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Monthly rent</span><div class="bc-input-field danger">$9,200 / mo ⚠</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Personal capital</span><div class="bc-input-field danger">$12,000 ⚠</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Buildout budget</span><div class="bc-input-field">$122,000</div></div>
+        <div class="bc-divider"></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Daily transactions</span><div class="bc-input-field">180 / day</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Avg ticket</span><div class="bc-input-field">$9.50</div></div>
+        <div class="bc-divider"></div>
+        <div class="sidebar-note">Scenario (Optimistic / Expected / Stressed) is set on the right, next to your survival numbers.</div>
+      </div>
+      <div class="bc-main">
+        <!-- PATCH 2.3: Red banner — top of main area -->
+        <div class="kf-banner">⚠ 2 kill factors active: Rent 14% · Runway 2 months</div>
+        <!-- Verdict forced to Rethink -->
+        <div class="bc-verdict danger-border">
+          <div class="verdict-label vl-rethink">Rethink</div>
+          <div class="bc-verdict-copy">Two structural blockers cap this path. High rent and critically short runway both require resolution before advancing.</div>
+        </div>
+        <div class="scenario-bar">
+          <span class="scenario-bar-label">Scenario:</span>
+          <button class="sc-btn opt">Optimistic</button>
+          <button class="sc-btn exp active">Expected</button>
+          <button class="sc-btn str">Stressed</button>
+          <span class="scenario-bar-note">— changes Break-Even range below</span>
+        </div>
+        <div class="surv-grid">
+          <div class="surv-card"><div class="surv-lbl">Cash to open</div><div class="surv-val sv-amber">$167K</div></div>
+          <div class="surv-card"><div class="surv-lbl">Months of runway</div><div class="surv-val sv-red">2 mo</div></div>
+          <div class="surv-card">
+            <div class="surv-lbl">Break-even month</div>
+            <div class="surv-val sv-red">Month 38</div>
+            <div class="be-range">
+              <div class="be-track">
+                <div class="be-point"><div class="be-dot opt"></div><div class="be-val opt">29</div><div class="be-sub">Opt</div></div>
+                <div class="be-line"></div>
+                <div class="be-point"><div class="be-dot base"></div><div class="be-val base">38</div><div class="be-sub">Base</div></div>
+                <div class="be-line"></div>
+                <div class="be-point"><div class="be-dot str-red"></div><div class="be-val str-red">55</div><div class="be-sub">Stressed</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="surv-card"><div class="surv-lbl">Cushion needed</div><div class="surv-val sv-red">$110K</div></div>
+        </div>
+        <!-- PATCH 2.2: chips still render below grid even with banner active -->
+        <div class="kf-chips">
+          <span class="kf-chip">⚠ Rent 14% — above 10% threshold</span>
+          <span class="kf-chip">⚠ Runway 2 months — below 3-month floor</span>
+        </div>
+        <div class="fico-block"><div class="fico-label">Credit Assessment</div>Limited — traditional or microloan, higher rates apply</div>
+      </div>
+    </div>
+
+    <!-- 3-factor example (banner only, no full mock) -->
+    <div class="state-label" style="margin-bottom: 10px;">3 kill factors — banner format</div>
+    <div style="max-width: 680px;">
+      <div class="kf-banner">⚠ 3 kill factors active: Rent 14% · Runway 2 months · Gap $280K</div>
+      <div class="kf-chips">
+        <span class="kf-chip">⚠ Rent 14% — above 10% threshold</span>
+        <span class="kf-chip">⚠ Runway 2 months — below 3-month floor</span>
+        <span class="kf-chip">⚠ Gap $280K — 2.1× cash-to-open</span>
+      </div>
+    </div>
+
+    <div class="fix-callout">
+      <strong>State C notes</strong>
+      Banner: top of main area, before verdict block. Single line, pipe-separated. "N kill factors active:" prefix is computed. Chips below grid render regardless of banner. Verdict = Rethink label text + Rethink colour — both required, not just colour. Sidebar inputs with active kill factors get red border + ⚠ suffix.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── STATE D: isPartialSeed ── -->
+  <section class="section" id="state-d">
+    <div class="section-hdr">
+      <span class="section-num">State D</span>
+      <span class="section-title">isPartialSeed = true — Nudge State</span>
+    </div>
+    <div class="wf-note">Location page seeded BC before user ran financials. businessCase.isPartialSeed = true. Do not render 4 survival boxes, verdict, or scenario toggle. Dashed nudge card only. Sidebar stays visible.</div>
+
+    <div class="bc-wrap">
+      <div class="bc-sidebar">
+        <div class="bc-sidebar-title">Adjust your inputs</div>
+        <div class="bc-sidebar-sub">Numbers update instantly.</div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Monthly rent</span><div class="bc-input-field">$7,500 / mo</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Personal capital</span><div class="bc-input-field">$65,000</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Buildout budget</span><div class="bc-input-field">$122,000</div></div>
+        <div class="bc-divider"></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Daily transactions</span><div class="bc-input-field">180 / day</div></div>
+        <div class="bc-input-group"><span class="bc-input-lbl">Avg ticket</span><div class="bc-input-field">$9.50</div></div>
+        <div class="bc-divider"></div>
+        <div class="sidebar-note">Scenario (Optimistic / Expected / Stressed) is set on the right, next to your survival numbers.</div>
+      </div>
+      <div class="bc-main">
+        <!-- PATCH 2.4: nudge card — two distinct elements -->
+        <div class="seed-nudge">
+          <!-- Element 1: plain-text body copy, not a link -->
+          <div class="seed-nudge-copy">Run the Business Case to see survival numbers for this location.</div>
+          <!-- Element 2: separate button -->
+          <button class="seed-nudge-btn">Build Business Case →</button>
+        </div>
+        <div style="font-size: 11px; color: var(--text-3); background: var(--surface-alt); border-radius: 8px; padding: 12px 14px; line-height: 1.6;">
+          <strong style="color: var(--text);">When this clears:</strong> User completes financials page → <code>saveBusinessCase()</code> fires without <code>isPartialSeed</code> → full state renders automatically.
+        </div>
+      </div>
+    </div>
+
+    <div class="fix-callout">
+      <strong>Patch 2.4 notes</strong>
+      Two elements — body copy is plain text (not a link). Button is a separate element with full green treatment. Mobile: card full-width, button tap target = full button width (min 44px height). Button links to <code>/app/financials?addr=[addr]</code>. Sidebar inputs visible and editable in nudge state — they pre-populate the financial model.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── REFERENCE ── -->
+  <section class="section" id="reference">
+    <div class="section-hdr">
+      <span class="section-num">Reference</span>
+      <span class="section-title">Kill Factor Copy + Range Bar Spec</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 20px;">
+        <div style="font-size: 13px; font-weight: 800; margin-bottom: 14px;">Chip copy — locked, verbatim from BR-6 §6.4</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;">Rent Kill</div>
+            <span class="kf-chip">⚠ Rent [X]% — above [threshold]% threshold</span>
+          </div>
+          <div>
+            <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;">Thin Runway</div>
+            <span class="kf-chip">⚠ Runway [N] months — below 3-month floor</span>
+          </div>
+          <div>
+            <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;">Stress Capital Gap</div>
+            <span class="kf-chip">⚠ Gap $[X] — [Y]× cash-to-open</span>
+          </div>
+        </div>
+        <div style="margin-top: 14px; font-size: 11px; color: var(--text-3); font-style: italic;">Brain owns copy. Values are computed — never hardcoded.</div>
+      </div>
+
+      <div style="background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 20px;">
+        <div style="font-size: 13px; font-weight: 800; margin-bottom: 14px;">Break-even 3-point bar</div>
+        <div style="font-size: 11px; color: var(--text-3); margin-bottom: 12px;">Example: 14 / 22 / 30</div>
+        <div class="be-range" style="max-width: 180px;">
+          <div class="be-track">
+            <div class="be-point"><div class="be-dot opt"></div><div class="be-val opt">14</div><div class="be-sub">Opt</div></div>
+            <div class="be-line"></div>
+            <div class="be-point"><div class="be-dot base"></div><div class="be-val base">22</div><div class="be-sub">Base</div></div>
+            <div class="be-line"></div>
+            <div class="be-point"><div class="be-dot str"></div><div class="be-val str">30</div><div class="be-sub">Stressed</div></div>
+          </div>
+        </div>
+        <div style="margin-top: 14px; font-size: 11px; color: var(--text-3); line-height: 1.6;">Base dot = larger (10px). Opt = green. Stressed = amber. Stressed becomes red if break-even > 48 months. Values from 3-column model: pess ×0.70 / base ×0.90 / opt ×1.10.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

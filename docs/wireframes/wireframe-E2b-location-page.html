@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E2b — Ultra Clean</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', sans-serif; background: #F9FAFB; color: #111827; }
+
+  .wireframe-badge { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: #111827; color: white; font-size: 10px; font-weight: 600; padding: 3px 14px; border-radius: 20px; z-index: 300; letter-spacing: 0.5px; }
+
+  /* TOP BAR — ultra minimal */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #fff; border-bottom: 1px solid #F3F4F6; height: 42px; position: sticky; top: 0; z-index: 200; }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .logo { font-family: Georgia, serif; font-size: 17px; font-weight: 700; color: #111827; }
+  .sep { width: 1px; height: 18px; background: #E5E7EB; }
+  .addr { font-size: 13px; color: #374151; font-weight: 500; }
+  .addr-sub { font-size: 10px; color: #9CA3AF; margin-left: 6px; }
+  .topbar-right { display: flex; gap: 6px; }
+  .tb-btn { font-size: 11px; padding: 4px 12px; border-radius: 6px; text-decoration: none; border: 1px solid #E5E7EB; color: #374151; background: white; }
+  .tb-btn.pri { background: #111827; color: white; border-color: #111827; }
+
+  .layout { display: flex; height: calc(100vh - 42px); }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar { width: 280px; min-width: 280px; background: #fff; border-right: 1px solid #F3F4F6; display: flex; flex-direction: column; }
+  .s-head { padding: 10px 14px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 8px; }
+  .s-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+  .s-title { font-size: 12px; font-weight: 600; color: #374151; }
+
+  .s-msgs { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .m { max-width: 92%; padding: 7px 10px; border-radius: 10px; font-size: 11px; line-height: 1.5; }
+  .m.b { background: #F3F4F6; align-self: flex-start; border-bottom-left-radius: 2px; color: #374151; }
+  .m.b strong { color: #111827; }
+  .m.u { background: #0071E3; color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+  .s-chips { padding: 4px 12px 6px; display: flex; flex-wrap: wrap; gap: 3px; }
+  .sc { font-size: 9px; color: #374151; background: #F9FAFB; border: 1px solid #E5E7EB; padding: 3px 7px; border-radius: 8px; cursor: pointer; }
+  .sc:hover { background: #F3F4F6; }
+
+  .s-in { padding: 8px 12px; border-top: 1px solid #F3F4F6; }
+  .s-in-wrap { display: flex; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden; }
+  .s-in-wrap input { flex: 1; border: none; padding: 7px 10px; font-size: 11px; outline: none; }
+  .s-in-wrap button { background: #0071E3; color: white; border: none; padding: 0 12px; cursor: pointer; font-size: 12px; }
+
+  /* ═══ MAIN ═══ */
+  .main { flex: 1; overflow-y: auto; }
+
+  /* FIT IQ — clean card */
+  .fit { background: white; padding: 18px 24px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 20px; }
+  .fit-ring { position: relative; flex-shrink: 0; }
+  .fit-ring svg { display: block; }
+  .rbg { fill: none; stroke: #F3F4F6; }
+  .rfill { fill: none; stroke-linecap: round; }
+  .fn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -52%); font-size: 36px; font-weight: 700; color: #92400E; }
+  .fl { position: absolute; top: 50%; left: 50%; transform: translate(-50%, 16px); font-size: 9px; color: #92400E; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .fg { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; background: #FEF3C7; color: #92400E; padding: 1px 7px; border-radius: 5px; }
+
+  .fit-text { flex: 1; }
+  .fit-v { font-size: 14px; line-height: 1.5; color: #374151; }
+  .fit-v strong { color: #92400E; }
+  .fit-from { margin-top: 6px; display: flex; align-items: center; gap: 5px; font-size: 11px; color: #9CA3AF; }
+  .fp { padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 11px; }
+  .fp.l { background: #EFF6FF; color: #1E40AF; }
+  .fp.v { background: #F5F3FF; color: #5B21B6; }
+
+  .concept-pick { flex-shrink: 0; }
+  .concept-pick label { font-size: 9px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+  .concept-pick select { border: 1px solid #E5E7EB; padding: 5px 8px; border-radius: 6px; font-size: 11px; background: white; color: #374151; }
+
+  /* RE² Insights (collapsible) */
+  .re2-box { margin: 10px 18px 0; border: 1px solid #E5E7EB; border-radius: 10px; background: white; overflow: hidden; }
+  .re2-tog { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; cursor: pointer; }
+  .re2-tog:hover { background: #FAFBFD; }
+  .re2-tog-left { display: flex; align-items: center; gap: 6px; }
+  .re2-badge { font-size: 9px; font-weight: 700; background: #111827; color: white; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.3px; }
+  .re2-tog-title { font-size: 11px; font-weight: 600; color: #374151; }
+  .re2-tog-btn { font-size: 9px; color: #9CA3AF; cursor: pointer; background: none; border: none; }
+  .re2-content { display: none; border-top: 1px solid #F3F4F6; padding: 10px 12px; }
+  .re2-box.open .re2-content { display: block; }
+  .re2-msg { font-size: 11px; color: #374151; line-height: 1.5; background: #F9FAFB; padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; }
+  .re2-msg strong { color: #111827; }
+  .re2-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 8px; }
+  .re2-chip { font-size: 9px; color: #374151; background: #F9FAFB; border: 1px solid #E5E7EB; padding: 2px 7px; border-radius: 6px; cursor: pointer; }
+  .re2-in { display: flex; gap: 4px; }
+  .re2-in input { flex: 1; border: 1px solid #E5E7EB; border-radius: 6px; padding: 5px 8px; font-size: 10px; outline: none; }
+  .re2-in button { background: #111827; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-size: 10px; cursor: pointer; }
+
+  /* CONTENT */
+  .content { padding: 10px 18px 24px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+  .card { background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; }
+  .card-h { padding: 10px 14px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; justify-content: space-between; }
+  .card-h-left { display: flex; align-items: center; gap: 6px; }
+  .card-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .card-dot.bl { background: #3B82F6; }
+  .card-dot.pu { background: #7C3AED; }
+  .card-t { font-size: 12px; font-weight: 600; }
+  .card-st { font-size: 9px; color: #9CA3AF; }
+  .card-h-right { display: flex; align-items: center; gap: 5px; }
+  .card-sc { font-size: 20px; font-weight: 700; }
+  .card-sc.bl { color: #2563EB; }
+  .card-sc.pu { color: #6D28D9; }
+  .card-gr { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
+  .card-gr.bl { background: #EFF6FF; color: #1E40AF; }
+  .card-gr.pu { background: #F5F3FF; color: #5B21B6; }
+
+  .card-b { padding: 10px 14px; }
+
+  /* Signals */
+  .s { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
+  .s + .s { border-top: 1px solid #FAFBFD; }
+  .s-ic { font-size: 12px; width: 16px; text-align: center; }
+  .s-nfo { flex: 1; }
+  .s-nm { font-size: 11px; font-weight: 500; }
+  .s-d { font-size: 9px; color: #9CA3AF; }
+  .s-br { width: 50px; height: 3px; background: #F3F4F6; border-radius: 2px; overflow: hidden; }
+  .sf { height: 100%; border-radius: 2px; }
+  .sfg { background: #10B981; } .sfb { background: #3B82F6; } .sfy { background: #F59E0B; } .sfr { background: #EF4444; }
+  .s-v { font-size: 12px; font-weight: 700; width: 22px; text-align: right; }
+
+  .card-insight { margin: 6px 14px 12px; padding: 6px 10px; border-radius: 6px; font-size: 10px; line-height: 1.4; display: flex; gap: 5px; align-items: flex-start; }
+  .card-insight.bl { background: #EFF6FF; color: #1E40AF; }
+  .card-insight.pu { background: #F5F3FF; color: #5B21B6; }
+  .ci-tag { font-size: 8px; font-weight: 700; background: white; padding: 1px 4px; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+
+  /* VISION FORM */
+  .vform { padding: 8px 14px 12px; }
+  .vf { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
+  .vf + .vf { border-top: 1px solid #FAFBFD; }
+  .vf-ic { font-size: 12px; width: 16px; text-align: center; }
+  .vf-nm { flex: 1; font-size: 11px; font-weight: 500; }
+  .vf-in { width: 130px; }
+  .vf-in select, .vf-in input { width: 100%; border: 1px solid #E5E7EB; border-radius: 6px; padding: 4px 7px; font-size: 10px; background: white; outline: none; }
+  .vf-in select:focus, .vf-in input:focus { border-color: #7C3AED; box-shadow: 0 0 0 1.5px rgba(124,58,237,0.1); }
+  .vf-in input::placeholder { color: #D1D5DB; }
+  .vf-v { font-size: 12px; font-weight: 700; width: 22px; text-align: right; }
+  .vf-v.hi { color: #059669; } .vf-v.mid { color: #D97706; } .vf-v.lo { color: #DC2626; }
+
+  .live-tag { padding: 3px 14px; display: flex; align-items: center; gap: 4px; font-size: 9px; color: #7C3AED; font-weight: 500; }
+  .lt-dot { width: 5px; height: 5px; border-radius: 50%; background: #7C3AED; animation: p 1.5s infinite; }
+  @keyframes p { 0%,100%{opacity:1}50%{opacity:.3} }
+
+  /* MAP */
+  .map-card { background: white; border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .map-h { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; cursor: pointer; }
+  .map-h:hover { background: #FAFBFD; }
+  .map-h-t { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; color: #374151; }
+  .map-h-btn { font-size: 9px; color: #9CA3AF; background: none; border: 1px solid #E5E7EB; padding: 2px 8px; border-radius: 5px; cursor: pointer; }
+  .map-body { height: 180px; background: linear-gradient(155deg, #EBF2FF 0%, #D8E8FC 50%, #CBDFFA 100%); position: relative; overflow: auto; transition: height 0.3s; }
+  .map-card.exp .map-body { height: 380px; }
+  .mg { position: absolute; inset: 0; opacity: 0.1; }
+  .ms { position: absolute; background: #94A3B8; }
+  .ms.h { height: 1px; left: 0; right: 0; }
+  .ms.v { width: 1px; top: 0; bottom: 0; }
+  .mp { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: translate(-50%,-50%); z-index: 5; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .mp.y { width: 24px; height: 24px; background: #F59E0B; border: 2px solid white; font-size: 10px; }
+  .mp.c { width: 16px; height: 16px; background: #EF4444; border: 1.5px solid white; font-size: 7px; }
+  .mr { position: absolute; border-radius: 50%; border: 1.5px dashed; transform: translate(-50%,-50%); z-index: 2; }
+  .mr.r1 { width: 100px; height: 100px; border-color: rgba(245,158,11,0.2); background: rgba(245,158,11,0.03); }
+  .mr.r2 { width: 190px; height: 190px; border-color: rgba(245,158,11,0.1); }
+  .map-leg { position: absolute; bottom: 6px; left: 6px; background: rgba(255,255,255,0.88); padding: 4px 8px; border-radius: 6px; display: flex; gap: 8px; font-size: 8px; color: #6B7280; z-index: 10; }
+  .ml-d { width: 5px; height: 5px; border-radius: 50%; display: inline-block; margin-right: 2px; }
+  .map-z { position: absolute; top: 6px; right: 6px; display: flex; flex-direction: column; gap: 2px; z-index: 10; }
+  .map-z button { width: 22px; height: 22px; background: rgba(255,255,255,0.88); border: 1px solid #D1D5DB; border-radius: 5px; cursor: pointer; font-size: 12px; color: #374151; }
+
+  .ctas { display: flex; gap: 8px; justify-content: center; padding: 4px 0 16px; }
+  .ctas a { padding: 7px 16px; border-radius: 6px; font-size: 11px; text-decoration: none; font-weight: 500; }
+  .cta-g { border: 1px solid #E5E7EB; color: #374151; }
+  .cta-p { background: #111827; color: white; }
+</style>
+</head>
+<body>
+
+<div class="wireframe-badge">E2b — Ultra Clean</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="logo">RE²</span>
+    <div class="sep"></div>
+    <span class="addr">86 Fulton St, Manhattan <span class="addr-sub">Financial District</span></span>
+  </div>
+  <div class="topbar-right">
+    <a href="#" class="tb-btn">Save</a>
+    <a href="#" class="tb-btn pri">Dashboard</a>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="s-head">
+      <div class="s-dot"></div>
+      <div class="s-title">RE² Co-Pilot</div>
+    </div>
+    <div class="s-msgs">
+      <div class="m b">I've analyzed <strong>86 Fulton St</strong> for specialty coffee.</div>
+      <div class="m b"><strong>Location scores 68</strong> — excellent transit, strong demographics. But <strong>coffee competition is intense</strong> with 12+ shops nearby.</div>
+      <div class="m b"><strong>Fit IQ: 53.</strong> This block works, just not ideally for coffee. A bakery would score 67 Vision here vs your 45.</div>
+      <div class="m u">What about a food-forward coffee concept?</div>
+      <div class="m b">That could move your competition score from 26 → ~40. Update your concept in the Vision panel and watch the score change.</div>
+      <div class="m u">Show less competitive blocks nearby</div>
+      <div class="m b"><strong>3 blocks score 60+ Vision</strong> for coffee within 1 mile:<br>Beekman & Gold (64) · Maiden Ln west (61) · Cliff & John (58)</div>
+      <div class="m u">Compare Beekman & Gold</div>
+      <div class="m b"><strong>Beekman & Gold</strong> — Location 62 (slightly lower transit), Vision 64 (only 4 coffee shops). Fit IQ would be <strong>63 vs your 53 here</strong>. Trade-off: less foot traffic but much less competition.</div>
+    </div>
+    <div class="s-chips">
+      <span class="sc">Rent estimates</span>
+      <span class="sc">Weekend traffic</span>
+      <span class="sc">Competitor list</span>
+      <span class="sc">Best block for me</span>
+    </div>
+    <div class="s-in">
+      <div class="s-in-wrap">
+        <input type="text" placeholder="Ask anything...">
+        <button>→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- FIT IQ -->
+    <div class="fit">
+      <div class="fit-ring">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <circle class="rbg" cx="44" cy="44" r="37" stroke-width="7"/>
+          <circle class="rfill" cx="44" cy="44" r="37" stroke="#D97706" stroke-width="7"
+            stroke-dasharray="232" stroke-dashoffset="109" transform="rotate(-90 44 44)"/>
+        </svg>
+        <div class="fn">53</div>
+        <div class="fl">Fit IQ</div>
+        <div class="fg">C+</div>
+      </div>
+      <div class="fit-text">
+        <div class="fit-v"><strong>Moderate fit.</strong> Strong fundamentals, heavy competition. The block works — your concept needs differentiation.</div>
+        <div class="fit-from">
+          Based on
+          <span class="fp l">📍 68 Location</span>
+          <span style="color:#D1D5DB">+</span>
+          <span class="fp v">🎯 45 Vision</span>
+        </div>
+      </div>
+      <div class="concept-pick">
+        <label>Concept</label>
+        <select>
+          <option selected>Specialty Coffee</option><option>Bakery</option><option>Fast Casual</option><option>Full-Service Restaurant</option><option>QSR</option><option>Bar / Nightlife</option><option>Juice Bar</option><option>Wellness Beverage</option><option>Retail</option><option>Fitness Studio</option><option>Personal Services</option><option>Medical Office</option><option>Florist</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RE² Insights (collapsible) -->
+    <div class="re2-box open" id="re2Box">
+      <div class="re2-tog" onclick="toggleRe2()">
+        <div class="re2-tog-left">
+          <span class="re2-badge">RE²</span>
+          <span class="re2-tog-title">Location Insights</span>
+        </div>
+        <button class="re2-tog-btn" id="re2Btn">Collapse</button>
+      </div>
+      <div class="re2-content">
+        <div class="re2-msg"><strong>Location IQ is 23 pts above Vision IQ</strong> for coffee. Fundamentals are solid — adjust concept or differentiators in the Vision panel to close the gap.</div>
+        <div class="re2-chips">
+          <span class="re2-chip">Foot traffic by hour</span>
+          <span class="re2-chip">Safety details</span>
+          <span class="re2-chip">Momentum trends</span>
+          <span class="re2-chip">Nearby anchors</span>
+        </div>
+        <div class="re2-in">
+          <input type="text" placeholder="Ask about this location...">
+          <button>Ask</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="cols">
+        <!-- LOCATION -->
+        <div class="card">
+          <div class="card-h">
+            <div class="card-h-left"><div class="card-dot bl"></div><div><div class="card-t">Location Intelligence</div><div class="card-st">Any business type</div></div></div>
+            <div class="card-h-right"><span class="card-sc bl">68</span><span class="card-gr bl">B</span></div>
+          </div>
+          <div class="card-b">
+            <div class="s"><span class="s-ic">🚇</span><div class="s-nfo"><div class="s-nm">Transit</div><div class="s-d">Walk Score 98 · 45K riders</div></div><div class="s-br"><div class="sf sfg" style="width:95%"></div></div><span class="s-v">95</span></div>
+            <div class="s"><span class="s-ic">👥</span><div class="s-nfo"><div class="s-nm">Demographics</div><div class="s-d">$128K · Age 34</div></div><div class="s-br"><div class="sf sfb" style="width:75%"></div></div><span class="s-v">75</span></div>
+            <div class="s"><span class="s-ic">🏙️</span><div class="s-nfo"><div class="s-nm">Vibrancy</div><div class="s-d">142 businesses</div></div><div class="s-br"><div class="sf sfb" style="width:67%"></div></div><span class="s-v">67</span></div>
+            <div class="s"><span class="s-ic">📊</span><div class="s-nfo"><div class="s-nm">Market Proof</div><div class="s-d">Established zone</div></div><div class="s-br"><div class="sf sfy" style="width:57%"></div></div><span class="s-v">57</span></div>
+            <div class="s"><span class="s-ic">🛡️</span><div class="s-nfo"><div class="s-nm">Safety</div><div class="s-d">18 incidents/mo</div></div><div class="s-br"><div class="sf sfy" style="width:62%"></div></div><span class="s-v">62</span></div>
+            <div class="s"><span class="s-ic">📈</span><div class="s-nfo"><div class="s-nm">Momentum</div><div class="s-d">+22% permits YoY</div></div><div class="s-br"><div class="sf sfy" style="width:52%"></div></div><span class="s-v">52</span></div>
+          </div>
+          <div class="card-insight bl"><span class="ci-tag">RE²</span> Strong transit and spending power. Average safety/momentum — no major risks or tailwinds.</div>
+        </div>
+
+        <!-- VISION (editable) -->
+        <div class="card">
+          <div class="card-h">
+            <div class="card-h-left"><div class="card-dot pu"></div><div><div class="card-t">Vision Intelligence</div><div class="card-st">Your concept fit</div></div></div>
+            <div class="card-h-right"><span class="card-sc pu" id="vs">45</span><span class="card-gr pu" id="vg">C-</span></div>
+          </div>
+          <div class="live-tag"><span class="lt-dot"></span> Updates as you edit</div>
+          <div class="vform">
+            <div class="vf"><span class="vf-ic">🏪</span><div class="vf-nm">Business Type</div><div class="vf-in"><select onchange="rc()"><option selected>Specialty Coffee</option><option>Bakery</option><option>Fast Casual</option><option>Full-Service Restaurant</option><option>QSR</option><option>Bar / Nightlife</option><option>Juice Bar</option><option>Wellness Beverage</option><option>Retail</option><option>Fitness Studio</option><option>Personal Services</option><option>Medical Office</option><option>Florist</option></select></div><span class="vf-v lo">26</span></div>
+            <div class="vf"><span class="vf-ic">💰</span><div class="vf-nm">Avg Check</div><div class="vf-in"><input type="text" value="$5.50" onchange="rc()"></div><span class="vf-v hi">88</span></div>
+            <div class="vf"><span class="vf-ic">🎂</span><div class="vf-nm">Target Age</div><div class="vf-in"><input type="text" value="24-42" onchange="rc()"></div><span class="vf-v hi">72</span></div>
+            <div class="vf"><span class="vf-ic">🍽️</span><div class="vf-nm">Food Program</div><div class="vf-in"><select onchange="rc()"><option>None / Pastries</option><option selected>Light bites</option><option>Full kitchen</option><option>Grab & go</option></select></div><span class="vf-v mid">48</span></div>
+            <div class="vf"><span class="vf-ic">🌙</span><div class="vf-nm">Hours</div><div class="vf-in"><select onchange="rc()"><option selected>Morning (6a-3p)</option><option>All day (6a-9p)</option><option>Evening (3p-11p)</option></select></div><span class="vf-v mid">55</span></div>
+            <div class="vf"><span class="vf-ic">✨</span><div class="vf-nm">Differentiators</div><div class="vf-in"><input type="text" placeholder="e.g. roastery, wine" onchange="rc()"></div><span class="vf-v" style="color:#D1D5DB">—</span></div>
+          </div>
+          <div class="card-insight pu"><span class="ci-tag">RE²</span> Competition (26) is the bottleneck. Concept change or differentiators give the biggest lift.</div>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="map-card" id="mc">
+        <div class="map-h" onclick="tm()">
+          <div class="map-h-t"><span style="font-size:14px">🗺️</span> Neighborhood Map</div>
+          <button class="map-h-btn" id="mb">Expand</button>
+        </div>
+        <div class="map-body">
+          <div class="mg">
+            <div class="ms h" style="top:25%"></div><div class="ms h" style="top:50%"></div><div class="ms h" style="top:75%"></div>
+            <div class="ms v" style="left:20%"></div><div class="ms v" style="left:40%"></div><div class="ms v" style="left:60%"></div><div class="ms v" style="left:80%"></div>
+          </div>
+          <div class="mr r2" style="top:50%;left:50%"></div>
+          <div class="mr r1" style="top:50%;left:50%"></div>
+          <div class="mp y" style="top:50%;left:50%">☕</div>
+          <div class="mp c" style="top:35%;left:38%">☕</div>
+          <div class="mp c" style="top:28%;left:55%">☕</div>
+          <div class="mp c" style="top:42%;left:65%">☕</div>
+          <div class="mp c" style="top:58%;left:35%">☕</div>
+          <div class="mp c" style="top:65%;left:60%">☕</div>
+          <div class="mp c" style="top:38%;left:72%">☕</div>
+          <div class="mp c" style="top:55%;left:75%">☕</div>
+          <div class="mp c" style="top:72%;left:45%">☕</div>
+          <div class="mp c" style="top:30%;left:42%">☕</div>
+          <div class="mp c" style="top:48%;left:28%">☕</div>
+          <div class="mp c" style="top:62%;left:68%">☕</div>
+          <div class="mp c" style="top:75%;left:55%">☕</div>
+          <div class="map-z"><button>+</button><button>−</button></div>
+          <div class="map-leg">
+            <span><span class="ml-d" style="background:#F59E0B"></span>You</span>
+            <span><span class="ml-d" style="background:#EF4444"></span>Competitors (12)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctas">
+        <a href="#" class="cta-g">← Try Another Location</a>
+        <a href="#" class="cta-p">Build Business Case →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleRe2(){const e=document.getElementById('re2Box');e.classList.toggle('open');document.getElementById('re2Btn').textContent=e.classList.contains('open')?'Collapse':'Expand';}
+function tm(){const e=document.getElementById('mc');e.classList.toggle('exp');document.getElementById('mb').textContent=e.classList.contains('exp')?'Collapse':'Expand';}
+function rc(){const s=document.getElementById('vs'),g=document.getElementById('vg');const n=Math.max(25,Math.min(90,45+Math.floor(Math.random()*14)-4));s.textContent=n;g.textContent=n>=70?'B':n>=60?'C+':n>=55?'C':n>=50?'C-':n>=45?'D+':'D';s.style.transition='color 0.3s';s.style.color='#10B981';setTimeout(()=>{s.style.color='#6D28D9'},500);}
+</script>
+</body>
+</html>
