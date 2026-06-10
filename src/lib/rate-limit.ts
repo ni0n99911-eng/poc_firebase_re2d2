@@ -142,14 +142,14 @@ function _envInt(key: string, fallback: number): number {
 }
 
 export const RATE_LIMITS = {
-	/** Public API routes: 30 req/min (override: RATE_LIMIT_API) */
-	api:    { maxRequests: _envInt('RATE_LIMIT_API',    30), windowMs: 60_000 },
-	/** Intel/scoring routes (expensive): 10 req/min (override: RATE_LIMIT_INTEL) */
-	intel:  { maxRequests: _envInt('RATE_LIMIT_INTEL',  10), windowMs: 60_000 },
-	/** Auth-related routes: 10 req/min (override: RATE_LIMIT_AUTH) */
-	auth:   { maxRequests: _envInt('RATE_LIMIT_AUTH',   10), windowMs: 60_000 },
-	/** AI generation routes: 5 req/min (override: RATE_LIMIT_AI) */
-	ai:     { maxRequests: _envInt('RATE_LIMIT_AI',      5), windowMs: 60_000 },
-	/** Export/PDF generation: 5 req/min (override: RATE_LIMIT_EXPORT) */
-	export: { maxRequests: _envInt('RATE_LIMIT_EXPORT',  5), windowMs: 60_000 },
+	/** Public API routes: 100 req/min (override: RATE_LIMIT_API) */
+	api:    { maxRequests: _envInt('RATE_LIMIT_API',    100), windowMs: 60_000 },
+	/** Intel/scoring routes (expensive): 50 req/min (override: RATE_LIMIT_INTEL) */
+	intel:  { maxRequests: _envInt('RATE_LIMIT_INTEL',  50), windowMs: 60_000 },
+	/** Auth-related routes: 50 req/min (override: RATE_LIMIT_AUTH) */
+	auth:   { maxRequests: _envInt('RATE_LIMIT_AUTH',   50), windowMs: 60_000 },
+	/** AI generation routes: 50 req/min (override: RATE_LIMIT_AI) */
+	ai:     { maxRequests: _envInt('RATE_LIMIT_AI',     50), windowMs: 60_000 },
+	/** Export/PDF generation: 50 req/min (override: RATE_LIMIT_EXPORT) */
+	export: { maxRequests: _envInt('RATE_LIMIT_EXPORT', 50), windowMs: 60_000 },
 };

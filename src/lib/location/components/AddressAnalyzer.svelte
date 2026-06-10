@@ -818,15 +818,16 @@
 		store.searchStep = 0;
 		scoreTimedOut = false;
 
-		// 35s score timeout — if scoring hasn't resolved by then, show "Data unavailable"
+		// 60s score timeout — if scoring hasn't resolved by then, show "Data unavailable"
+		// Setup a 60s timeout for the entire scan
 		const scoreTimeout = setTimeout(() => {
-			if (locationScore == null) {
+			if (!store.searchResult) {
 				scoreTimedOut = true;
 				console.warn(
-					"[Scoring] 35s timeout  -  marking score as unavailable",
+					"[Scoring] 60s timeout  -  marking score as unavailable",
 				);
 			}
-		}, 35000);
+		}, 60000);
 
 		if (searchStepTimer) clearInterval(searchStepTimer);
 		searchStepTimer = setInterval(() => {
@@ -837,14 +838,14 @@
 		const masterTimeout = setTimeout(() => {
 			searchAborted = true;
 			store.stepBad(
-				"Search timed out after 45 seconds. The data APIs may be slow  -  please try again.",
+				"Search timed out after 90 seconds. The data APIs may be slow  -  please try again.",
 			);
 			store.searching = false;
 			if (searchStepTimer) {
 				clearInterval(searchStepTimer);
 				searchStepTimer = null;
 			}
-		}, 45000);
+		}, 90000);
 
 		try {
 			store.step("Geocoding...");
@@ -996,15 +997,17 @@
 				store.bizCategory,
 			);
 			// Race fetchLiveIntel against 20s timeout so it always settles before the 28s master abort
+			// Race fetchLiveIntel against 90s timeout so it always settles before the 90s master abort
+			let fallbackTimeoutId: ReturnType<typeof setTimeout>;
 			const intelPromise = Promise.race([
-				fetchLiveIntel(geo.lat, geo.lon, store.bizType, addr),
+				fetchLiveIntel(geo.lat, geo.lon, store.bizType, addr).finally(() => clearTimeout(fallbackTimeoutId)),
 				new Promise<null>((resolve) =>
-					setTimeout(() => {
+					fallbackTimeoutId = setTimeout(() => {
 						console.warn(
-							"[Scan] liveIntel 20s timeout — falling back to block group data",
+							"[Scan] liveIntel 90s timeout - falling back to block group data",
 						);
 						resolve(null);
-					}, 20000),
+					}, 90000),
 				),
 			]);
 
@@ -1498,8 +1501,8 @@
 						const confFromSources = (idx_entry: {
 							dataSources: number;
 							totalSources: number;
-						}) =>
-							idx_entry.totalSources > 0
+						} | undefined) =>
+							idx_entry && idx_entry.totalSources > 0
 								? Math.round(
 										(idx_entry.dataSources /
 											idx_entry.totalSources) *

@@ -40,11 +40,9 @@ const DCA_BASE = 'https://data.cityofnewyork.us/resource/w7w3-xahh.json';
 /**
  * Fetch DCA license data near a location.
  */
-export async function fetchDCALicenses(
-	lat: number,
+export async function fetchDCALicenses(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<DCALicenseData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<DCALicenseData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'dca-licenses');
 	const cached = await intelCache.getAsync<DCALicenseData>(cacheKey);
 	if (cached?.fresh) return cached.data;

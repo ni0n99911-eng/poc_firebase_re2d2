@@ -1,7 +1,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
-import { supabase } from '$lib/supabase';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { sendWelcomeEmail } from '$lib/email';
 import { fetchPricingTiers, getAdminEmails } from '$lib/modules';
 
@@ -77,15 +78,15 @@ export const GET: RequestHandler = async ({ request, locals, url }) => {
 	// Verify admin access
 	const userId = locals.user?.id;
 
-	// Check Supabase for the user's email to verify super admin status
 	let isSuperAdmin = false;
 	if (userId) {
-		const { data: userData } = await supabase
-			.from('users')
-			.select('email')
-			.eq('id', userId)
-			.single();
-		isSuperAdmin = userData ? (await getAdminEmails()).includes(userData.email?.toLowerCase() ?? "") : false;
+		try {
+			const res = await db.execute(sql`SELECT email FROM users WHERE id = ${userId} LIMIT 1`);
+			const userData = res.rows[0];
+			isSuperAdmin = userData ? (await getAdminEmails()).includes(userData.email?.toLowerCase() ?? "") : false;
+		} catch (err) {
+			console.error('Waitlist user query error:', err);
+		}
 	}
 
 	if (!isSuperAdmin) {
@@ -116,15 +117,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	// Verify admin access
 	const userId = locals.user?.id;
 
-	// Check Supabase for the user's email to verify super admin status
 	let isSuperAdmin = false;
 	if (userId) {
-		const { data: userData } = await supabase
-			.from('users')
-			.select('email')
-			.eq('id', userId)
-			.single();
-		isSuperAdmin = userData ? (await getAdminEmails()).includes(userData.email?.toLowerCase() ?? "") : false;
+		try {
+			const res = await db.execute(sql`SELECT email FROM users WHERE id = ${userId} LIMIT 1`);
+			const userData = res.rows[0];
+			isSuperAdmin = userData ? (await getAdminEmails()).includes(userData.email?.toLowerCase() ?? "") : false;
+		} catch (err) {
+			console.error('Waitlist user query error:', err);
+		}
 	}
 
 	if (!isSuperAdmin) {
@@ -173,16 +174,17 @@ async function approveWaitlist(req: ApproveWaitlistRequest) {
 
 	// Also add to Supabase whitelist so they can access modules on sign-up
 	try {
-		// Get the email from the waitlist entry
 		const entry = await clerkRequest('GET', `/waitlist_entries/${waitlistId}`);
 		if (entry?.email_address) {
-			const { error: whitelistErr } = await supabase.from('email_whitelist').upsert({
-				email: entry.email_address.toLowerCase(),
-				modules: [...((await fetchPricingTiers()).scout?.modules ?? ['location-einstein'])],  // scout = free tier
-				added_by: 'waitlist-approval'
-			}, { onConflict: 'email' });
-
-			if (whitelistErr) {
+			try {
+				const modules = [...((await fetchPricingTiers()).scout?.modules ?? ['location-einstein'])];
+				const email = entry.email_address.toLowerCase();
+				await db.execute(sql`
+					INSERT INTO email_whitelist (email, modules, added_by) 
+					VALUES (${email}, ${JSON.stringify(modules)}, 'waitlist-approval') 
+					ON CONFLICT (email) DO UPDATE SET modules = EXCLUDED.modules
+				`);
+			} catch (whitelistErr: any) {
 				console.warn('Could not auto-whitelist:', whitelistErr.message);
 			}
 

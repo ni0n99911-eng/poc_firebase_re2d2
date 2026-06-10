@@ -17,7 +17,8 @@
  *   3. GEOID → block_group_visions (instant vision narrative)
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { normalizeBusinessType, VALID_BUSINESS_TYPES, BUSINESS_TYPE_CONFIGS } from './registry/business-type-registry';
 import type { ValidBusinessType } from './registry/business-type-registry';
 
@@ -215,19 +216,16 @@ export async function getBlockGroupScores(
 	conceptType?: string
 ): Promise<BlockGroupScores | null> {
 	try {
-		const supabase = getServiceSupabase();
-
 		// Normalize concept type to canonical key before any DB lookup
 		if (conceptType) conceptType = normalizeBusinessType(conceptType);
 		// If concept type provided, look for concept-suffixed score_types too
 		const suffix = conceptType ? `:${conceptType}` : '';
 
-		const { data, error } = await supabase
-			.from('block_group_scores')
-			.select('score_type, score, components')
-			.eq('geoid', geoid);
+		const res = await db.execute(sql`SELECT score_type, score, components FROM block_group_scores WHERE geoid = ${geoid}`);
 
-		if (error || !data || data.length === 0) return null;
+		if (!res.rows || res.rows.length === 0) return null;
+		
+		const data = res.rows;
 
 		// Assemble from multiple rows
 		const scoreMap: Record<string, { score: number; components: Record<string, unknown> }> = {};
@@ -362,17 +360,10 @@ export async function getBlockGroupScores(
 
 export async function getBlockGroupVision(geoid: string): Promise<BlockGroupVision | null> {
 	try {
-		const supabase = getServiceSupabase();
-		const { data, error } = await supabase
-			.from('block_group_visions')
-			.select('geoid, narrative, structured, model, generated_at')
-			.eq('geoid', geoid)
-			.eq('vision_type', 'location')
-			.limit(1)
-			.single();
+		const res = await db.execute(sql`SELECT geoid, narrative, structured, model, generated_at FROM block_group_visions WHERE geoid = ${geoid} AND vision_type = 'location' LIMIT 1`);
 
-		if (error || !data) return null;
-		return data as BlockGroupVision;
+		if (!res.rows || res.rows.length === 0) return null;
+		return res.rows[0] as unknown as BlockGroupVision;
 	} catch {
 		return null;
 	}

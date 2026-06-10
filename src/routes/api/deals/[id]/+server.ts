@@ -6,7 +6,8 @@
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 // Map status → event_type
 const STATUS_EVENT: Record<string, string> = {
@@ -24,17 +25,11 @@ export const PATCH: RequestHandler = async ({ request, locals, params }) => {
 	const dealId = params.id;
 	if (!dealId) throw error(400, 'deal id required');
 
-	const supabase = getServiceSupabase();
-
 	// Verify ownership
-	const { data: existing, error: fetchErr } = await supabase
-		.from('deal_pipeline')
-		.select('id, status, user_id')
-		.eq('id', dealId)
-		.eq('user_id', user.id)
-		.single();
+	const existingRes = await db.execute(sql`SELECT id, status, user_id FROM deal_pipeline WHERE id = ${dealId} AND user_id = ${user.id} LIMIT 1`);
+	const existing = existingRes.rows[0] as any;
 
-	if (fetchErr || !existing) throw error(404, 'Deal not found');
+	if (!existing) throw error(404, 'Deal not found');
 
 	const body = await request.json();
 	const {
@@ -61,24 +56,22 @@ export const PATCH: RequestHandler = async ({ request, locals, params }) => {
 
 	if (Object.keys(updates).length === 0) throw error(400, 'No fields to update');
 
-	const { error: updateErr } = await supabase
-		.from('deal_pipeline')
-		.update(updates)
-		.eq('id', dealId)
-		.eq('user_id', user.id);
+	try {
+		// Drizzle simple update via sql
+		const setClauses = Object.keys(updates).map(k => sql`${sql.identifier(k)} = ${updates[k]}`);
+		const updateQuery = sql`UPDATE deal_pipeline SET ${sql.join(setClauses, sql`, `)} WHERE id = ${dealId} AND user_id = ${user.id}`;
+		await db.execute(updateQuery);
 
-	if (updateErr) {
+		// If status changed, append a matching event
+		if (status && status !== existing.status && STATUS_EVENT[status]) {
+			await db.execute(sql`
+				INSERT INTO deal_events (deal_id, user_id, event_type)
+				VALUES (${dealId}, ${user.id}, ${STATUS_EVENT[status]})
+			`);
+		}
+	} catch (updateErr: any) {
 		console.error('[deals PATCH] update error:', updateErr);
 		return json({ ok: false, error: updateErr.message }, { status: 500 });
-	}
-
-	// If status changed, append a matching event
-	if (status && status !== existing.status && STATUS_EVENT[status]) {
-		await supabase.from('deal_events').insert({
-			deal_id: dealId,
-			user_id: user.id,
-			event_type: STATUS_EVENT[status],
-		});
 	}
 
 	return json({ ok: true });

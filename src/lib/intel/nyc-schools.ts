@@ -93,11 +93,9 @@ const SCHOOLS_BASE = 'https://data.cityofnewyork.us/resource/wg9x-4ke6.json';
  * Default radius: 305 meters (~1000 ft) to capture the SLA 200-ft zone
  * plus a buffer for scoring family-density.
  */
-export async function fetchSchoolProximity(
-	lat: number,
+export async function fetchSchoolProximity(lat: number,
 	lng: number,
-	radiusMeters: number = 305
-): Promise<SchoolProximityData | null> {
+	radiusMeters: number = 305, signal?: AbortSignal): Promise<SchoolProximityData | null> {
 	// BR-N: Bbox in-memory cache hit path (fastest — sub-ms).
 	const bKey = bboxKey(lat, lng);
 	const bEntry = _bboxCache.get(bKey);

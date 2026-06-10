@@ -74,11 +74,9 @@ function classifyLicense(description: string): 'on-premise' | 'off-premise' | 'r
 /**
  * Fetch liquor license data near a location.
  */
-export async function fetchLiquorLicenses(
-	lat: number,
+export async function fetchLiquorLicenses(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<LiquorLicenseData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<LiquorLicenseData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'liquor-licenses');
 	const cached = await intelCache.getAsync<LiquorLicenseData>(cacheKey);
 	if (cached?.fresh) return cached.data;

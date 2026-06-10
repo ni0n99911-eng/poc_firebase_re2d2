@@ -1,0 +1,1 @@
+import{a1 as y,A as u,ar as _,as as g,h as t,C as o,k as i,F as l,s as r,j as p,g as m}from"./BufiP_45.js";function C(d,n){let s=null,E=t;var a;if(t){s=p;for(var e=m(document.head);e!==null&&(e.nodeType!==o||e.data!==d);)e=i(e);if(e===null)l(!1);else{var f=i(e);e.remove(),r(f)}}t||(a=document.head.appendChild(y()));try{u(()=>n(a),_|g)}finally{E&&(l(!0),r(s))}}export{C as h};

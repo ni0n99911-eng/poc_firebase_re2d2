@@ -22,7 +22,8 @@ import { existsSync } from 'fs';
 import type { LocationIntelReport } from './types';
 import type { LocationIQReport } from './location-iq';
 import type { ConfidenceReport } from './confidence';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { scoreEvents } from '$lib/db/schema';
 
 // ─────────────────────────────────────────────────
 // Score Event interface
@@ -463,25 +464,22 @@ export async function logScoreEvent(
 		// score_events table: one row per Location IQ computation.
 		// Keyed by geoid+concept for future outcome label joins.
 		// Never blocks scoring — insert failure is logged only.
-		const sb = getServiceSupabase();
-		if (sb) {
-			const sourceCount = Object.values(event.sourceAvailability).filter(Boolean).length;
-			Promise.resolve(sb.from('score_events').insert({
-				geoid:               opts?.geoid    ?? null,
-				concept:             report.businessType,
-				borough:             opts?.borough  ?? null,
-				location_iq:         opts?.composite ?? null,    // sixIndex composite (user-facing)
-				fit_iq:              opts?.fitIQ    ?? null,
-				vision_iq:           opts?.visionIQ ?? null,
-				composite:           event.scores.locationIQ,    // raw NIQ/SIQ/TIQ/LIQ composite
-				survival_confidence: confidence.percentage,
-				lat:                 report.lat,
-				lng:                 report.lng,
-				source_count:        sourceCount,
-				errors_count:        report.errors.length,
-				computation_ms:      computationTimeMs,
-			})).catch((err: unknown) => console.error('[ScoreLogger] Supabase insert failed:', err));
-		}
+		const sourceCount = Object.values(event.sourceAvailability).filter(Boolean).length;
+		Promise.resolve(db.insert(scoreEvents).values({
+			geoid:               opts?.geoid    ?? null,
+			concept:             report.businessType,
+			borough:             opts?.borough  ?? null,
+			location_iq:         opts?.composite ?? null,
+			fit_iq:              opts?.fitIQ    ?? null,
+			vision_iq:           opts?.visionIQ ?? null,
+			composite:           event.scores.locationIQ,
+			survival_confidence: confidence.percentage,
+			lat:                 report.lat,
+			lng:                 report.lng,
+			source_count:        sourceCount,
+			errors_count:        report.errors.length,
+			computation_ms:      computationTimeMs,
+		} as any)).catch((err: unknown) => console.error('[ScoreLogger] DB insert failed:', err));
 
 		// Upsert neighborhood intelligence (fire-and-forget)
 		upsertNeighborhoodIntel(event).catch(err => {

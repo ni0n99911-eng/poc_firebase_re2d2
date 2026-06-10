@@ -113,12 +113,10 @@ const KNOWN_CHAINS = new Set([
  * Fetch nearby places from Google Places API.
  * businessType maps to Places API type parameter.
  */
-export async function fetchNearbyPlaces(
-	lat: number,
+export async function fetchNearbyPlaces(lat: number,
 	lng: number,
 	businessType: string = 'cafe',
-	radiusMeters: number = 500
-): Promise<PlacesData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<PlacesData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, `places-${businessType}`);
 	const cached = await intelCache.getAsync<PlacesData>(cacheKey);
 	if (cached?.fresh) return cached.data;
@@ -182,10 +180,8 @@ async function fetchFromGooglePlaces(
 		});
 
 		console.log('[Places] Fetching:', `${PLACES_BASE}?location=${lat},${lng}&radius=${radiusMeters}&type=${t}`);
-		const res = await resilientFetch(`${PLACES_BASE}?${params}`, {
-			timeout: 12000,
-			label: `GooglePlaces:${t}`
-		});
+		const res = await resilientFetch(`${PLACES_BASE}?${params}`, { timeout: 12000,
+			label: `GooglePlaces:${t}`, signal });
 
 		console.log(`[Places] Google API response status for type=${t}:`, res.status);
 		if (!res.ok) {
@@ -245,14 +241,9 @@ async function fetchFromOverpass(
 		).join('')});out center;`;
 
 		const { resilientFetch } = await import('./retry');
-		const res = await resilientFetch(
-			`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`,
-			{
-				timeout: 15000,
+		const res = await resilientFetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 15000,
 				label: 'GooglePlaces',
-				headers: { 'User-Agent': SITE_CONFIG.userAgent }
-			}
-		);
+				headers: { 'User-Agent': SITE_CONFIG.userAgent }, signal });
 
 		if (!res.ok) return null;
 		const data = await res.json();
@@ -490,11 +481,9 @@ const MARKET_SCAN_TYPES = [
 	{ category: 'Pharmacies', type: 'pharmacy', extraTypes: [] as string[] }
 ];
 
-export async function fetchMarketDensity(
-	lat: number,
+export async function fetchMarketDensity(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<MarketDensityData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<MarketDensityData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'market-density');
 	const cached = await intelCache.getAsync<MarketDensityData>(cacheKey);
 	if (cached?.fresh) return cached.data;
@@ -503,46 +492,55 @@ export async function fetchMarketDensity(
 	// Seeded via: npx tsx scripts/seed-api-data.ts --source google_places
 	// Avoids per-request Google API cost ($32/1K) for baseline commercial density.
 	try {
-		const { createClient } = await import('@supabase/supabase-js');
-		const { env: e } = await import('$env/dynamic/private');
-		if (e.PUBLIC_SUPABASE_URL && e.SUPABASE_SERVICE_ROLE_KEY) {
-			const supabase = createClient(e.PUBLIC_SUPABASE_URL, e.SUPABASE_SERVICE_ROLE_KEY);
-			const { data: nearest } = await supabase.rpc('nearby_block_group', { lat, lng });
-			if (nearest && nearest.length > 0) {
-				const { data: intel } = await supabase
-					.from('block_group_intel')
-					.select('data')
-					.eq('geoid', nearest[0].geoid)
-					.eq('source', 'google_places')
-					.single();
-				if (intel?.data) {
-					console.log('[Places-DB] Using seeded market density data');
-					const d = intel.data as {
-						total_results: number;
-						type_distribution: Record<string, number>;
-						avg_rating: number | null;
-						top_categories: Array<{ type: string; count: number }>;
-					};
-					const categories: CategoryDensity[] = MARKET_SCAN_TYPES.map(({ category, type }) => ({
-						category,
-						placeType: type,
-						count: d.type_distribution?.[type] || 0,
-						avgRating: d.avg_rating || 0,
-						chainPct: 0 // not stored in seeded data
-					}));
-					const totalBusinesses = d.total_results || 0;
-					const result: MarketDensityData = {
-						categories,
-						totalBusinesses,
-						commercialVitality: Math.min(100, Math.round((totalBusinesses / 50) * 100)),
-						dominantCategory: d.top_categories?.[0]?.type || 'unknown',
-						avgOverallRating: d.avg_rating || 0,
-						source: 'google-places',
-						fetchedAt: new Date().toISOString()
-					};
-					intelCache.set(cacheKey, result, TTL.PLACES);
-					return result;
-				}
+		const { db } = await import('$lib/db-server');
+		const { sql } = await import('drizzle-orm');
+
+		// We need to fetch nearest block group using PostGIS distance
+		const nearestRes = await db.execute(sql`
+			SELECT bg.geoid 
+			FROM block_groups bg
+			ORDER BY bg.geom <-> ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)
+			LIMIT 1
+		`);
+		
+		const nearestRows = Array.isArray(nearestRes) ? nearestRes : (nearestRes as any).rows || [];
+		if (nearestRows.length > 0) {
+			const nearestGeoid = nearestRows[0].geoid;
+			const intelRes = await db.execute(sql`
+				SELECT data
+				FROM block_group_intel
+				WHERE geoid = ${nearestGeoid} AND source = 'google_places'
+				LIMIT 1
+			`);
+
+			const intelRows = Array.isArray(intelRes) ? intelRes : (intelRes as any).rows || [];
+			if (intelRows.length > 0 && intelRows[0].data) {
+				console.log('[Places-DB] Using seeded market density data');
+				const d = intelRows[0].data as {
+					total_results: number;
+					type_distribution: Record<string, number>;
+					avg_rating: number | null;
+					top_categories: Array<{ type: string; count: number }>;
+				};
+				const categories: CategoryDensity[] = MARKET_SCAN_TYPES.map(({ category, type }) => ({
+					category,
+					placeType: type,
+					count: d.type_distribution?.[type] || 0,
+					avgRating: d.avg_rating || 0,
+					chainPct: 0 // not stored in seeded data
+				}));
+				const totalBusinesses = d.total_results || 0;
+				const result: MarketDensityData = {
+					categories,
+					totalBusinesses,
+					commercialVitality: Math.min(100, Math.round((totalBusinesses / 50) * 100)),
+					dominantCategory: d.top_categories?.[0]?.type || 'unknown',
+					avgOverallRating: d.avg_rating || 0,
+					source: 'google-places',
+					fetchedAt: new Date().toISOString()
+				};
+				intelCache.set(cacheKey, result, TTL.PLACES);
+				return result;
 			}
 		}
 	} catch (dbErr) {
@@ -578,10 +576,8 @@ export async function fetchMarketDensity(
 
 						try {
 							const { resilientFetch } = await import('./retry');
-							const res = await resilientFetch(`${PLACES_BASE}?${params}`, {
-								timeout: 10000,
-								label: 'GooglePlaces'
-							});
+							const res = await resilientFetch(`${PLACES_BASE}?${params}`, { timeout: 10000,
+								label: 'GooglePlaces', signal });
 
 							if (res.ok) {
 								const data = await res.json();
@@ -682,14 +678,9 @@ async function overpassMarketScan(lat: number, lng: number, radiusMeters: number
 
 	try {
 		const { resilientFetch } = await import('./retry');
-		const res = await resilientFetch(
-			`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`,
-			{
-				timeout: 18000,
+		const res = await resilientFetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 18000,
 				label: 'GooglePlaces',
-				headers: { 'User-Agent': SITE_CONFIG.userAgent }
-			}
-		);
+				headers: { 'User-Agent': SITE_CONFIG.userAgent }, signal });
 
 		if (!res.ok) return overpassTypes.map(t => ({ category: t.category, placeType: t.type, count: 0, avgRating: 0, chainPct: 0 }));
 		const data = await res.json();

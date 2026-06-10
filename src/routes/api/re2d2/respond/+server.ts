@@ -13,7 +13,8 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth-middleware';
 import { generateResponse } from '$lib/openrouter-llm';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
 import { addressToGeoidWithCandidates, type GeocodeResult, type AddressCandidate } from '$lib/geocode-bridge';
 
 // ── Types ──
@@ -244,14 +245,28 @@ async function saveToFounderSession(
 	context: Record<string, string | undefined>
 ): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
-		await supabase.from('founder_sessions').upsert({
-			user_id: userId,
-			current_step: step,
-			answers: context,
-			last_answer: answer,
-			updated_at: new Date().toISOString(),
-		}, { onConflict: 'user_id' });
+		await db
+			.insert(schema.founderSessions)
+			.values({
+				userId,
+				journeyState: {
+					current_step: step,
+					answers: context,
+					last_answer: answer,
+				},
+				updatedAt: new Date(),
+			})
+			.onConflictDoUpdate({
+				target: schema.founderSessions.userId,
+				set: {
+					journeyState: {
+						current_step: step,
+						answers: context,
+						last_answer: answer,
+					},
+					updatedAt: new Date(),
+				}
+			});
 	} catch (err) {
 		// Non-critical — don't fail the request
 		console.warn('[RE2D2] Failed to save session:', err instanceof Error ? err.message : err);

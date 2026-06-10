@@ -28,7 +28,8 @@ import { env } from '$env/dynamic/private';
 import type { LocationIntelReport } from './types';
 import { computeConfidence, type ConfidenceReport } from './confidence';
 import { openrouterFetch } from './retry';
-import { getSupabase } from '$lib/supabase';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 const OPENROUTER_KEY = env?.OPENROUTER_API_KEY || '';
 const HAIKU_MODEL = 'anthropic/claude-haiku-4.5';
@@ -367,17 +368,12 @@ async function runLLMCheck(
 			: basePrompt;
 
 		// FIX-010: use openrouterFetch (1 retry, 2s→4s backoff on 429/500; returns null on failure)
-		const response = await openrouterFetch(
-			'https://openrouter.ai/api/v1/chat/completions',
-			{
-				method: 'POST',
+		const response = await openrouterFetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST',
 				headers: {
 					'Authorization': `Bearer ${OPENROUTER_KEY}`,
 					'Content-Type': 'application/json',
 					'HTTP-Referer': 'https://resquared.io',
-					'X-Title': 'RE2 Quality Gate'
-				},
-				body: JSON.stringify({
+					'X-Title': 'RE2 Quality Gate', signal }, body: JSON.stringify({
 					model: HAIKU_MODEL,
 					messages: [
 						{ role: 'user', content: fullPrompt }
@@ -431,17 +427,14 @@ export async function lookupHistoricalContext(
 	geohash5: string
 ): Promise<Array<{ id: string; neighborhood: string; infrastructure: string; impact_type: string; description?: string; current_relevance?: string; scoring_notes?: Record<string, unknown> }>> {
 	try {
-		const supabase = getSupabase();
-		if (!supabase) return [];
+		const result = await db.execute(sql`
+			SELECT id, neighborhood, infrastructure, impact_type, description, current_relevance, scoring_notes
+			FROM historical_ground_truths
+			WHERE active = true AND geohash_prefix @> ARRAY[${geohash5}]::text[]
+		`);
 
-		const { data, error } = await supabase
-			.from('historical_ground_truths')
-			.select('id, neighborhood, infrastructure, impact_type, description, current_relevance, scoring_notes')
-			.filter('geohash_prefix', 'cs', `{${geohash5}}`)
-			.eq('active', true);
-
-		if (error || !data) return [];
-		return data;
+		if (!result.rows || result.rows.length === 0) return [];
+		return result.rows as unknown as Array<{ id: string; neighborhood: string; infrastructure: string; impact_type: string; description?: string; current_relevance?: string; scoring_notes?: Record<string, unknown> }>;
 	} catch {
 		// Table may not exist yet — non-blocking
 		return [];

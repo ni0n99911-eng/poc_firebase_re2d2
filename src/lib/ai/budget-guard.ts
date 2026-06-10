@@ -19,7 +19,8 @@
  *   // ... continue with the AI call
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 /** Per-user, per-rolling-hour ceiling. */
 export const AI_HOURLY_USER_LIMIT = 10;
@@ -47,9 +48,9 @@ export async function checkAiBudget(input: BudgetGuardInput): Promise<Response |
 	const limit = input.hourlyLimit ?? AI_HOURLY_USER_LIMIT;
 	const budget = input.monthlyBudgetUsd ?? AI_MONTHLY_BUDGET_USD;
 
-	let supabase: ReturnType<typeof getServiceSupabase>;
 	try {
-		supabase = getServiceSupabase();
+		// Just a dummy check if db is available
+		db.execute(sql`SELECT 1`);
 	} catch {
 		// Service-role env not configured — fail open
 		return null;
@@ -60,31 +61,23 @@ export async function checkAiBudget(input: BudgetGuardInput): Promise<Response |
 	if (rateKey) {
 		const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 		try {
-			const { count, error } = await supabase
-				.from('ai_calls')
-				.select('id', { count: 'exact', head: true })
-				.eq('user_id', rateKey)
-				.gte('created_at', oneHourAgo);
+			const result = await db.execute(sql`
+				SELECT count(*) as count FROM ai_calls
+				WHERE user_id = ${rateKey} AND created_at >= ${oneHourAgo}
+			`);
+			const count = result.rows?.[0]?.count ? Number(result.rows[0].count) : 0;
 
-			if (error) {
-				if (error.code === '42P01') {
-					// Table missing — fall through; nothing to count yet
-				} else {
-					console.warn('[budget-guard] hourly count error (failing open):', error.code, error.message);
-				}
-			} else if ((count ?? 0) >= limit) {
+			if (count >= limit) {
 				// Compute reset time = oldest call in window + 60min, then ceil to next minute.
 				// Cheap enough to do a second small query for the oldest timestamp.
-				const oldest = await supabase
-					.from('ai_calls')
-					.select('created_at')
-					.eq('user_id', rateKey)
-					.gte('created_at', oneHourAgo)
-					.order('created_at', { ascending: true })
-					.limit(1)
-					.maybeSingle();
+				const oldest = await db.execute(sql`
+					SELECT created_at FROM ai_calls
+					WHERE user_id = ${rateKey} AND created_at >= ${oneHourAgo}
+					ORDER BY created_at ASC
+					LIMIT 1
+				`);
 
-				const oldestTs = oldest.data?.created_at as string | undefined;
+				const oldestTs = oldest.rows?.[0]?.created_at as string | undefined;
 				let minutes = 60;
 				if (oldestTs) {
 					const resetMs = new Date(oldestTs).getTime() + 60 * 60 * 1000 - Date.now();
@@ -116,19 +109,19 @@ export async function checkAiBudget(input: BudgetGuardInput): Promise<Response |
 		// Sum is best done server-side via an RPC, but a paginated select still
 		// works at this volume. cap the read at 10k rows to avoid pathological
 		// runaway scans.
-		const { data, error } = await supabase
-			.from('ai_calls')
-			.select('cost_usd')
-			.gte('created_at', monthStart.toISOString())
-			.not('cost_usd', 'is', null)
-			.limit(10_000);
+		const result = await db.execute(sql`
+			SELECT cost_usd FROM ai_calls
+			WHERE created_at >= ${monthStart.toISOString()}
+			  AND cost_usd IS NOT NULL
+			LIMIT 10000
+		`);
 
-		if (!error && data) {
+		if (result.rows) {
 			let totalUsd = 0;
-			for (const row of data) {
-				const c = (row as { cost_usd: number | string | null }).cost_usd;
+			for (const row of result.rows) {
+				const c = row.cost_usd;
 				if (c == null) continue;
-				totalUsd += typeof c === 'string' ? parseFloat(c) : c;
+				totalUsd += typeof c === 'string' ? parseFloat(c) : Number(c);
 			}
 			if (totalUsd > budget) {
 				return new Response(JSON.stringify({
@@ -141,8 +134,6 @@ export async function checkAiBudget(input: BudgetGuardInput): Promise<Response |
 					headers: { 'Content-Type': 'application/json' },
 				});
 			}
-		} else if (error && error.code !== '42P01') {
-			console.warn('[budget-guard] monthly sum error (failing open):', error.code, error.message);
 		}
 	} catch (err) {
 		console.warn('[budget-guard] monthly check threw (failing open):', err);

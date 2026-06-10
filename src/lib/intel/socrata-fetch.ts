@@ -21,12 +21,10 @@ export async function socrataFetch<T = unknown[]>(
 	options?: { timeout?: number }
 ): Promise<T | null> {
 	try {
-		const res = await resilientFetch(url, {
-			timeout: options?.timeout ?? 12000,
+		const res = await resilientFetch(url, { timeout: options?.timeout ?? 12000,
 			maxRetries: 2,
 			headers: { 'Accept': 'application/json' },
-			label
-		});
+			label, signal });
 
 		if (!res.ok) {
 			console.error(`[${label}] Socrata API error: ${res.status}`);

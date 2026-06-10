@@ -21,7 +21,8 @@
  */
 
 import { intelCache, TTL, IntelCache } from './cache';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 // 04.19.2026 13:35 Score Consolidation — haversineM removed; imported from canonical geo-math.ts
 import { haversineMeters as haversineM } from '$lib/intel/scoring/geo-math';
 
@@ -140,9 +141,7 @@ const HOSTILITY_ZONES: HostilityZone[] = [
  * Fetch subway ENTRANCE coordinates (not station centroids)
  * from MTA Subway Entrances dataset.
  */
-export async function fetchSubwayEntrances(
-	lat: number, lng: number, radiusM: number = SEARCH_RADIUS_M
-): Promise<NearbyPoint[]> {
+export async function fetchSubwayEntrances(lat: number, lng: number, radiusM: number = SEARCH_RADIUS_M, signal?: AbortSignal): Promise<NearbyPoint[]> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'subway-entrances');
 	const cached = await intelCache.getAsync<NearbyPoint[]>(cacheKey);
 	if (cached?.fresh) return cached.data;
@@ -152,16 +151,13 @@ export async function fetchSubwayEntrances(
 
 	// ── 1. Try Supabase (seeded reference data) ──
 	try {
-		const supabase = getServiceSupabase();
-		const { data: rows, error } = await supabase
-			.rpc('nearby_subway_entrances', {
-				p_lat: lat,
-				p_lng: lng,
-				p_radius_m: radiusM
-			});
+		const dbRes = await db.execute(sql`
+			SELECT * FROM nearby_subway_entrances(${lat}, ${lng}, ${radiusM})
+		`);
+		const rows = Array.isArray(dbRes) ? dbRes : (dbRes as any).rows;
 
-		if (!error && rows && rows.length > 0) {
-			entrances = rows.map((r: { stop_name: string; routes: string; lat: number; lng: number; distance_m: number }) => ({
+		if (rows && rows.length > 0) {
+			entrances = rows.map((r: any) => ({
 				lat: r.lat,
 				lng: r.lng,
 				type: 'subway_entrance' as const,
@@ -172,10 +168,8 @@ export async function fetchSubwayEntrances(
 			intelCache.set(cacheKey, entrances, TTL.TRANSIT, 'subway-entrances');
 			return entrances;
 		}
-		// DB empty or RPC missing — fall through to live API
-		if (error) console.warn('[StreetSide] DB subway query failed:', error.message);
-	} catch {
-		// DB not available — fall through
+	} catch (error: any) {
+		console.warn('[StreetSide] DB subway query failed:', error.message);
 	}
 
 	// ── 2. Fallback: live MTA API ──
@@ -233,9 +227,7 @@ export async function fetchSubwayEntrances(
 /**
  * Fetch nearby bus stops from MTA Current Bus Stops dataset.
  */
-export async function fetchBusStops(
-	lat: number, lng: number, radiusM: number = SEARCH_RADIUS_M
-): Promise<NearbyPoint[]> {
+export async function fetchBusStops(lat: number, lng: number, radiusM: number = SEARCH_RADIUS_M, signal?: AbortSignal): Promise<NearbyPoint[]> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'bus-stops');
 	const cached = await intelCache.getAsync<NearbyPoint[]>(cacheKey);
 	if (cached?.fresh) return cached.data;
@@ -244,16 +236,13 @@ export async function fetchBusStops(
 
 	// ── 1. Try Supabase (seeded reference data) ──
 	try {
-		const supabase = getServiceSupabase();
-		const { data: rows, error } = await supabase
-			.rpc('nearby_bus_stops', {
-				p_lat: lat,
-				p_lng: lng,
-				p_radius_m: radiusM
-			});
+		const dbRes = await db.execute(sql`
+			SELECT * FROM nearby_bus_stops(${lat}, ${lng}, ${radiusM})
+		`);
+		const rows = Array.isArray(dbRes) ? dbRes : (dbRes as any).rows;
 
-		if (!error && rows && rows.length > 0) {
-			stops = rows.map((r: { stop_name: string; route: string; lat: number; lng: number; distance_m: number }) => ({
+		if (rows && rows.length > 0) {
+			stops = rows.map((r: any) => ({
 				lat: r.lat,
 				lng: r.lng,
 				type: 'bus_stop' as const,
@@ -264,9 +253,8 @@ export async function fetchBusStops(
 			intelCache.set(cacheKey, stops, TTL.TRANSIT, 'bus-stops');
 			return stops;
 		}
-		if (error) console.warn('[StreetSide] DB bus stops query failed:', error.message);
-	} catch {
-		// DB not available — fall through
+	} catch (error: any) {
+		console.warn('[StreetSide] DB bus stops query failed:', error.message);
 	}
 
 	// ── 2. Fallback: live MTA API ──

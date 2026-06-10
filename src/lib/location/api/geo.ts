@@ -6,10 +6,12 @@ import { NOMINATIM_URL, HOOD_DATA, type HoodDataEntry } from '../data/constants'
 
 // Multiple public Overpass API mirrors — tried in order on 4xx/5xx/timeout.
 // All support CORS + POST natively. Individual browser IPs are not rate-limited.
+// Removed maps.mail.ru as it blocks US traffic.
 const OVERPASS_MIRRORS = [
 	'https://overpass-api.de/api/interpreter',
 	'https://overpass.kumi.systems/api/interpreter',
-	'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+	'https://overpass.private.coffee/api/interpreter',
+	'https://lz4.overpass-api.de/api/interpreter'
 ];
 import { haversine, cfetch } from '../utils/helpers';
 import type { LocationIntelReport } from '../../intel/index';
@@ -99,9 +101,95 @@ const NEIGHBORHOOD_TO_BOROUGH: Record<string, string> = {
 	'port richmond': 'Staten Island', 'st. george': 'Staten Island',
 };
 
+import { env } from '$env/dynamic/public';
+
+async function loadGoogleMaps(apiKey: string): Promise<void> {
+	if (typeof window === 'undefined') return;
+	if (window.google?.maps) return;
+
+	return new Promise((resolve, reject) => {
+		if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+			const checkLoaded = setInterval(() => {
+				if (window.google?.maps) {
+					clearInterval(checkLoaded);
+					resolve();
+				}
+			}, 100);
+			return;
+		}
+
+		const script = document.createElement('script');
+		script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=marker,places&v=weekly&callback=__gmapsInitGeo`;
+		script.async = true;
+		script.defer = true;
+		(window as any).__gmapsInitGeo = () => {
+			delete (window as any).__gmapsInitGeo;
+			resolve();
+		};
+		script.onerror = reject;
+		document.head.appendChild(script);
+	});
+}
+
 async function geocodeQuery(query: string): Promise<{ lat: string; lon: string; display_name: string }[]> {
-	const r = await cfetch(NOMINATIM_URL + '&q=' + encodeURIComponent(query) + '&format=json&limit=5&countrycodes=us');
-	return r.json();
+	const apiKey = env.PUBLIC_GOOGLE_MAPS_API_KEY;
+
+	// 1. Try Google Maps JS SDK Geocoder if available (highest success rate, uses Maps JS quota)
+	if (typeof window !== 'undefined' && apiKey) {
+		try {
+			await loadGoogleMaps(apiKey);
+			if (window.google?.maps?.Geocoder) {
+				const geocoder = new google.maps.Geocoder();
+				const result = await new Promise<any>((resolve, reject) => {
+					geocoder.geocode({ address: query }, (results, status) => {
+						if (status === 'OK' && results && results.length > 0) {
+							resolve(results);
+						} else {
+							reject(new Error(status));
+						}
+					});
+				});
+				return result.map((r: any) => ({
+					lat: r.geometry.location.lat().toString(),
+					lon: r.geometry.location.lng().toString(),
+					display_name: r.formatted_address
+				}));
+			}
+		} catch (e) {
+			console.warn('[geo] Google JS Geocoder failed:', e);
+		}
+	}
+
+	// 2. Try Nominatim (Free, rate-limited)
+	try {
+		const r = await fetch(NOMINATIM_URL + '&q=' + encodeURIComponent(query) + '&format=json&limit=5&countrycodes=us', { headers: { 'User-Agent': 'resquared-launchpad/1.0' } });
+		if (r.ok) {
+			const data = await r.json();
+			if (data && data.length > 0) return data;
+		}
+	} catch (e) {
+		console.warn('[geo] Nominatim fetch failed:', e);
+	}
+
+	// 3. Fallback to Google Geocoding HTTP API (Requires Geocoding API enabled in GCP)
+	if (apiKey) {
+		try {
+			const googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+			const res = await fetch(googleUrl);
+			const data = await res.json();
+			if (data.status === 'OK' && data.results.length > 0) {
+				return data.results.map((r: any) => ({
+					lat: r.geometry.location.lat.toString(),
+					lon: r.geometry.location.lng.toString(),
+					display_name: r.formatted_address
+				}));
+			}
+			console.warn('[geo] Google Geocoding fallback returned:', data.status);
+		} catch (err) {
+			console.error('[geo] Google Geocoding fallback failed', err);
+		}
+	}
+	return [];
 }
 
 export async function geocode(addr: string): Promise<GeoResult> {
@@ -337,38 +425,16 @@ export function getConceptScanRadius(bizCategory: string): number {
 }
 
 export async function scanArea(lat: number, lon: number, radius: number, bizCategory: string = 'coffee'): Promise<ScanData> {
-	try {
-		// Use nwr (node/way/relation) + "out center;" for all queries.
-		// Many NYC businesses (Orangetheory, Blank Street, etc.) are mapped as way polygons in OSM.
-		// "out center;" returns centroid lat/lng for ways and relations.
-		// Gyms/yoga/health use 800m radius (fitness studios have wider draw areas).
-		//
-		// NOTE: Transit stations are NOT queried from Overpass — MTA Socrata API
-		// (via liveIntel.mtaRidership) is the single source of truth.
-		// Overpass station queries were unreliable (rate-limited from Netlify IPs).
-		// Stations are populated after liveIntel returns via enrichStationsFromMTA().
-		const gymRadius = Math.max(radius, 800);
-		const results = await Promise.all([
-			overpassQ(`[out:json][timeout:12];${getCompetitorQuery(bizCategory, radius, lat, lon)};out center;`),
-			overpassQ(`[out:json][timeout:12];(nwr["leisure"="fitness_centre"](around:${gymRadius},${lat},${lon});nwr["sport"="fitness"](around:${gymRadius},${lat},${lon}););out center;`),
-			overpassQ(`[out:json][timeout:12];(nwr["sport"="yoga"](around:${gymRadius},${lat},${lon});nwr["leisure"~"yoga"](around:${gymRadius},${lat},${lon}););out center;`),
-			overpassQ(`[out:json][timeout:12];(nwr["shop"~"health_food|organic|nutrition"](around:${gymRadius},${lat},${lon}););out center;`),
-		]);
-
-		return {
-			cafes: proc(results[0], lat, lon),
-			gyms: proc(results[1], lat, lon),
-			yoga: proc(results[2], lat, lon),
-			health: proc(results[3], lat, lon),
-			stations: [], // Populated from MTA Socrata via enrichStationsFromMTA()
-		};
-	} catch (e: unknown) {
-		const msg = e instanceof Error ? e.message : String(e);
-		console.error('scanArea error:', msg);
-		// Graceful degradation: return empty data so live intel pipeline can continue
-		// Overpass is rate-limited from Netlify IPs — failing here shouldn't block scoring
-		return { cafes: [], gyms: [], yoga: [], health: [], stations: [] };
-	}
+	// 04.22.2026: Removed direct Overpass API calls from the client to prevent 429 timeouts.
+	// The application now strictly relies on the backend liveIntel payload (which fetches 
+	// Google Places API) for all POI data, including competitors and demand proxies.
+	return {
+		cafes: [],
+		gyms: [],
+		yoga: [],
+		health: [],
+		stations: [] // Populated from MTA Socrata via enrichStationsFromMTA()
+	};
 }
 
 /**
@@ -405,7 +471,7 @@ export async function fetchLiveIntel(lat: number, lng: number, bizType: string, 
 
 		// Use authedFetch for automatic token injection + 401 retry
 		const { authedFetch } = await import('$lib/authed-fetch');
-		const res = await authedFetch(url, { timeout: 55000 });
+		const res = await authedFetch(url, { timeout: 85000 });
 
 		if (!res.ok) {
 			const errText = await res.text().catch(() => '');

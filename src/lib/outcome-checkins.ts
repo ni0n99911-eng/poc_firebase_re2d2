@@ -16,7 +16,8 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
 import { SITE_CONFIG } from '$lib/modules';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 // ─────────────────────────────────────────────────
 // Check-in schedule: days after scoring
@@ -31,7 +32,6 @@ const CHECK_IN_SCHEDULE = [
 // Schedule check-ins for a newly saved location
 // ─────────────────────────────────────────────────
 export async function scheduleCheckIns(
-	supabase: SupabaseClient,
 	params: {
 		scoredLocationId: string;
 		userId: string;
@@ -50,53 +50,59 @@ export async function scheduleCheckIns(
 		status: 'pending'
 	}));
 
-	const { error } = await supabase
-		.from('outcome_checkins')
-		.insert(rows);
-
-	if (error) {
-		console.error('[CHECK-IN] Failed to schedule check-ins:', error);
-	} else {
+	try {
+		for (const r of rows) {
+			await db.execute(sql`
+				INSERT INTO outcome_checkins (scored_location_id, user_id, user_email, user_name, check_in_number, scheduled_for, status)
+				VALUES (${r.scored_location_id}, ${r.user_id}, ${r.user_email}, ${r.user_name}, ${r.check_in_number}, ${r.scheduled_for}, ${r.status})
+			`);
+		}
 		console.log(`[CHECK-IN] Scheduled ${rows.length} check-ins for location ${params.scoredLocationId}`);
+	} catch (error) {
+		console.error('[CHECK-IN] Failed to schedule check-ins:', error);
 	}
 }
 
 // ─────────────────────────────────────────────────
 // Process pending check-ins (called by cron/scheduler)
 // ─────────────────────────────────────────────────
-export async function processCheckIns(supabase: SupabaseClient): Promise<{
+export async function processCheckIns(): Promise<{
 	sent: number;
 	errors: number;
 }> {
 	const now = new Date().toISOString();
 
 	// Find all pending check-ins that are due
-	const { data: pending, error } = await supabase
-		.from('outcome_checkins')
-		.select(`
-			id,
-			scored_location_id,
-			user_id,
-			user_email,
-			user_name,
-			check_in_number,
-			scheduled_for
-		`)
-		.eq('status', 'pending')
-		.lte('scheduled_for', now)
-		.order('scheduled_for', { ascending: true })
-		.limit(50);
+	let pending = [];
+	try {
+		const pendingRes = await db.execute(sql`
+			SELECT id, scored_location_id, user_id, user_email, user_name, check_in_number, scheduled_for
+			FROM outcome_checkins
+			WHERE status = 'pending' AND scheduled_for <= ${now}
+			ORDER BY scheduled_for ASC
+			LIMIT 50
+		`);
+		pending = pendingRes.rows;
+	} catch (error) {
+		return { sent: 0, errors: 1 };
+	}
 
-	if (error || !pending?.length) {
-		return { sent: 0, errors: error ? 1 : 0 };
+	if (!pending?.length) {
+		return { sent: 0, errors: 0 };
 	}
 
 	// Fetch associated scored locations for context
 	const locationIds = [...new Set(pending.map(p => p.scored_location_id))];
-	const { data: locations } = await supabase
-		.from('scored_locations')
-		.select('id, address, location_iq, grade, business_type, concept_type')
-		.in('id', locationIds);
+	let locations = [];
+	if (locationIds.length > 0) {
+		const inClause = locationIds.map(id => `'${id}'`).join(',');
+		const locsRes = await db.execute(sql.raw(`
+			SELECT id, address, location_iq, grade, business_type, concept_type
+			FROM scored_locations
+			WHERE id IN (${inClause})
+		`));
+		locations = locsRes.rows;
+	}
 
 	const locationMap = new Map((locations || []).map(l => [l.id, l]));
 
@@ -107,10 +113,7 @@ export async function processCheckIns(supabase: SupabaseClient): Promise<{
 		const location = locationMap.get(checkin.scored_location_id);
 		if (!location) {
 			// Location was deleted, skip
-			await supabase
-				.from('outcome_checkins')
-				.update({ status: 'skipped' })
-				.eq('id', checkin.id);
+			await db.execute(sql`UPDATE outcome_checkins SET status = 'skipped' WHERE id = ${checkin.id}`);
 			continue;
 		}
 
@@ -126,14 +129,11 @@ export async function processCheckIns(supabase: SupabaseClient): Promise<{
 				scoredLocationId: checkin.scored_location_id
 			});
 
-			await supabase
-				.from('outcome_checkins')
-				.update({
-					status: 'sent',
-					sent_at: new Date().toISOString(),
-					email_id: emailId || null
-				})
-				.eq('id', checkin.id);
+			const nowStr = new Date().toISOString();
+			await db.execute(sql`
+				UPDATE outcome_checkins SET status = 'sent', sent_at = ${nowStr}, email_id = ${emailId || null}
+				WHERE id = ${checkin.id}
+			`);
 
 			sent++;
 		} catch (err) {

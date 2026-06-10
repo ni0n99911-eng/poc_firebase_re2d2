@@ -22,7 +22,8 @@
  * Fire-and-forget — failures MUST NOT break the user-facing response.
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 /**
  * OpenRouter per-model USD pricing per 1M tokens (input / output).
@@ -91,19 +92,14 @@ export function logAiCall(input: AiCallLogInput): void {
 			metadata:    input.metadata   ?? {},
 		};
 
-		const sb = getServiceSupabase();
 		// Fire-and-forget: no await. Any DB failure is logged but doesn't affect the caller.
-		sb.from('ai_calls').insert(row).then(({ error }) => {
-			if (error) {
-				// 42P01 = table doesn't exist yet (migration not applied) — don't spam logs
-				if (error.code === '42P01') return;
-				console.warn('[AI telemetry] insert failed:', error.code, error.message);
-			}
-		}, (err: unknown) => {
+		db.execute(sql`
+			INSERT INTO ai_calls (user_id, session_id, route, model, tokens_in, tokens_out, cost_usd, duration_ms, status, error_code, metadata)
+			VALUES (${row.user_id}, ${row.session_id}, ${row.route}, ${row.model}, ${row.tokens_in}, ${row.tokens_out}, ${row.cost_usd}, ${row.duration_ms}, ${row.status}, ${row.error_code}, ${JSON.stringify(row.metadata)}::jsonb)
+		`).catch((err: unknown) => {
 			console.warn('[AI telemetry] insert threw:', err);
 		});
 	} catch (err) {
-		// getServiceSupabase() can throw if env vars are missing at module load.
 		// Never let telemetry break the request path.
 		console.warn('[AI telemetry] logAiCall threw (non-fatal):', err);
 	}

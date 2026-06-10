@@ -42,11 +42,9 @@ const SOCRATA_BASE = 'https://data.cityofnewyork.us/resource/43nn-pn8j.json';
  * Fetch DOHMH inspection data near a location.
  * Uses Socrata's $where clause with within_circle for geo queries.
  */
-export async function fetchInspections(
-	lat: number,
+export async function fetchInspections(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<InspectionData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<InspectionData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'inspections');
 	const cached = await intelCache.getAsync<InspectionData>(cacheKey);
 	if (cached?.fresh) return cached.data;

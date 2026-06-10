@@ -68,11 +68,9 @@ const PROPERTY_OFFENSES = new Set([
 /**
  * Fetch crime data near a location from NYPD complaint records.
  */
-export async function fetchCrimeData(
-	lat: number,
+export async function fetchCrimeData(lat: number,
 	lng: number,
-	radiusMeters: number = 300
-): Promise<CrimeData | null> {
+	radiusMeters: number = 300, signal?: AbortSignal): Promise<CrimeData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'crime');
 	const cached = await intelCache.getAsync<CrimeData>(cacheKey);
 	if (cached?.fresh) return cached.data;

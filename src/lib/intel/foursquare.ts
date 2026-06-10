@@ -131,12 +131,10 @@ function fsqHeaders(apiKey: string): Record<string, string> {
  * Fetch Foursquare Places data near a location.
  * Returns null if API key is not configured (graceful degradation).
  */
-export async function fetchFoursquareData(
-	lat: number,
+export async function fetchFoursquareData(lat: number,
 	lng: number,
 	businessType: string = 'cafe',
-	radiusMeters: number = 500
-): Promise<FoursquareData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<FoursquareData | null> {
 	const apiKey = env.FOURSQUARE_API_KEY;
 	if (!apiKey) {
 		// Gracefully degrade — Foursquare is an enhancement, not required
@@ -159,11 +157,9 @@ export async function fetchFoursquareData(
 		searchUrl.searchParams.set('fields', 'fsq_id,name,categories,location,geocodes,distance,popularity,rating,price,closed_bucket,hours');
 
 		const { resilientFetch } = await import('./retry');
-		const res = await resilientFetch(searchUrl.toString(), {
-			timeout: 10000,
+		const res = await resilientFetch(searchUrl.toString(), { timeout: 10000,
 			label: 'Foursquare',
-			headers: fsqHeaders(apiKey)
-		});
+			headers: fsqHeaders(apiKey), signal });
 
 		console.log('[Foursquare] API response status:', res.status);
 		if (!res.ok) {
@@ -199,11 +195,9 @@ export async function fetchFoursquareData(
 			compUrl.searchParams.set('sort', 'DISTANCE');
 			compUrl.searchParams.set('fields', 'fsq_id,name,categories,location,geocodes,distance,popularity,rating,price,closed_bucket,hours');
 
-			const compRes = await resilientFetch(compUrl.toString(), {
-				timeout: 10000,
+			const compRes = await resilientFetch(compUrl.toString(), { timeout: 10000,
 				label: 'Foursquare',
-				headers: fsqHeaders(apiKey)
-			});
+				headers: fsqHeaders(apiKey), signal });
 
 			if (compRes.ok) {
 				const compData = await compRes.json();

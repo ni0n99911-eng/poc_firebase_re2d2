@@ -9,7 +9,8 @@
  *   await audit.log(userId, 'search', 'scored_location', locationId, { address });
  */
 
-import { getServiceSupabase } from './supabase-server';
+import { db } from './db-server';
+import { sql } from 'drizzle-orm';
 import { createHash } from 'crypto';
 
 export type AuditAction =
@@ -62,17 +63,10 @@ class AuditLogger {
 		}
 	): Promise<void> {
 		try {
-			const supabase = getServiceSupabase();
-
-			await supabase.from('audit_log').insert({
-				user_id: userId,
-				user_email: options?.userEmail,
-				ip_hash: options?.ip ? hashIP(options.ip) : null,
-				action,
-				resource_type: resourceType,
-				resource_id: resourceId,
-				details: details ? JSON.stringify(details) : null
-			});
+			await db.execute(sql`
+				INSERT INTO audit_log (user_id, user_email, ip_hash, action, resource_type, resource_id, details)
+				VALUES (${userId}, ${options?.userEmail ?? null}, ${options?.ip ? hashIP(options.ip) : null}, ${action}, ${resourceType ?? null}, ${resourceId ?? null}, ${details ? JSON.stringify(details) : null}::jsonb)
+			`);
 		} catch (err) {
 			// Never throw — audit failure must not affect the user's request
 			console.error('[Audit] Failed to log:', action, err);
@@ -91,26 +85,17 @@ class AuditLogger {
 		result?: { locationIQ: number; grade: string; confidence: number },
 		ip?: string
 	): Promise<void> {
-		const supabase = getServiceSupabase();
-
 		// Insert search history
-		await supabase.from('search_history').insert({
-			user_id: userId,
-			address,
-			lat,
-			lng,
-			business_type: businessType,
-			location_iq: result?.locationIQ,
-			grade: result?.grade,
-			confidence: result?.confidence,
-			ip_hash: ip ? hashIP(ip) : null
-		}).catch(err => console.error('[Audit] Search history insert failed:', err));
+		await db.execute(sql`
+			INSERT INTO search_history (user_id, address, lat, lng, business_type, location_iq, grade, confidence, ip_hash)
+			VALUES (${userId}, ${address}, ${lat}, ${lng}, ${businessType}, ${result?.locationIQ ?? null}, ${result?.grade ?? null}, ${result?.confidence ?? null}, ${ip ? hashIP(ip) : null})
+		`).catch(err => console.error('[Audit] Search history insert failed:', err));
 
 		// Increment usage counter
-		await supabase.rpc('increment_usage', {
-			p_user_id: userId,
-			p_field: 'searches'
-		}).catch(err => console.error('[Audit] Usage increment failed:', err));
+		// Note: The increment_usage RPC will need to be replaced with Drizzle if usage tracking is moved
+		await db.execute(sql`
+			UPDATE users SET searches_count = COALESCE(searches_count, 0) + 1 WHERE id = ${userId}
+		`).catch(err => console.error('[Audit] Usage increment failed:', err));
 
 		// Audit log
 		await this.log(userId, 'search', 'search', undefined, {
@@ -175,11 +160,9 @@ class AuditLogger {
  */
 async function supabaseIncrement(userId: string, field: string): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
-		await supabase.rpc('increment_usage', {
-			p_user_id: userId,
-			p_field: field
-		});
+		await db.execute(sql`
+			UPDATE users SET ${sql.identifier(field + '_count')} = COALESCE(${sql.identifier(field + '_count')}, 0) + 1 WHERE id = ${userId}
+		`);
 	} catch (err) {
 		console.error('[Audit] Usage increment failed:', err);
 	}

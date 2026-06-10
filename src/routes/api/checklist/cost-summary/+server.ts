@@ -12,7 +12,8 @@
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import {
 	generateChecklistForConcept,
 	computeCostSummary,
@@ -35,13 +36,14 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	}
 
 	try {
-		const supabase = getServiceSupabase();
-
 		// Load phases + templates
-		const [{ data: phases }, { data: templates }] = await Promise.all([
-			supabase.from('checklist_phases').select('*').order('sort_order'),
-			supabase.from('checklist_templates').select('*').order('sort_order'),
+		const [phasesRes, templatesRes] = await Promise.all([
+			db.execute(sql`SELECT * FROM checklist_phases ORDER BY sort_order ASC`),
+			db.execute(sql`SELECT * FROM checklist_templates ORDER BY sort_order ASC`),
 		]);
+
+		const phases = phasesRes.rows;
+		const templates = templatesRes.rows;
 
 		if (!phases || !templates) {
 			throw error(500, 'Failed to load checklist data');
@@ -49,23 +51,23 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 		// Filter for concept
 		const filtered = generateChecklistForConcept(
-			templates as ChecklistTemplate[],
+			templates as any as ChecklistTemplate[],
 			concept,
 		);
 
 		// Try to get DOF annual tax
 		let dofAnnualTax: number | undefined;
 		try {
-			const { data: dofData } = await supabase
-				.from('enriched_entities')
-				.select('raw_data')
-				.eq('geoid', locationId)
-				.eq('source', 'dof_property_tax')
-				.limit(1)
-				.single();
+			const dofRes = await db.execute(sql`
+				SELECT raw_data 
+				FROM enriched_entities 
+				WHERE location_key = ${locationId} AND entity_category = 'dof_property_tax' 
+				LIMIT 1
+			`);
 
-			if (dofData?.raw_data?.annual_tax) {
-				dofAnnualTax = dofData.raw_data.annual_tax;
+			const dofData = dofRes.rows[0];
+			if (dofData?.raw_data && typeof dofData.raw_data === 'object' && 'annual_tax' in dofData.raw_data) {
+				dofAnnualTax = (dofData.raw_data as any).annual_tax;
 			}
 		} catch {
 			// Non-fatal

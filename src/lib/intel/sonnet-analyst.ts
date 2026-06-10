@@ -145,16 +145,14 @@ export interface HistoricalContextEntry {
 	scoring_notes?: Record<string, unknown>;
 }
 
-export async function analyzeNeighborhood(
-	report: LocationIntelReport,
+export async function analyzeNeighborhood(report: LocationIntelReport,
 	reconciled: ReconciliationResult,
 	extrapolated: ExtrapolationResult,
 	haikuData?: HaikuExtraction | null,
 	// BRAIN-PB-02: historical context from Supabase lookup
 	historicalContext?: HistoricalContextEntry[] | null,
 	// BRAIN-GT: flags from scoring engine
-	scoringFlags?: string[] | null
-): Promise<NeighborhoodAnalysis> {
+	scoringFlags?: string[] | null, signal?: AbortSignal): Promise<NeighborhoodAnalysis> {
 	if (!OPENROUTER_KEY) return emptyAnalysis();
 
 	const start = Date.now();
@@ -270,17 +268,12 @@ Rules:
 
 	try {
 		// FIX-010: use openrouterFetch (1 retry, 2s→4s backoff on 429/500; returns null on failure)
-		const response = await openrouterFetch(
-			'https://openrouter.ai/api/v1/chat/completions',
-			{
-				method: 'POST',
+		const response = await openrouterFetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${OPENROUTER_KEY}`,
 					'HTTP-Referer': 'https://resquared.io',
-					'X-Title': 'RE² Neighborhood Analyst'
-				},
-				body: JSON.stringify({
+					'X-Title': 'RE² Neighborhood Analyst', signal }, body: JSON.stringify({
 					model: SONNET_MODEL,
 					messages: [
 						{ role: 'system', content: systemPrompt },

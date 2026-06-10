@@ -12,7 +12,8 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 /**
  * Encode lat/lng to a geohash string.
@@ -80,15 +81,13 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		const geohash = encodeGeohash(lat, lng);
-		const supabase = getServiceSupabase();
-
 		// Check if record exists
-		const { data: existing } = await supabase
-			.from('location_intelligence')
-			.select('*')
-			.eq('geohash', geohash)
-			.eq('business_type', businessType)
-			.single();
+		const existingRes = await db.execute(sql`
+			SELECT * FROM location_intelligence 
+			WHERE geohash = ${geohash} AND business_type = ${businessType} 
+			LIMIT 1
+		`);
+		const existing = existingRes.rows[0] as any;
 
 		if (existing) {
 			// Update running average and merge signals
@@ -126,21 +125,19 @@ export const POST: RequestHandler = async ({ request }) => {
 			else if (compositeScore <= 75) dist['51-75']++;
 			else dist['76-100']++;
 
-			const { error } = await supabase
-				.from('location_intelligence')
-				.update({
-					avg_score: Math.round(newAvg * 10) / 10,
-					total_searches: newTotal,
-					positive_signals: mergedPositive,
-					negative_signals: mergedNegative,
-					top_factors: mergedFactors,
-					score_distribution: dist,
-					last_updated: new Date().toISOString()
-				})
-				.eq('geohash', geohash)
-				.eq('business_type', businessType);
-
-			if (error) {
+			try {
+				await db.execute(sql`
+					UPDATE location_intelligence SET
+						avg_score = ${Math.round(newAvg * 10) / 10},
+						total_searches = ${newTotal},
+						positive_signals = ${JSON.stringify(mergedPositive)},
+						negative_signals = ${JSON.stringify(mergedNegative)},
+						top_factors = ${JSON.stringify(mergedFactors)},
+						score_distribution = ${JSON.stringify(dist)},
+						last_updated = ${new Date().toISOString()}
+					WHERE geohash = ${geohash} AND business_type = ${businessType}
+				`);
+			} catch (error: any) {
 				console.error('[Neighborhood Intel] Update error:', error);
 				return json({ ok: false, error: error.message });
 			}
@@ -159,20 +156,12 @@ export const POST: RequestHandler = async ({ request }) => {
 				initialFactors[key] = { avg: score as number, count: 1 };
 			}
 
-			const { error } = await supabase
-				.from('location_intelligence')
-				.insert({
-					geohash,
-					business_type: businessType,
-					avg_score: compositeScore,
-					total_searches: 1,
-					positive_signals: signals?.positive || [],
-					negative_signals: signals?.negative || [],
-					top_factors: initialFactors,
-					score_distribution: dist
-				});
-
-			if (error) {
+			try {
+				await db.execute(sql`
+					INSERT INTO location_intelligence (geohash, business_type, avg_score, total_searches, positive_signals, negative_signals, top_factors, score_distribution)
+					VALUES (${geohash}, ${businessType}, ${compositeScore}, 1, ${JSON.stringify(signals?.positive || [])}, ${JSON.stringify(signals?.negative || [])}, ${JSON.stringify(initialFactors)}, ${JSON.stringify(dist)})
+				`);
+			} catch (error: any) {
 				console.error('[Neighborhood Intel] Insert error:', error);
 				return json({ ok: false, error: error.message });
 			}
@@ -203,32 +192,27 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		const geohash = encodeGeohash(lat, lng);
 		const prefix = geohash.substring(0, 5); // ~5km radius for nearby lookups
-		const supabase = getServiceSupabase();
-
 		// Get exact match
-		const { data: exact } = await supabase
-			.from('location_intelligence')
-			.select('*')
-			.eq('geohash', geohash)
-			.eq('business_type', businessType)
-			.single();
+		const exactRes = await db.execute(sql`SELECT * FROM location_intelligence WHERE geohash = ${geohash} AND business_type = ${businessType} LIMIT 1`);
+		const exact = exactRes.rows[0] as any;
 
 		// Get nearby matches (same geohash prefix)
-		const { data: nearby } = await supabase
-			.from('location_intelligence')
-			.select('geohash, business_type, avg_score, total_searches')
-			.like('geohash', `${prefix}%`)
-			.eq('business_type', businessType)
-			.order('total_searches', { ascending: false })
-			.limit(20);
+		const nearbyRes = await db.execute(sql`
+			SELECT geohash, business_type, avg_score, total_searches 
+			FROM location_intelligence 
+			WHERE geohash LIKE ${prefix + '%'} AND business_type = ${businessType} 
+			ORDER BY total_searches DESC LIMIT 20
+		`);
+		const nearby = nearbyRes.rows as any[];
 
 		// Get all business types scored in this area
-		const { data: allTypes } = await supabase
-			.from('location_intelligence')
-			.select('business_type, avg_score, total_searches')
-			.like('geohash', `${prefix}%`)
-			.order('total_searches', { ascending: false })
-			.limit(50);
+		const allTypesRes = await db.execute(sql`
+			SELECT business_type, avg_score, total_searches 
+			FROM location_intelligence 
+			WHERE geohash LIKE ${prefix + '%'} 
+			ORDER BY total_searches DESC LIMIT 50
+		`);
+		const allTypes = allTypesRes.rows as any[];
 
 		// Compute area-wide stats
 		const areaSearches = (nearby || []).reduce((sum, r) => sum + (r.total_searches || 0), 0);

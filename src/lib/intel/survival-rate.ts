@@ -15,7 +15,8 @@
  * overwriting the stale batch value so computeSixIndex sees live DOHMH data.
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import {
 	SURVIVAL_DISCOUNT_FACTORS,
 	SURVIVAL_DISCOUNT_DEFAULT,
@@ -121,16 +122,15 @@ async function fetchBlockGroupSurvival(geoid: string): Promise<BlockGroupSurviva
 	if (cached?.data) return cached.data;
 
 	try {
-		const supabase = getServiceSupabase();
-		const { data, error } = await supabase
-			.from('block_group_survival')
-			.select('geoid, food_survival_rate, sample_size, confidence')
-			.eq('geoid', geoid)
-			.single();
+		const result = await db.execute(sql`
+			SELECT geoid, food_survival_rate, sample_size, confidence
+			FROM block_group_survival
+			WHERE geoid = ${geoid}
+		`);
 
-		if (error || !data) return null;
+		if (!result.rows || result.rows.length === 0) return null;
 
-		const row = data as BlockGroupSurvivalRow;
+		const row = result.rows[0] as unknown as BlockGroupSurvivalRow;
 		intelCache.set(blockGroupCacheKey(geoid), row, SURVIVAL_TTL);
 		return row;
 	} catch (err) {
@@ -144,16 +144,15 @@ async function fetchBoroughMedian(borough: string): Promise<number | null> {
 	if (cached?.data) return cached.data.median_survival_rate;
 
 	try {
-		const supabase = getServiceSupabase();
-		const { data, error } = await supabase
-			.from('borough_survival_medians')
-			.select('borough, median_survival_rate')
-			.eq('borough', borough)
-			.single();
+		const result = await db.execute(sql`
+			SELECT borough, median_survival_rate
+			FROM borough_survival_medians
+			WHERE borough = ${borough}
+		`);
 
-		if (error || !data) return null;
+		if (!result.rows || result.rows.length === 0) return null;
 
-		const row = data as BoroughMedianRow;
+		const row = result.rows[0] as unknown as BoroughMedianRow;
 		intelCache.set(boroughCacheKey(borough), row, SURVIVAL_TTL);
 		return row.median_survival_rate;
 	} catch (err) {

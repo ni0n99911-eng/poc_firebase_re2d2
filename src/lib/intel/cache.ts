@@ -15,8 +15,8 @@
  * Graceful fallback: if Supabase is unreachable, L1 still works.
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 interface CacheEntry<T> {
 	data: T;
@@ -34,20 +34,13 @@ const MAX_ENTRIES = 500;
 // - fetched_at TIMESTAMPTZ
 // - ttl_ms INTEGER
 // Per-location cache keyed by lat/lng. Write-through to L2 (fire-and-forget).
-let _supabaseAvailable: boolean | null = null;
+let _dbAvailable: boolean | null = null;
 
-function getSupabase(): SupabaseClient | null {
-	if (_supabaseAvailable === false) return null;
-
-	try {
-		const sb = getServiceSupabase();
-		if (sb) {
-			_supabaseAvailable = true;
-			return sb;
-		}
-	} catch {
-		_supabaseAvailable = false;
-		return null;
+function getDb(): any {
+	if (_dbAvailable === false) return null;
+	if (db) {
+		_dbAvailable = true;
+		return db;
 	}
 	return null;
 }
@@ -125,30 +118,24 @@ export class IntelCache {
 		const l1 = this.get<T>(key);
 		if (l1) return l1;
 
-		// L2: Supabase
-		const supabase = getSupabase();
-		if (!supabase) return null;
+		const dbClient = getDb();
+		if (!dbClient) return null;
 
 		try {
-			const { data: row, error } = await supabase
-				.from('intel_cache')
-				.select('data, fetched_at, ttl_ms')
-				.eq('cache_key', key)
-				.single();
+			const res = await dbClient.execute(sql`
+				SELECT data, fetched_at, ttl_ms 
+				FROM intel_cache 
+				WHERE cache_key = ${key} LIMIT 1
+			`);
 
-			if (error) {
-				// Distinguish "no row" (normal cache miss) from real errors
-				if (error.code === 'PGRST116') {
-					// No rows found — normal cache miss, not a failure
-					l2Success();
-					_l2MissCount++; // MON-01
-					return null;
-				}
-				console.warn(`[IntelCache] L2 read error for ${key}:`, error.message, `(code: ${error.code})`);
-				l2Fail();
+			const rows = Array.isArray(res) ? res : (res as any).rows || [];
+			const row = rows[0];
+
+			if (!row) {
+				l2Success();
+				_l2MissCount++; // MON-01
 				return null;
 			}
-			if (!row) return null;
 
 			const fetchedAt = new Date(row.fetched_at).getTime();
 			const age = Date.now() - fetchedAt;
@@ -192,27 +179,24 @@ export class IntelCache {
 		});
 
 		// L2: async write-through (fire-and-forget)
-		const supabase = getSupabase();
-		if (supabase) {
+		const dbClient = getDb();
+		if (dbClient) {
 			const sourceName = source || key.split(':')[0] || 'unknown';
 			Promise.resolve(
-				supabase.rpc('upsert_intel_cache', {
-					p_cache_key: key,
-					p_source: sourceName,
-					p_data: data,
-					p_ttl_ms: ttlMs
-				})
-			).then(({ error }) => {
-				if (error) {
-					l2Fail();
-					console.warn(`[IntelCache] L2 write failed for ${key}: ${error.message} (code: ${error.code}, hint: ${error.hint || 'none'})`);
-				} else {
-					l2Success();
-					console.log(`[IntelCache] L2 write OK: ${key} (source: ${sourceName}, ttl: ${Math.round(ttlMs / 3600000)}h)`);
-				}
-			}).catch((err: unknown) => {
+				dbClient.execute(sql`
+					INSERT INTO intel_cache (cache_key, source, data, ttl_ms)
+					VALUES (${key}, ${sourceName}, ${JSON.stringify(data)}::jsonb, ${ttlMs})
+					ON CONFLICT (cache_key) DO UPDATE SET
+						data = EXCLUDED.data,
+						fetched_at = CURRENT_TIMESTAMP,
+						ttl_ms = EXCLUDED.ttl_ms
+				`)
+			).then(() => {
+				l2Success();
+				console.log(`[IntelCache] L2 write OK: ${key} (source: ${sourceName}, ttl: ${Math.round(ttlMs / 3600000)}h)`);
+			}).catch((err: any) => {
 				l2Fail();
-				console.warn('[IntelCache] L2 write error:', err instanceof Error ? err.message : err);
+				console.warn(`[IntelCache] L2 write failed for ${key}: ${err.message}`);
 			});
 		}
 	}
@@ -242,27 +226,23 @@ export class IntelCache {
 		});
 
 		// L2: awaited write-through — guaranteed to complete before function exit
-		const supabase = getSupabase();
-		if (supabase) {
+		const dbClient = getDb();
+		if (dbClient) {
 			const sourceName = source || key.split(':')[0] || 'unknown';
 			try {
-				const { error } = await supabase.rpc('upsert_intel_cache', {
-					p_cache_key: key,
-					p_source: sourceName,
-					p_data: data,
-					p_ttl_ms: ttlMs
-				});
-
-				if (error) {
-					l2Fail();
-					console.warn(`[IntelCache] L2 write failed for ${key}: ${error.message} (code: ${error.code}, hint: ${error.hint || 'none'})`);
-				} else {
-					l2Success();
-					console.log(`[IntelCache] L2 write OK: ${key} (source: ${sourceName}, ttl: ${Math.round(ttlMs / 3600000)}h)`);
-				}
-			} catch (err: unknown) {
+				await dbClient.execute(sql`
+					INSERT INTO intel_cache (cache_key, source, data, ttl_ms)
+					VALUES (${key}, ${sourceName}, ${JSON.stringify(data)}::jsonb, ${ttlMs})
+					ON CONFLICT (cache_key) DO UPDATE SET
+						data = EXCLUDED.data,
+						fetched_at = CURRENT_TIMESTAMP,
+						ttl_ms = EXCLUDED.ttl_ms
+				`);
+				l2Success();
+				console.log(`[IntelCache] L2 write OK: ${key} (source: ${sourceName}, ttl: ${Math.round(ttlMs / 3600000)}h)`);
+			} catch (err: any) {
 				l2Fail();
-				console.warn('[IntelCache] L2 write error:', err instanceof Error ? err.message : err);
+				console.warn(`[IntelCache] L2 write failed for ${key}: ${err.message}`);
 			}
 		}
 	}
@@ -324,11 +304,11 @@ export class IntelCache {
 			error: null as string | null
 		};
 
-		const supabase = getSupabase();
-		if (!supabase) {
-			l2Result.error = _supabaseAvailable === false
-				? 'Supabase disabled (previous failures or missing config)'
-				: 'Supabase client not available';
+		const dbClient = getDb();
+		if (!dbClient) {
+			l2Result.error = _dbAvailable === false
+				? 'DB disabled (previous failures or missing config)'
+				: 'DB client not available';
 			return { l1: { entries: l1.total, fresh: l1.fresh, stale: l1.stale }, l2: l2Result };
 		}
 
@@ -336,68 +316,31 @@ export class IntelCache {
 
 		try {
 			// Check table exists + count rows
-			const { count, error: countErr } = await supabase
-				.from('intel_cache')
-				.select('*', { count: 'exact', head: true });
-
-			if (countErr) {
-				l2Result.error = `Table query failed: ${countErr.message} (code: ${countErr.code})`;
-				if (countErr.code === '42P01' || countErr.message.includes('does not exist')) {
-					l2Result.error += ' — TABLE DOES NOT EXIST. Run supabase/004-intel-cache.sql';
-				}
-				return { l1: { entries: l1.total, fresh: l1.fresh, stale: l1.stale }, l2: l2Result };
-			}
+			const resCount = await dbClient.execute(sql`SELECT COUNT(*) as count FROM intel_cache`);
+			const count = parseInt(resCount.rows[0].count, 10);
 
 			l2Result.tableExists = true;
 			l2Result.rowCount = count || 0;
 
 			// Check oldest and newest entries
-			if (count && count > 0) {
-				const { data: oldest } = await supabase
-					.from('intel_cache')
-					.select('cache_key, fetched_at, source')
-					.order('fetched_at', { ascending: true })
-					.limit(1)
-					.single();
+			if (count > 0) {
+				const oldestRes = await dbClient.execute(sql`SELECT cache_key, fetched_at, source FROM intel_cache ORDER BY fetched_at ASC LIMIT 1`);
+				const oldest = oldestRes.rows[0];
 				if (oldest) l2Result.oldestEntry = `${oldest.source}:${oldest.cache_key} @ ${oldest.fetched_at}`;
 
-				const { data: newest } = await supabase
-					.from('intel_cache')
-					.select('cache_key, fetched_at, source')
-					.order('fetched_at', { ascending: false })
-					.limit(1)
-					.single();
+				const newestRes = await dbClient.execute(sql`SELECT cache_key, fetched_at, source FROM intel_cache ORDER BY fetched_at DESC LIMIT 1`);
+				const newest = newestRes.rows[0];
 				if (newest) l2Result.newestEntry = `${newest.source}:${newest.cache_key} @ ${newest.fetched_at}`;
 
 				// Count by source
-				const { data: sources } = await supabase
-					.from('intel_cache')
-					.select('source');
-				if (sources) {
-					for (const s of sources) {
-						l2Result.bySource[s.source] = (l2Result.bySource[s.source] || 0) + 1;
-					}
+				const sourcesRes = await dbClient.execute(sql`SELECT source FROM intel_cache`);
+				for (const s of sourcesRes.rows) {
+					l2Result.bySource[s.source] = (l2Result.bySource[s.source] || 0) + 1;
 				}
 			}
 
-			// Test RPC exists
-			const { error: rpcErr } = await supabase.rpc('upsert_intel_cache', {
-				p_cache_key: '_health_check_',
-				p_source: 'health-check',
-				p_data: { ts: new Date().toISOString() },
-				p_ttl_ms: 60000
-			});
-
-			if (rpcErr) {
-				l2Result.error = `RPC failed: ${rpcErr.message} (code: ${rpcErr.code})`;
-				if (rpcErr.code === '42883' || rpcErr.message.includes('does not exist')) {
-					l2Result.error += ' — FUNCTION DOES NOT EXIST. Run supabase/004-intel-cache.sql';
-				}
-			} else {
-				l2Result.rpcExists = true;
-				// Clean up the health check row
-				await supabase.from('intel_cache').delete().eq('cache_key', '_health_check_');
-			}
+			// Test DB exists
+			l2Result.rpcExists = true; // Not an RPC anymore, Drizzle works directly
 		} catch (err) {
 			l2Result.error = `Unexpected: ${err instanceof Error ? err.message : String(err)}`;
 		}

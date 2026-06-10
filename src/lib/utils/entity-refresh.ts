@@ -11,16 +11,19 @@ export function isEntityStale(fetchedAt: string | null): boolean {
 	return Date.now() - new Date(fetchedAt).getTime() > ENTITY_TTL_MS;
 }
 
+import { sql } from 'drizzle-orm';
+
 export async function refreshEnrichedEntities(
-	supabase: any,
+	db: any,
 	geoid: string,
 	source: 'dohmh' | 'dca' = 'dohmh'
 ): Promise<void> {
 	// Mark as needing refresh — actual refresh happens in the next scoring run
 	// when the intel pipeline fetches fresh data from NYC Open Data.
 	console.log(`[F-20] Marking ${source} entities stale for geoid=${geoid}`);
-	await supabase.from('enriched_entities')
-		.update({ needs_refresh: true })
-		.eq('location_key', geoid)
-		.eq('entity_category', source);
+	await db.execute(sql`
+		UPDATE enriched_entities 
+		SET needs_refresh = true 
+		WHERE location_key = ${geoid} AND entity_category = ${source}
+	`);
 }

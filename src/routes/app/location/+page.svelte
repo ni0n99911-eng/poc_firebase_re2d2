@@ -6446,13 +6446,12 @@
 	);
 
 	async function fetchAIInsights() {
-		if (!hasResult || !visionBizType) return;
-		let medIncome = 0;
+		if (!hasResult || !visionBizType || aiVisionLoading || aiFitLoading) return;
+		let intelData = { census: { medianHouseholdIncome: 0, competitorCount: 0 } };
 		try {
-			const intel = JSON.parse(
+			intelData = JSON.parse(
 				sessionStorage.getItem("re2_location_intel") || "{}",
 			);
-			medIncome = intel?.census?.medianHouseholdIncome || 0;
 		} catch {}
 		const hood = locationNeighborhood || "";
 		const boro =
@@ -6461,14 +6460,11 @@
 		const conceptLabel = bizTypeLabel;
 		const concept = visionBizType;
 
-		// Fire 2 AI calls in parallel (neighborhoods now deterministic — no API call needed)
 		aiVisionLoading = true;
 		aiFitLoading = true;
 
-		const visionPromise = apiFetch("/api/ai", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
+		const batchBody = [
+			{
 				action: "vision-anchor",
 				conceptType: concept,
 				conceptLabel,
@@ -6477,21 +6473,9 @@
 				differentiators: visionDifferentiators,
 				targetClients: visionTargetClients,
 				competitors: analysisStore.competitors.length,
-				medianIncome: medIncome,
-			}),
-		})
-			.then((r: any) => {
-				if (r.success) aiVisionAnchor = r.data;
-			})
-			.catch(() => {})
-			.finally(() => {
-				aiVisionLoading = false;
-			});
-
-		const fitPromise = apiFetch("/api/ai", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
+				medianIncome: intelData.census?.medianHouseholdIncome || 0,
+			},
+			{
 				action: "fit-improvement",
 				conceptType: concept,
 				conceptLabel,
@@ -6505,18 +6489,41 @@
 				avgCheck: bpAvgTicket || 0,
 				competitors: analysisStore.competitors.length,
 				differentiators: visionDifferentiators,
-				medianIncome: medIncome,
-			}),
-		})
-			.then((r: any) => {
-				if (r.success) aiFitRecs = r.data;
-			})
-			.catch(() => {})
-			.finally(() => {
-				aiFitLoading = false;
-			});
+				medianIncome: intelData.census?.medianHouseholdIncome || 0,
+			}
+		];
 
-		await Promise.allSettled([visionPromise, fitPromise]);
+		try {
+			const res = await apiFetch("/api/ai", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(batchBody),
+			});
+			if (res.ok) {
+				const jsonRes = await res.json();
+				if (jsonRes.success && Array.isArray(jsonRes.data)) {
+					const [visionData, fitData] = jsonRes.data;
+					if (visionData?.success && visionData.data) {
+						aiVisionAnchor = visionData.data;
+					} else {
+						aiVisionAnchor = null;
+						console.error("Vision AI error:", visionData?.error);
+					}
+					
+					if (fitData?.success && fitData.data) {
+						aiFitRecs = fitData.data;
+					} else {
+						aiFitRecs = null;
+						console.error("Fit AI error:", fitData?.error);
+					}
+				}
+			}
+		} catch (err) {
+			console.error("AI Insights fetch failed", err);
+		} finally {
+			aiVisionLoading = false;
+			aiFitLoading = false;
+		}
 	}
 
 	// ── Quick P&L Side Panel ──

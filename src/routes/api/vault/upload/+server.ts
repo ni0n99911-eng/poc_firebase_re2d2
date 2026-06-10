@@ -2,18 +2,14 @@
  * RE² Data Vault — File Upload
  *
  * POST /api/vault/upload  (multipart/form-data)
- * Uploads file to Supabase Storage 'vault-files' bucket,
- * then creates a vault_items row with the file reference.
- *
- * ISS-02 FIX: Use getServiceSupabase() (service_role key) instead of
- * getAuthedSupabase(token). Supabase Storage RLS verifies JWTs using
- * Supabase's own JWT secret — a Clerk-issued JWT will always fail that
- * check because it's signed with Clerk's private key, not Supabase's.
- * Since this is a server-side API route, service_role is safe and correct.
- * Auth is enforced by extracting userId from the Clerk JWT manually.
+ * Uploads file to Firebase Storage (Google Cloud Storage)
+ * then creates a vault_items row in Cloud SQL with the file reference.
  */
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { vaultItems } from '$lib/db/schema';
+import { getAdminApp } from '$lib/firebase/server';
+import crypto from 'crypto';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = [
@@ -39,9 +35,6 @@ export const POST: RequestHandler = async ({ request }) => {
 	const userId = getUserId(request);
 	if (!userId) return json({ error: 'Unauthorized' }, { status: 401 });
 
-	// ISS-02: service_role bypasses Supabase's JWT verification (incompatible with Clerk JWTs)
-	const sb = getServiceSupabase();
-
 	try {
 		const formData = await request.formData();
 		const file = formData.get('file') as File | null;
@@ -56,47 +49,42 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		// Generate unique path: user_id/timestamp-filename
 		const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 100);
-		const storagePath = `${userId}/${Date.now()}-${safeName}`;
+		const storagePath = `vault-files/${userId}/${Date.now()}-${safeName}`;
 
-		// Upload to Supabase Storage
-		const { error: uploadError } = await sb.storage
-			.from('vault-files')
-			.upload(storagePath, file, {
-				contentType: file.type,
-				upsert: false,
-			});
+		// Upload to Firebase Storage
+		const bucket = getAdminApp().storage().bucket();
+		const fileBuffer = Buffer.from(await file.arrayBuffer());
+		
+		const bucketFile = bucket.file(storagePath);
+		await bucketFile.save(fileBuffer, {
+			metadata: { contentType: file.type }
+		});
 
-		if (uploadError) {
-			console.error('[VaultUpload] Storage upload error:', uploadError);
-			return json({ error: `Upload failed: ${uploadError.message}` }, { status: 500 });
-		}
+		// Generate UUID for the item
+		const itemId = crypto.randomUUID();
 
-		// Create vault item — filter by user_id manually (service_role bypasses RLS)
-		const { data: item, error: dbError } = await sb.from('vault_items').insert({
-			user_id: userId,
-			property_addr: propertyAddr,
-			item_type: 'file',
+		// Create vault item in Cloud SQL
+		const payload = {
+			id: itemId,
+			userId: userId,
+			propertyAddr: propertyAddr,
+			itemType: 'file',
 			title: title || file.name,
 			body: '',
-			file_path: storagePath,
-			file_type: file.type,
-			file_size: file.size,
+			filePath: storagePath,
+			fileType: file.type,
+			fileSize: file.size.toString(),
 			tags,
 			metadata: { originalName: file.name },
-			pinned: false,
-		}).select().single();
+			pinned: 'false',
+		};
 
-		if (dbError) {
-			console.error('[VaultUpload] DB insert error:', dbError);
-			// Rollback: remove the uploaded file
-			await sb.storage.from('vault-files').remove([storagePath]);
-			return json({ error: `DB error: ${dbError.message}` }, { status: 500 });
-		}
+		await db.insert(vaultItems).values(payload as any);
 
-		return json({ item, storagePath });
+		return json({ item: payload, storagePath });
 
-	} catch (err) {
+	} catch (err: any) {
 		console.error('[VaultUpload] Unexpected error:', err);
-		return json({ error: 'Upload failed' }, { status: 500 });
+		return json({ error: err.message || 'Upload failed' }, { status: 500 });
 	}
 };

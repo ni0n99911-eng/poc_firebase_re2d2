@@ -14,7 +14,8 @@
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import {
 	generateChecklistForConcept,
 	mergeWithProgress,
@@ -38,44 +39,20 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	}
 
 	try {
-		const supabase = getServiceSupabase();
-
 		// 1. Load phases
-		const { data: phases, error: phaseErr } = await supabase
-			.from('checklist_phases')
-			.select('*')
-			.order('sort_order');
-
-		if (phaseErr) {
-			console.error('[checklist] Phase load error:', phaseErr);
-			throw error(500, 'Failed to load checklist phases');
-		}
+		const phasesRes = await db.execute(sql`SELECT * FROM checklist_phases ORDER BY sort_order`);
+		const phases = phasesRes.rows;
 
 		// 2. Load all templates
-		const { data: templates, error: tmplErr } = await supabase
-			.from('checklist_templates')
-			.select('*')
-			.order('sort_order');
-
-		if (tmplErr) {
-			console.error('[checklist] Template load error:', tmplErr);
-			throw error(500, 'Failed to load checklist templates');
-		}
+		const templatesRes = await db.execute(sql`SELECT * FROM checklist_templates ORDER BY sort_order`);
+		const templates = templatesRes.rows;
 
 		// 3. Load user progress for this location
-		const { data: progress, error: progErr } = await supabase
-			.from('checklist_progress')
-			.select('*')
-			.eq('user_id', user.id)
-			.eq('location_id', locationId);
-
-		if (progErr) {
-			console.error('[checklist] Progress load error:', progErr);
-			// Non-fatal — return empty progress
-		}
+		const progressRes = await db.execute(sql`SELECT * FROM checklist_progress WHERE user_id = ${user.id} AND location_id = ${locationId}`);
+		const progress = progressRes.rows;
 
 		// 4. Build location context for enrichment
-		const locationContext = await buildLocationContext(supabase, locationId, concept);
+		const locationContext = await buildLocationContext(locationId, concept);
 
 		// 5. Filter and customize for concept
 		const filteredTemplates = generateChecklistForConcept(
@@ -109,7 +86,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
  * Pulls from block_group_scores, enriched_entities, etc.
  */
 async function buildLocationContext(
-	supabase: any,
 	locationId: string,
 	concept: string,
 ): Promise<LocationContext | undefined> {
@@ -117,13 +93,8 @@ async function buildLocationContext(
 		const ctx: LocationContext = {};
 
 		// Try to load DOF data from enriched_entities
-		const { data: dofData } = await supabase
-			.from('enriched_entities')
-			.select('raw_data')
-			.eq('geoid', locationId)
-			.eq('source', 'dof_property_tax')
-			.limit(1)
-			.single();
+		const dofRes = await db.execute(sql`SELECT raw_data FROM enriched_entities WHERE geoid = ${locationId} AND source = 'dof_property_tax' LIMIT 1`);
+		const dofData = dofRes.rows[0] as any;
 
 		if (dofData?.raw_data) {
 			const raw = dofData.raw_data;
@@ -135,26 +106,16 @@ async function buildLocationContext(
 		}
 
 		// Try to load competitor count from block_group_scores
-		const { data: compData } = await supabase
-			.from('block_group_scores')
-			.select('raw_signals')
-			.eq('geoid', locationId)
-			.eq('score_type', 'competition')
-			.limit(1)
-			.single();
+		const compRes = await db.execute(sql`SELECT raw_signals FROM block_group_scores WHERE geoid = ${locationId} AND score_type = 'competition' LIMIT 1`);
+		const compData = compRes.rows[0] as any;
 
 		if (compData?.raw_signals?.competitor_count) {
 			ctx.competitorCount = compData.raw_signals.competitor_count;
 		}
 
 		// Try to load rent from block_group_scores
-		const { data: rentData } = await supabase
-			.from('block_group_scores')
-			.select('raw_signals')
-			.eq('geoid', locationId)
-			.eq('score_type', 'rent')
-			.limit(1)
-			.single();
+		const rentRes = await db.execute(sql`SELECT raw_signals FROM block_group_scores WHERE geoid = ${locationId} AND score_type = 'rent' LIMIT 1`);
+		const rentData = rentRes.rows[0] as any;
 
 		if (rentData?.raw_signals?.monthly_rent) {
 			ctx.rent = rentData.raw_signals.monthly_rent;

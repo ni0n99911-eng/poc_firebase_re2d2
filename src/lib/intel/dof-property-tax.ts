@@ -88,12 +88,10 @@ export interface PropertyTaxProfile {
  * @param bldgSqft Total building area from PLUTO (for pro-rating)
  * @param bldgClass Building class from PLUTO (e.g. "D4" = coop)
  */
-export async function fetchPropertyTaxProfile(
-	bbl: string,
+export async function fetchPropertyTaxProfile(bbl: string,
 	sqft: number = 0,
 	bldgSqft: number = 0,
-	bldgClass: string = ''
-): Promise<PropertyTaxProfile | null> {
+	bldgClass: string = '', signal?: AbortSignal): Promise<PropertyTaxProfile | null> {
 	if (!bbl || bbl.length < 6) return null;
 
 	const cacheKey = `dof:${bbl}`;

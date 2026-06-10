@@ -97,7 +97,8 @@ import { lookupHistoricalContext } from './data-quality-gate';
 import { applyConfidencePriors } from './confidence-priors';
 import { computeStreetSideIntel, extractPOIsFromIntel } from './street-side';
 import type { StreetSideData } from './street-side-types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { resilientFetch } from './resilient-fetch';
 import { getConceptScanRadius } from './six-index';
 import type { LocationIntelReport } from './types';
@@ -148,12 +149,7 @@ export async function fetchLocationIntel(
 	const INTEL_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 	try {
-		const supabase = getServiceSupabase();
-		const cacheQuery = supabase
-			.from('intel_cache')
-			.select('data, fetched_at, ttl_ms')
-			.eq('cache_key', INTEL_CACHE_KEY)
-			.maybeSingle();
+		const cacheQuery = db.execute(sql`SELECT data, fetched_at, ttl_ms FROM intel_cache WHERE cache_key = ${INTEL_CACHE_KEY} LIMIT 1`);
 		let cacheTimeoutId: NodeJS.Timeout;
 		const cacheTimeout = new Promise<null>((resolve) => {
 			cacheTimeoutId = setTimeout(() => resolve(null), 2000);
@@ -162,18 +158,18 @@ export async function fetchLocationIntel(
 
 		if (result === null) {
 			console.warn('[IntelCache] CHECK timed out (2s) — skipping cache');
-		} else if (result.error) {
-			console.warn(`[IntelCache] CHECK error: ${result.error.message} (code: ${result.error.code})`);
-		} else if (result.data?.data) {
-			const age = Date.now() - new Date(result.data.fetched_at).getTime();
-			const ttl = result.data.ttl_ms ?? INTEL_TTL_MS;
+		} else if ((Array.isArray(result) && result.length > 0) || (result.rows && result.rows.length > 0)) {
+			const rows = Array.isArray(result) ? result : result.rows;
+			const row = rows[0] as any;
+			const age = Date.now() - new Date(row.fetched_at).getTime();
+			const ttl = row.ttl_ms ?? INTEL_TTL_MS;
 			if (age < ttl) {
 				console.log(`[IntelCache] HIT for ${latKey},${lngKey} (age: ${Math.round(age / 1000)}s) — returning cached report`);
-				return result.data.data as LocationIntelReport;
+				return row.data as LocationIntelReport;
 			} else {
 				// FIX-5: stale-but-good — if coverage ≥ 12/20, extend TTL 24h and
 				// background-refresh rather than blocking the user on a cold re-fetch.
-				const cachedReport = result.data.data as LocationIntelReport;
+				const cachedReport = row.data as LocationIntelReport;
 				const goodCoverage = (cachedReport.sourceCoverage?.available ?? 0) >= 12;
 				if (goodCoverage) {
 					console.log(`[IntelCache] STALE but good coverage (${cachedReport.sourceCoverage?.available}/20) — serving cached, refreshing in background`);
@@ -203,28 +199,31 @@ export async function fetchLocationIntel(
 	// B7: concept-specific trade radius for competitor/market fetches
 	const radius = getConceptScanRadius(businessType);
 
+	const abortController = new AbortController();
+	const signal = abortController.signal;
+
 	const calls = [
-		resilientFetch('census',         () => fetchCensusData(lat, lng)),
-		resilientFetch('census_housing', () => fetchCensusHousing(lat, lng)),
-		resilientFetch('walkscore',      () => fetchWalkScore(lat, lng, address)),
-		resilientFetch('dohmh',          () => fetchInspections(lat, lng, 500)),
-		resilientFetch('crime',          () => fetchCrimeData(lat, lng, 300)),
-		resilientFetch('google_places',  () => fetchNearbyPlaces(lat, lng, businessType, radius)),
-		resilientFetch('google_density', () => fetchMarketDensity(lat, lng, radius)),
-		resilientFetch('overpass',       () => scanCompetitors(lat, lng, businessType, radius)),
-		resilientFetch('lpc',            () => fetchLPCData(lat, lng, 100)),
-		resilientFetch('mta',            () => fetchMTARidership(lat, lng, 800)),
-		resilientFetch('dca',            () => fetchDCALicenses(lat, lng, 500)),
-		resilientFetch('dob',            () => fetchDOBData(lat, lng, 300)),
-		resilientFetch('complaints_311', () => fetch311Complaints(lat, lng, 500)),
-		resilientFetch('pedestrian',     () => fetchPedestrianCounts(lat, lng, 500)),
-		resilientFetch('pluto',          () => fetchPLUTOData(lat, lng, 300)),
-		resilientFetch('sidewalk_cafes', () => fetchSidewalkCafes(lat, lng, 500)),
-		resilientFetch('liquor',         () => fetchLiquorLicenses(lat, lng, 500)),
-		resilientFetch('foursquare',     () => fetchFoursquareData(lat, lng, businessType, radius)),
-		resilientFetch('yelp',           () => fetchYelpData(lat, lng, businessType, radius)),
-		resilientFetch('momentum',       () => fetchMomentumData(lat, lng, 500)),
-		resilientFetch('schools',        () => fetchSchoolProximity(lat, lng, 305))
+		resilientFetch('census',         () => fetchCensusData(lat, lng, signal)),
+		resilientFetch('census_housing', () => fetchCensusHousing(lat, lng, signal)),
+		resilientFetch('walkscore',      () => fetchWalkScore(lat, lng, address, signal)),
+		resilientFetch('dohmh',          () => fetchInspections(lat, lng, 500, signal)),
+		resilientFetch('crime',          () => fetchCrimeData(lat, lng, 300, signal)),
+		resilientFetch('google_places',  () => fetchNearbyPlaces(lat, lng, businessType, radius, signal)),
+		resilientFetch('google_density', () => fetchMarketDensity(lat, lng, radius, signal)),
+		resilientFetch('overpass',       () => scanCompetitors(lat, lng, businessType, radius, signal)),
+		resilientFetch('lpc',            () => fetchLPCData(lat, lng, 100, signal)),
+		resilientFetch('mta',            () => fetchMTARidership(lat, lng, 800, signal)),
+		resilientFetch('dca',            () => fetchDCALicenses(lat, lng, 500, signal)),
+		resilientFetch('dob',            () => fetchDOBData(lat, lng, 300, signal)),
+		resilientFetch('complaints_311', () => fetch311Complaints(lat, lng, 500, signal)),
+		resilientFetch('pedestrian',     () => fetchPedestrianCounts(lat, lng, 500, signal)),
+		resilientFetch('pluto',          () => fetchPLUTOData(lat, lng, 300, signal)),
+		resilientFetch('sidewalk_cafes', () => fetchSidewalkCafes(lat, lng, 500, signal)),
+		resilientFetch('liquor',         () => fetchLiquorLicenses(lat, lng, 500, signal)),
+		resilientFetch('foursquare',     () => fetchFoursquareData(lat, lng, businessType, radius, signal)),
+		resilientFetch('yelp',           () => fetchYelpData(lat, lng, businessType, radius, signal)),
+		resilientFetch('momentum',       () => fetchMomentumData(lat, lng, 500, signal)),
+		resilientFetch('schools',        () => fetchSchoolProximity(lat, lng, 305, signal))
 	];
 
 	// Track each call individually — write result as soon as it settles
@@ -242,7 +241,8 @@ export async function fetchLocationIntel(
 		new Promise<void>((resolve) =>
 			hardCeilingId = setTimeout(() => {
 				const done = results.filter(r => (r as PromiseRejectedResult).reason?.message !== 'Hard ceiling timeout — source did not complete in time').length;
-				console.warn(`[LocationIntel] HARD CEILING HIT (${HARD_CEILING_MS}ms) — ${done}/${SOURCE_COUNT} sources completed`);
+				console.warn(`[LocationIntel] HARD CEILING HIT (${HARD_CEILING_MS}ms) — ${done}/${SOURCE_COUNT} sources completed. ABORTING trailing requests.`);
+				abortController.abort(); // Cancel hanging sockets so serverless function can return
 				resolve();
 			}, HARD_CEILING_MS)
 		)
@@ -443,22 +443,18 @@ export async function fetchLocationIntel(
 		console.warn(`[IntelCache] SKIPPED write — only ${sourcesAvailable}/20 sources (below ${MIN_SOURCES_TO_CACHE} threshold)`);
 	} else {
 	try {
-		const supabase = getServiceSupabase();
-		const { error } = await supabase
-			.from('intel_cache')
-			.upsert({
-				cache_key: INTEL_CACHE_KEY,
-				source: 'location-intel',
-				data: report,
-				ttl_ms: INTEL_TTL_MS,
-				fetched_at: new Date().toISOString()
-			}, { onConflict: 'cache_key' });
+		const fetchedAtStr = new Date().toISOString();
+		await db.execute(sql`
+			INSERT INTO intel_cache (cache_key, source, data, ttl_ms, fetched_at)
+			VALUES (${INTEL_CACHE_KEY}, 'location-intel', ${JSON.stringify(report)}::jsonb, ${INTEL_TTL_MS}, ${fetchedAtStr})
+			ON CONFLICT (cache_key) DO UPDATE SET
+				source = EXCLUDED.source,
+				data = EXCLUDED.data,
+				ttl_ms = EXCLUDED.ttl_ms,
+				fetched_at = EXCLUDED.fetched_at
+		`);
 
-		if (error) {
-			console.warn(`[IntelCache] STORE error: ${error.message} (code: ${error.code}, hint: ${error.hint || 'none'})`);
-		} else {
-			console.log(`[IntelCache] STORED ${sourcesAvailable}/20 sources for ${latKey},${lngKey} (key: ${INTEL_CACHE_KEY})`);
-		}
+		console.log(`[IntelCache] STORED ${sourcesAvailable}/20 sources for ${latKey},${lngKey} (key: ${INTEL_CACHE_KEY})`);
 	} catch (e) {
 		console.warn('[IntelCache] Store failed:', e);
 	}

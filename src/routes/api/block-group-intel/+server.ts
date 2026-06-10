@@ -20,7 +20,8 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { getBlockGroupIntel, latLngToGeoid, geoidToBorough, getBlockGroupScores, getBlockGroupVision } from '$lib/intel/block-group';
 import { normalizeBusinessType } from '$lib/intel/registry/business-type-registry';
 import { rateLimit, RATE_LIMITS } from '$lib/rate-limit';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { classifyStreetType } from '$lib/intel/street-side';
 
 // ── Street-type bonus applied to location_iq at query time ──
@@ -115,15 +116,10 @@ export const GET: RequestHandler = async ({ url, request }) => {
 
 		// Log the serve event
 		try {
-			const supabase = getServiceSupabase();
-			await supabase.from('score_events').insert({
-				event_type: 'block_group_serve',
-				geoid: result.geoid,
-				serving_mode: result.serving_mode,
-				duration_ms: durationMs,
-				lat: isNaN(lat) ? null : lat,
-				lng: isNaN(lng) ? null : lng,
-			});
+			await db.execute(sql`
+				INSERT INTO score_events (event_type, geoid, serving_mode, duration_ms, lat, lng)
+				VALUES ('block_group_serve', ${result.geoid}, ${result.serving_mode}, ${durationMs}, ${isNaN(lat) ? null : lat}, ${isNaN(lng) ? null : lng})
+			`);
 		} catch { /* non-critical */ }
 
 		return new Response(JSON.stringify({

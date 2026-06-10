@@ -10,7 +10,7 @@
  * All captures are fire-and-forget — never block the UI.
  */
 
-import { getSupabase } from '$lib/supabase';
+// Supabase removed
 
 // ─── Message Capture ───────────────────────────────────────
 
@@ -27,21 +27,8 @@ export async function captureMessage(
 	tokensOut?: number,
 	latencyMs?: number
 ): Promise<void> {
-	try {
-		const supabase = getSupabase();
-		await supabase.from('conversation_messages').insert({
-			session_id: sessionId,
-			role,
-			content,
-			metadata,
-			model_tier: modelTier,
-			tokens_in: tokensIn,
-			tokens_out: tokensOut,
-			latency_ms: latencyMs
-		});
-	} catch (err) {
-		console.error('[Capture] Failed to capture message:', err);
-	}
+	// Supabase removed, function stubbed
+	return Promise.resolve();
 }
 
 // ─── Correction Capture ────────────────────────────────────
@@ -59,20 +46,8 @@ export async function captureCorrection(
 	personaType: string,
 	context?: string
 ): Promise<void> {
-	try {
-		const supabase = getSupabase();
-		await supabase.from('founder_corrections').insert({
-			session_id: sessionId,
-			correction_type: correctionType,
-			field_name: fieldName,
-			ai_suggested_value: aiSuggested,
-			founder_value: founderValue,
-			persona_type: personaType,
-			context
-		});
-	} catch (err) {
-		console.error('[Capture] Failed to capture correction:', err);
-	}
+	// Supabase removed, function stubbed
+	return Promise.resolve();
 }
 
 // ─── Feedback Capture ──────────────────────────────────────
@@ -134,28 +109,8 @@ export async function captureLocationSearch(
 		apiSourcesStatus?: Record<string, string>;
 	}
 ): Promise<void> {
-	try {
-		const supabase = getSupabase();
-		await supabase.from('location_searches').insert({
-			session_id: sessionId,
-			address: data.address,
-			neighborhood: data.neighborhood,
-			borough: data.borough,
-			geohash: data.geohash,
-			lat: data.lat,
-			lng: data.lng,
-			persona_type: data.personaType,
-			concept_description: data.conceptDescription,
-			location_iq: data.locationIq,
-			fit_iq: data.fitIq,
-			six_indices: data.sixIndices,
-			heads_up_cards: data.headsUpCards || [],
-			business_model: data.businessModel || {},
-			api_sources_status: data.apiSourcesStatus || {}
-		});
-	} catch (err) {
-		console.error('[Capture] Failed to capture location search:', err);
-	}
+	// Supabase removed, function stubbed
+	return Promise.resolve();
 }
 
 // ─── Neighborhood Intelligence Upsert ──────────────────────
@@ -209,27 +164,6 @@ export async function upsertFounderProfile(
 		completed?: boolean;
 	}
 ): Promise<void> {
-	try {
-		const supabase = getSupabase();
-		const record = {
-			session_id: sessionId,
-			persona_type: data.personaType,
-			concept_name: data.conceptName,
-			concept_description: data.conceptDescription,
-			target_customers: data.targetCustomers || [],
-			differentiators: data.differentiators || [],
-			financial_estimates: data.financialEstimates || {},
-			scoring_hints: data.scoringHints || {},
-			conversation_phase: data.conversationPhase || 'business_type',
-			completed: data.completed || false,
-			updated_at: new Date().toISOString()
-		};
-
-		// Upsert by session_id
-		await supabase
-			.from('founder_profiles')
-			.upsert(record, { onConflict: 'session_id' });
-	} catch (err) {
-		console.error('[Capture] Failed to upsert founder profile:', err);
-	}
+	// Supabase removed, function stubbed
+	return Promise.resolve();
 }

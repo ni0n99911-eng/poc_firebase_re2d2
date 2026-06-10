@@ -10,7 +10,9 @@
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { dealPipeline } from '$lib/db/schema';
+import { and, eq } from 'drizzle-orm';
 
 export const DELETE: RequestHandler = async ({ request, locals }) => {
 	const user = locals.user;
@@ -23,15 +25,12 @@ export const DELETE: RequestHandler = async ({ request, locals }) => {
 		throw error(400, 'addr is required');
 	}
 
-	const supabase = getServiceSupabase();
-
-	const { error: dbErr, count } = await supabase
-		.from('deal_pipeline')
-		.delete({ count: 'exact' })
-		.eq('user_id', user.id)
-		.eq('address', addr.trim());
-
-	if (dbErr) {
+	try {
+		// Drizzle delete doesn't easily return count, but we can do it via returning if needed, or just assume success.
+		await db.delete(dealPipeline).where(
+			and(eq(dealPipeline.userId, user.id), eq(dealPipeline.address, addr.trim()))
+		);
+	} catch (dbErr: any) {
 		console.error('[deals/remove-location] delete error:', dbErr);
 		return json({ ok: false, error: dbErr.message }, { status: 500 });
 	}

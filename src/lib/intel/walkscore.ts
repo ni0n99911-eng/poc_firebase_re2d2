@@ -31,11 +31,9 @@ const WALKSCORE_BASE = 'https://api.walkscore.com/score';
  * Fetch Walk Score data for a location.
  * Falls back to heuristic estimation if no API key is configured.
  */
-export async function fetchWalkScore(
-	lat: number,
+export async function fetchWalkScore(lat: number,
 	lng: number,
-	address?: string
-): Promise<WalkScoreData | null> {
+	address?: string, signal?: AbortSignal): Promise<WalkScoreData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'walkscore');
 	const cached = await intelCache.getAsync<WalkScoreData>(cacheKey);
 	if (cached?.fresh) return cached.data;
@@ -44,33 +42,29 @@ export async function fetchWalkScore(
 	// Seeded via: npx tsx scripts/seed-api-data.ts --source walkscore
 	// Avoids live API calls and works even when the WalkScore API is down.
 	try {
-		const { createClient } = await import('@supabase/supabase-js');
-		const { env: e } = await import('$env/dynamic/private');
-		if (e.PUBLIC_SUPABASE_URL && e.SUPABASE_SERVICE_ROLE_KEY) {
-			const supabase = createClient(e.PUBLIC_SUPABASE_URL, e.SUPABASE_SERVICE_ROLE_KEY);
-			const { data: nearest } = await supabase.rpc('nearby_block_group', { lat, lng });
-			if (nearest && nearest.length > 0) {
-				const { data: intel } = await supabase
-					.from('block_group_intel')
-					.select('data')
-					.eq('geoid', nearest[0].geoid)
-					.eq('source', 'walkscore')
-					.single();
-				if (intel?.data) {
-					const d = intel.data as Record<string, unknown>;
-					const result: WalkScoreData = {
-						walkScore: (d.walkscore as number) || 0,
-						walkDescription: describeScore((d.walkscore as number) || 0),
-						transitScore: (d.transit_score as number) || 0,
-						transitDescription: describeTransit((d.transit_score as number) || 0),
-						bikeScore: (d.bike_score as number) || 0,
-						bikeDescription: describeBike((d.bike_score as number) || 0),
-						source: 'walkscore-api',
-						fetchedAt: (d.fetched_at as string) || new Date().toISOString()
-					};
-					intelCache.set(cacheKey, result, TTL.WALKABILITY);
-					return result;
-				}
+		const { db } = await import('$lib/db-server');
+		const { sql } = await import('drizzle-orm');
+		
+		const nearestRes = await db.execute(sql`SELECT * FROM nearby_block_group(${lat}, ${lng})`);
+		const nearest = Array.isArray(nearestRes) ? nearestRes : (nearestRes as any).rows;
+		if (nearest && nearest.length > 0) {
+			const intelRes = await db.execute(sql`SELECT data FROM block_group_intel WHERE geoid = ${nearest[0].geoid} AND source = 'walkscore' LIMIT 1`);
+			const intelRows = Array.isArray(intelRes) ? intelRes : (intelRes as any).rows;
+			const intel = intelRows[0];
+			if (intel?.data) {
+				const d = intel.data as Record<string, unknown>;
+				const result: WalkScoreData = {
+					walkScore: (d.walkscore as number) || 0,
+					walkDescription: describeScore((d.walkscore as number) || 0),
+					transitScore: (d.transit_score as number) || 0,
+					transitDescription: describeTransit((d.transit_score as number) || 0),
+					bikeScore: (d.bike_score as number) || 0,
+					bikeDescription: describeBike((d.bike_score as number) || 0),
+					source: 'walkscore-api',
+					fetchedAt: (d.fetched_at as string) || new Date().toISOString()
+				};
+				intelCache.set(cacheKey, result, TTL.WALKABILITY);
+				return result;
 			}
 		}
 	} catch (dbErr) {
@@ -93,10 +87,8 @@ export async function fetchWalkScore(
 			});
 
 			const { resilientFetch } = await import('./retry');
-			const res = await resilientFetch(`${WALKSCORE_BASE}?${params}`, {
-				timeout: 10000,
-				label: 'WalkScore'
-			});
+			const res = await resilientFetch(`${WALKSCORE_BASE}?${params}`, { timeout: 10000,
+				label: 'WalkScore', signal });
 
 			if (!res.ok) {
 				console.error('[WalkScore] API error:', res.status);
@@ -148,14 +140,9 @@ async function estimateWalkScore(lat: number, lng: number): Promise<WalkScoreDat
 		);out count;`;
 
 		const { resilientFetch } = await import('./retry');
-		const res = await resilientFetch(
-			`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`,
-			{
-				timeout: 12000,
+		const res = await resilientFetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { timeout: 12000,
 				label: 'WalkScore',
-				headers: { 'User-Agent': SITE_CONFIG.userAgent }
-			}
-		);
+				headers: { 'User-Agent': SITE_CONFIG.userAgent }, signal });
 
 		if (!res.ok) return null;
 		const data = await res.json();

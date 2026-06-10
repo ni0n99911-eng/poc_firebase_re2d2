@@ -55,11 +55,9 @@ const LPC_BASE = 'https://data.cityofnewyork.us/resource/buis-pvji.json';
  * Returns historic district + landmark status.
  * Cached with 7-day TTL (landmarks don't change frequently).
  */
-export async function fetchLPCData(
-	lat: number,
+export async function fetchLPCData(lat: number,
 	lng: number,
-	radiusMeters: number = 100
-): Promise<LPCData | null> {
+	radiusMeters: number = 100, signal?: AbortSignal): Promise<LPCData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'lpc');
 	const cached = await intelCache.getAsync<LPCData>(cacheKey);
 

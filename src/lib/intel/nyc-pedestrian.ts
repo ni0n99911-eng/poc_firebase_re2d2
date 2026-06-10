@@ -49,11 +49,9 @@ const PED_BASE = 'https://data.cityofnewyork.us/resource/7ym2-wayt.json';
  * Fetch pedestrian count data near a location.
  * Uses actual hourly data to compute real AM/PM splits.
  */
-export async function fetchPedestrianCounts(
-	lat: number,
+export async function fetchPedestrianCounts(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<PedestrianData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<PedestrianData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'pedestrian');
 	const cached = await intelCache.getAsync<PedestrianData>(cacheKey);
 	if (cached?.fresh) return cached.data;

@@ -161,153 +161,12 @@ export async function scanCompetitors(
 	lat: number,
 	lng: number,
 	businessType: string = 'cafe',
-	radiusMeters: number = 800
-): Promise<OverpassData | null> {
-	const cacheKey = IntelCache.locationKey(lat, lng, `overpass-${businessType}`);
-	const cached = await intelCache.getAsync<OverpassData>(cacheKey);
-	if (cached?.fresh) return cached.data;
-
-	try {
-		const r = radiusMeters;
-		const lower = businessType.toLowerCase();
-		// Use nwr (node/way/relation) instead of just node — many NYC businesses
-		// (including Blank Street, etc.) are mapped as way polygons in OSM.
-		// "out center;" returns centroid lat/lng for ways and relations.
-		// NOTE: Transit stations removed from Overpass — MTA Socrata is single source of truth.
-		// Overpass station queries were unreliable (rate-limited from Netlify IPs).
-		//
-		// ARCHITECTURE: 4 core market queries (always) + 1 concept-specific query (conditional).
-		// Max 5 parallel queries to stay within Overpass rate limits on Netlify IPs.
-		// The 4 core queries power market density context for ANY concept.
-		// The 5th query fetches the actual concept's competitors when it's not covered by core 4.
-		const coreQueries = [
-			// Cafes & coffee shops
-			`[out:json][timeout:12];(nwr["amenity"="cafe"](around:${r},${lat},${lng});nwr["cuisine"~"coffee"](around:${r},${lat},${lng});nwr["shop"="coffee"](around:${r},${lat},${lng}););out center;`,
-			// Restaurants & fast food
-			`[out:json][timeout:12];(nwr["amenity"="restaurant"](around:${r},${lat},${lng});nwr["amenity"="fast_food"](around:${r},${lat},${lng}););out center;`,
-			// Gyms & fitness
-			`[out:json][timeout:12];(nwr["leisure"="fitness_centre"](around:${r},${lat},${lng});nwr["sport"="fitness"](around:${r},${lat},${lng}););out center;`,
-			// Yoga & wellness studios
-			`[out:json][timeout:12];(nwr["sport"="yoga"](around:${r},${lat},${lng});nwr["leisure"~"yoga"](around:${r},${lat},${lng});nwr["shop"~"health_food|organic|nutrition"](around:${r},${lat},${lng}););out center;`,
-		];
-
-		// Concept-specific extra queries — only added when the concept ISN'T covered by core 4.
-		// Core 4 covers: specialty_coffee, bakery, wellness_beverage, juice_bar, full_service_restaurant,
-		// fast_casual, qsr, fitness_studio (+ yoga overlap). Everything else needs an extra query.
-		const CONCEPT_EXTRA_QUERIES: Record<string, string> = {
-			'bar_nightlife':     `[out:json][timeout:12];(nwr["amenity"="bar"](around:${r},${lat},${lng});nwr["amenity"="pub"](around:${r},${lat},${lng});nwr["amenity"="nightclub"](around:${r},${lat},${lng}););out center;`,
-			'wellness_spa':      `[out:json][timeout:12];(nwr["amenity"="spa"](around:${r},${lat},${lng});nwr["leisure"="sauna"](around:${r},${lat},${lng});nwr["shop"="beauty"](around:${r},${lat},${lng});nwr["amenity"="beauty"](around:${r},${lat},${lng}););out center;`,
-			'personal_services': `[out:json][timeout:12];(nwr["shop"="hairdresser"](around:${r},${lat},${lng});nwr["shop"="beauty"](around:${r},${lat},${lng});nwr["amenity"="beauty"](around:${r},${lat},${lng}););out center;`,
-			'retail':            `[out:json][timeout:12];(nwr["shop"~"clothes|boutique|gift|jewelry|books"](around:${r},${lat},${lng}););out center;`,
-			'coworking':         `[out:json][timeout:12];(nwr["amenity"="coworking_space"](around:${r},${lat},${lng});nwr["office"="coworking"](around:${r},${lat},${lng}););out center;`,
-			'medical_office':    `[out:json][timeout:12];(nwr["amenity"="dentist"](around:${r},${lat},${lng});nwr["amenity"="doctors"](around:${r},${lat},${lng});nwr["amenity"="clinic"](around:${r},${lat},${lng}););out center;`,
-		};
-
-		const extraQuery = CONCEPT_EXTRA_QUERIES[lower] || null;
-		const queries = extraQuery ? [...coreQueries, extraQuery] : coreQueries;
-
-		const results = await Promise.all(
-			queries.map(q => overpassQuery(q))
-		);
-
-		// FIX-012: If ALL queries failed (all null), return null so the caller
-		// knows competition data is unavailable — not "zero competitors".
-		// If SOME failed, fall back to [] for failed queries (partial data > nothing).
-		const allFailed = results.every(r => r === null);
-		if (allFailed) {
-			console.warn('[Overpass] All queries failed — returning null (not empty)');
-			return cached?.data || null;
-		}
-
-		const [cafeRaw, restRaw, gymRaw, yogaRaw, extraRaw] = results;
-
-		// Treat individual query failures as empty (partial failure — use what we have)
-		const cafes = dedupe(processElements(cafeRaw ?? [], lat, lng, 'cafe'));
-		const restaurants = dedupe(processElements(restRaw ?? [], lat, lng, 'restaurant'));
-		const gyms = dedupe(processElements(gymRaw ?? [], lat, lng, 'gym'));
-		const yoga = dedupe(processElements(yogaRaw ?? [], lat, lng, 'wellness'));
-		const health = dedupe(processElements(yogaRaw ?? [], lat, lng, 'health'));
-
-		// Route the extra query result into the correct amenity bucket
-		let bars: CompetitorPOI[] = [];
-		let wellness: CompetitorPOI[] = [];
-		let retail: CompetitorPOI[] = [];
-		let personal: CompetitorPOI[] = [];
-		if (extraRaw && extraQuery) {
-			const extraPOIs = dedupe(processElements(extraRaw, lat, lng, lower));
-			switch (lower) {
-				case 'bar_nightlife':     bars = extraPOIs; break;
-				case 'wellness_spa':      wellness = extraPOIs; break;
-				case 'personal_services': personal = extraPOIs; break;
-				case 'retail':            retail = extraPOIs; break;
-				case 'coworking':         /* no amenity bucket — competitors come from cafes proxy */ break;
-				case 'medical_office':    /* no amenity bucket — getPrimaryCompetitors returns [] */ break;
-			}
-		}
-		const primaryCompetitors = getPrimaryCompetitors(businessType, {
-			cafes, restaurants, gyms, yoga, health, bars, wellness, retail, personal
-		});
-
-		// Ring bucketing
-		const ringDists = RING_DISTANCES[businessType.toLowerCase()] || RING_DISTANCES.default;
-		const rings: CompetitorRings = {
-			ring1: primaryCompetitors.filter(c => c.distance <= ringDists[0]),
-			ring2: primaryCompetitors.filter(c => c.distance > ringDists[0] && c.distance <= ringDists[1]),
-			ring3: primaryCompetitors.filter(c => c.distance > ringDists[1] && c.distance <= ringDists[2])
-		};
-
-		// Per-ring chain/independent breakdown
-		const ringStats: CompetitorRingStats = {
-			ring1: computeRingStats(rings.ring1),
-			ring2: computeRingStats(rings.ring2),
-			ring3: computeRingStats(rings.ring3),
-		};
-
-		let chainCount = 0;
-		let independentCount = 0;
-		const allChainNamesSeen = new Set<string>();
-		const topChains: string[] = [];
-		for (const c of primaryCompetitors) {
-			if (c.isChain) {
-				chainCount++;
-				const label = (c.brand || c.name).trim();
-				if (label && label !== 'Unnamed' && !allChainNamesSeen.has(label.toLowerCase())) {
-					allChainNamesSeen.add(label.toLowerCase());
-					topChains.push(label);
-				}
-			} else {
-				independentCount++;
-			}
-		}
-		const chainDominance = primaryCompetitors.length > 0
-			? Math.round((chainCount / primaryCompetitors.length) * 100) / 100
-			: 0;
-
-		// Saturation score: how crowded is this area for this business type?
-		const saturationScore = computeSaturation(primaryCompetitors, businessType);
-
-		const result: OverpassData = {
-			competitors: primaryCompetitors,
-			rings,
-			totalCount: primaryCompetitors.length,
-			chainCount,
-			independentCount,
-			chainDominance,
-			topChains: topChains.slice(0, 15),
-			ringStats,
-			saturationScore,
-			stations: [], // Transit handled by MTA Socrata — not Overpass
-			amenities: { cafes, restaurants, gyms, yoga, health, bars, wellness, retail, personal },
-			source: 'overpass',
-			fetchedAt: new Date().toISOString()
-		};
-
-		intelCache.set(cacheKey, result, TTL.COMPETITORS);
-		return result;
-	} catch (e) {
-		console.error('[Overpass] Scan error:', e);
-		return cached?.data || null;
-	}
+	radiusMeters: number = 800, signal?: AbortSignal): Promise<OverpassData | null> {
+	// 04.22.2026: Migration to Google Places API complete. 
+	// Disabling all Overpass backend queries to permanently eliminate 'fetch failed' 
+	// and 429 Too Many Requests errors. The backend (index.ts) will automatically 
+	// fall back to Google Places/Foursquare/Yelp synthesis via buildCompetitorsFromSources.
+	return null;
 }
 
 interface OverpassElement {
@@ -325,7 +184,7 @@ const OVERPASS_ENDPOINTS: readonly string[] = [
 	'https://overpass-api.de/api/interpreter',       // Official — primary
 	'https://overpass.kumi.systems/api/interpreter', // Germany mirror
 	'https://overpass.private.coffee/api/interpreter', // Community mirror
-	'https://overpass.osm.jp/api/interpreter',       // Japan mirror (works from US)
+	'https://lz4.overpass-api.de/api/interpreter',   // Fast Germany mirror
 ];
 
 // Return [] only on genuine empty result (Overpass responded OK with no elements).
@@ -339,15 +198,10 @@ async function overpassQuery(query: string): Promise<OverpassElement[] | null> {
 	for (let i = 0; i < OVERPASS_ENDPOINTS.length; i++) {
 		const endpoint = OVERPASS_ENDPOINTS[i];
 		try {
-			const res = await resilientFetch(
-				`${endpoint}?data=${encoded}`,
-				{
-					timeout: i === 0 ? 12000 : 8000,  // primary gets more time
+			const res = await resilientFetch(`${endpoint}?data=${encoded}`, { timeout: i === 0 ? 12000 : 8000,  // primary gets more time
 					maxRetries: i === 0 ? 1 : 0,      // retries only on primary
 					headers: { 'User-Agent': SITE_CONFIG.userAgent },
-					label: `Overpass[${i}]`
-				}
-			);
+					label: `Overpass[${i}]`, signal });
 
 			if (res.ok) {
 				const data = await res.json();

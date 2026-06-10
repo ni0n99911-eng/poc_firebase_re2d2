@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soma Intel — Real Estate Einstein</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#050508;--bg2:#0c0c12;--bg3:#13131c;--border:#1e1e2e;--red:#ff2d55;--cyan:#00e8cc;--gold:#ffd60a;--purple:#bf5af2;--text:#f0f0f5;--muted:#555;--sub:#999;--green:#34d399}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;height:100vh}
+
+/* ── SCENE SYSTEM ── */
+.scene{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:fixed;top:0;left:0;width:100%;height:100%;padding:60px 24px;overflow:hidden;opacity:0;pointer-events:none;transition:opacity 1s ease;z-index:1}.scene.visible{opacity:1;pointer-events:auto;z-index:10}
+
+/* ── PARTICLES ── */
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.particle{position:absolute;border-radius:50%;opacity:0;animation:float-up linear infinite}
+@keyframes float-up{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+
+/* ── GRID BACKGROUND ── */
+.grid-bg{position:fixed;top:0;left:0;width:100%;height:100%;background-image:
+  linear-gradient(rgba(255,45,85,0.03) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,45,85,0.03) 1px, transparent 1px);
+background-size:60px 60px;z-index:0;pointer-events:none}
+
+/* ── SCENE 1: THE PROBLEM ── */
+.scene-1{background:radial-gradient(ellipse at 50% 50%, #0c0c1a 0%, var(--bg) 70%)}
+
+.founder-char{width:160px;height:160px;position:relative;margin-bottom:40px}
+.founder-head{width:80px;height:80px;background:var(--gold);border-radius:50%;position:absolute;top:0;left:40px;z-index:2}
+.founder-eyes{position:absolute;top:26px;left:54px;display:flex;gap:14px}
+.founder-eye{width:10px;height:10px;background:var(--bg);border-radius:50%;animation:blink 3s infinite}
+@keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(0.1)}}
+.founder-mouth{width:18px;height:9px;border:2px solid var(--bg);border-top:none;border-radius:0 0 12px 12px;position:absolute;top:50px;left:69px;animation:worry 2s ease infinite}
+@keyframes worry{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg) translateX(-2px)}}
+.founder-body{width:65px;height:65px;background:var(--red);border-radius:14px 14px 10px 10px;position:absolute;top:75px;left:47px}
+.thought-bubbles{position:absolute;right:-120px;top:-30px}
+.thought{font-size:15px;font-family:'DM Mono',monospace;background:var(--bg3);border:1px solid var(--border);padding:10px 18px;border-radius:16px;color:var(--text);white-space:nowrap;position:absolute;opacity:0;animation:thought-pop 6s ease infinite;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.thought:nth-child(1){top:0;right:0;animation-delay:0s}
+.thought:nth-child(2){top:45px;right:-30px;animation-delay:2s}
+.thought:nth-child(3){top:90px;right:10px;animation-delay:4s}
+@keyframes thought-pop{0%,100%{opacity:0;transform:scale(0.8) translateX(10px)}15%,85%{opacity:1;transform:scale(1) translateX(0)}}
+
+.question-marks{position:absolute;width:100%;height:100%;top:0;left:0}
+.qmark{position:absolute;font-size:48px;font-weight:800;color:var(--red);opacity:0.06;animation:qm-float 8s ease-in-out infinite}
+@keyframes qm-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(10deg)}}
+
+.scene-title{font-size:clamp(34px,5.5vw,56px);font-weight:800;text-align:center;line-height:1.2;margin-bottom:20px;position:relative;z-index:1}
+.scene-title .highlight{color:var(--red);position:relative}
+.scene-title .highlight::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:3px;background:var(--red);border-radius:2px;animation:underline-grow 1.5s ease forwards}
+@keyframes underline-grow{from{width:0}to{width:100%}}
+
+.scene-sub{font-family:'DM Mono',monospace;font-size:clamp(14px,2.2vw,19px);color:var(--sub);text-align:center;max-width:700px;line-height:1.7;position:relative;z-index:1}
+
+/* ── SCENE 2: EINSTEIN ENTERS ── */
+.scene-2{background:radial-gradient(ellipse at 50% 30%, #1a0a1e 0%, var(--bg) 70%)}
+
+.einstein-container{position:relative;margin-bottom:40px}
+.einstein{width:200px;height:200px;position:relative;animation:einstein-float 4s ease-in-out infinite}
+@keyframes einstein-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+.einstein-head{width:90px;height:85px;background:var(--gold);border-radius:50% 50% 45% 45%;position:absolute;top:0;left:35px;z-index:2}
+.einstein-hair{position:absolute;top:-15px;left:25px;width:100px;height:50px}
+.hair-strand{position:absolute;width:8px;background:var(--text);border-radius:4px;animation:hair-wave 3s ease-in-out infinite}
+.hair-strand:nth-child(1){height:30px;left:5px;top:0;transform:rotate(-20deg);animation-delay:0s}
+.hair-strand:nth-child(2){height:35px;left:18px;top:-5px;transform:rotate(-10deg);animation-delay:0.2s}
+.hair-strand:nth-child(3){height:38px;left:31px;top:-8px;transform:rotate(0deg);animation-delay:0.4s}
+.hair-strand:nth-child(4){height:35px;left:44px;top:-5px;transform:rotate(10deg);animation-delay:0.6s}
+.hair-strand:nth-child(5){height:30px;left:57px;top:0;transform:rotate(20deg);animation-delay:0.8s}
+.hair-strand:nth-child(6){height:25px;left:68px;top:5px;transform:rotate(30deg);animation-delay:1s}
+@keyframes hair-wave{0%,100%{transform:rotate(var(--r,0deg))}50%{transform:rotate(calc(var(--r,0deg) + 8deg))}}
+
+.einstein-glasses{position:absolute;top:28px;left:43px;z-index:3}
+.glass{width:24px;height:22px;border:2.5px solid var(--bg);border-radius:50%;display:inline-block}
+.glass-bridge{width:6px;height:2.5px;background:var(--bg);display:inline-block;vertical-align:top;margin-top:10px}
+
+.einstein-mustache{width:30px;height:10px;position:absolute;top:55px;left:65px;z-index:3}
+.mustache-half{width:15px;height:10px;border-bottom:3px solid var(--bg);position:absolute}
+.mustache-half.left{border-radius:0 0 0 60%;left:0}
+.mustache-half.right{border-radius:0 0 60% 0;right:0}
+
+.einstein-smile{width:20px;height:6px;border:2px solid var(--bg);border-top:none;border-radius:0 0 12px 12px;position:absolute;top:62px;left:70px;z-index:3}
+
+.einstein-body{width:80px;height:70px;background:var(--bg3);border:2px solid var(--border);border-radius:16px 16px 10px 10px;position:absolute;top:80px;left:40px}
+.einstein-tie{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:14px solid var(--red);position:absolute;top:82px;left:72px;z-index:2}
+
+.brain-glow{position:absolute;top:-30px;left:15px;width:130px;height:130px;background:radial-gradient(circle,rgba(255,45,85,0.15) 0%,transparent 70%);border-radius:50%;animation:brain-pulse 2s ease-in-out infinite}
+@keyframes brain-pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.15);opacity:1}}
+
+.lightbulb{position:absolute;top:-40px;right:-30px;font-size:32px;animation:bulb-flash 2s ease infinite;z-index:4}
+@keyframes bulb-flash{0%,100%{opacity:0.3;transform:scale(0.9)}50%{opacity:1;transform:scale(1.1)}}
+
+/* ── SCENE 3: THE 7 LAYERS ── */
+.scene-3{background:radial-gradient(ellipse at 50% 60%, #0a1420 0%, var(--bg) 70%)}
+
+.layers-stack{display:flex;flex-direction:column;gap:8px;width:100%;max-width:700px;margin:30px 0;position:relative;z-index:1}
+.layer-bar{display:flex;align-items:center;gap:14px;padding:16px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;opacity:0;transform:translateX(-40px);animation:layer-slide-in 0.6s ease forwards}
+.layer-bar:nth-child(1){animation-delay:0.2s}.layer-bar:nth-child(2){animation-delay:0.4s}.layer-bar:nth-child(3){animation-delay:0.6s}.layer-bar:nth-child(4){animation-delay:0.8s}.layer-bar:nth-child(5){animation-delay:1.0s}.layer-bar:nth-child(6){animation-delay:1.2s}.layer-bar:nth-child(7){animation-delay:1.4s}
+@keyframes layer-slide-in{to{opacity:1;transform:translateX(0)}}
+.layer-icon{font-size:26px;flex-shrink:0}
+.layer-info{flex:1}
+.layer-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted)}
+.layer-name{font-size:17px;font-weight:700;margin-top:3px}
+.layer-bar-fill{height:8px;border-radius:4px;animation:bar-grow 1.5s ease forwards;animation-delay:inherit;width:0}
+@keyframes bar-grow{to{width:var(--w)}}
+.layer-score{font-family:'DM Mono',monospace;font-size:22px;font-weight:800;min-width:45px;text-align:right}
+
+/* ── SCENE 4: PoS ── */
+.scene-4{background:radial-gradient(ellipse at 50% 40%, #0a1a12 0%, var(--bg) 70%)}
+
+.pos-display{position:relative;margin:20px 0 30px}
+.pos-ring{width:260px;height:260px;border-radius:50%;border:6px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;animation:ring-draw 2s ease forwards}
+@keyframes ring-draw{from{border-color:var(--border)}to{border-color:var(--green)}}
+.pos-number{font-family:'DM Mono',monospace;font-size:58px;font-weight:800;color:var(--green);animation:count-up 2s ease forwards}
+.pos-label{font-family:'DM Mono',monospace;font-size:13px;color:var(--sub);letter-spacing:2px}
+.pos-range{font-family:'DM Mono',monospace;font-size:17px;color:var(--green);margin-top:6px}
+.pos-verdict{margin-top:16px;padding:10px 28px;background:rgba(52,211,153,0.15);border:1px solid var(--green);border-radius:24px;font-family:'DM Mono',monospace;font-size:15px;color:var(--green);font-weight:700;letter-spacing:1.5px;animation:verdict-pop 0.5s ease 2s both}
+@keyframes verdict-pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+.data-streams{position:absolute;width:300px;height:300px;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.data-stream{position:absolute;font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan);opacity:0;white-space:nowrap}
+.data-stream:nth-child(1){top:10%;left:-30%;animation:stream-in 4s ease infinite 0s}
+.data-stream:nth-child(2){top:30%;right:-30%;animation:stream-in 4s ease infinite 0.8s}
+.data-stream:nth-child(3){bottom:30%;left:-25%;animation:stream-in 4s ease infinite 1.6s}
+.data-stream:nth-child(4){bottom:10%;right:-25%;animation:stream-in 4s ease infinite 2.4s}
+.data-stream:nth-child(5){top:50%;left:-35%;animation:stream-in 4s ease infinite 3.2s}
+@keyframes stream-in{0%{opacity:0;transform:translateX(-20px)}20%{opacity:0.7}80%{opacity:0.7}100%{opacity:0;transform:translateX(20px)}}
+
+/* ── SCENE 5: LOAN ── */
+.scene-5{background:radial-gradient(ellipse at 50% 50%, #1a1408 0%, var(--bg) 70%)}
+
+.doc-animation{position:relative;width:200px;height:240px;margin:20px 0 30px}
+.doc-page{width:160px;height:200px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;position:absolute;padding:16px;transition:all 0.6s ease}
+.doc-page:nth-child(1){top:0;left:20px;transform:rotate(-3deg);z-index:3}
+.doc-page:nth-child(2){top:10px;left:10px;transform:rotate(2deg);z-index:2;opacity:0.7}
+.doc-page:nth-child(3){top:20px;left:0;transform:rotate(-1deg);z-index:1;opacity:0.4}
+.doc-line{height:4px;background:var(--border);border-radius:2px;margin-bottom:8px}
+.doc-line:nth-child(1){width:60%;background:var(--red)}
+.doc-line:nth-child(2){width:90%}
+.doc-line:nth-child(3){width:75%}
+.doc-line:nth-child(4){width:85%}
+.doc-line:nth-child(5){width:40%;background:var(--green)}
+
+.stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg) scale(0);width:120px;height:120px;border:5px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:var(--green);letter-spacing:2px;text-align:center;animation:stamp-hit 0.5s ease 1.5s both;z-index:10}
+@keyframes stamp-hit{0%{transform:translate(-50%,-50%) rotate(-15deg) scale(3);opacity:0}70%{transform:translate(-50%,-50%) rotate(-15deg) scale(0.9)}100%{transform:translate(-50%,-50%) rotate(-15deg) scale(1);opacity:1}}
+
+.bank-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;max-width:400px}
+.bank-chip{font-family:'DM Mono',monospace;font-size:13px;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);opacity:0;animation:chip-pop 0.3s ease forwards}
+.bank-chip:nth-child(1){animation-delay:2s}.bank-chip:nth-child(2){animation-delay:2.2s}.bank-chip:nth-child(3){animation-delay:2.4s}.bank-chip:nth-child(4){animation-delay:2.6s}
+@keyframes chip-pop{to{opacity:1}}
+.bank-chip .match-tag{color:var(--green);font-size:10px;display:block;margin-top:4px}
+
+/* ── SCENE 6: CTA ── */
+.scene-6{background:radial-gradient(ellipse at 50% 50%, #1a0a12 0%, var(--bg) 70%)}
+
+.cta-btn{display:inline-flex;align-items:center;gap:12px;padding:22px 48px;background:var(--red);border:none;border-radius:16px;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;cursor:pointer;text-decoration:none;transition:all 0.2s;position:relative;overflow:hidden;z-index:1}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,45,85,0.4)}
+.cta-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.1),transparent);animation:shine 3s ease infinite}
+@keyframes shine{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
+
+.stats-row{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap;justify-content:center}
+.stat-box{text-align:center;padding:16px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;min-width:140px}
+.stat-num{font-family:'DM Mono',monospace;font-size:34px;font-weight:800;color:var(--cyan)}
+.stat-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-top:6px}
+
+/* ── NAV DOTS ── */
+.nav-dots{position:fixed;right:20px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;z-index:100}
+.nav-dot{width:12px;height:12px;border-radius:50%;background:var(--border);border:none;cursor:pointer;transition:all 0.3s;padding:0}
+.nav-dot.active{background:var(--red);box-shadow:0 0 10px rgba(255,45,85,0.5)}
+
+/* ── SCROLL INDICATOR ── */
+.scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0.5;animation:scroll-bounce 2s ease infinite}
+@keyframes scroll-bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.scroll-arrow{width:20px;height:20px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg)}
+.scroll-text{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .layers-stack{gap:6px}
+  .layer-bar{padding:10px 14px;gap:8px}
+  .layer-name{font-size:12px}
+  .einstein{transform:scale(0.8)}
+  .stats-row{gap:12px}
+  .stat-box{min-width:100px;padding:12px 16px}
+  .stat-num{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- GRID BACKGROUND -->
+<div class="grid-bg"></div>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- NAV DOTS -->
+<div class="nav-dots" id="nav-dots"></div>
+
+<!-- ═══════════ SCENE 1: THE PROBLEM ═══════════ -->
+<section class="scene scene-1 visible" id="scene-1">
+  <div style="position:relative">
+    <div class="founder-char">
+      <div class="founder-head">
+        <div class="founder-eyes"><div class="founder-eye"></div><div class="founder-eye"></div></div>
+        <div class="founder-mouth"></div>
+      </div>
+      <div class="founder-body"></div>
+      <div class="thought-bubbles">
+        <div class="thought">Where do I open?</div>
+        <div class="thought">Is the rent too high?</div>
+        <div class="thought">Will anyone come?</div>
+      </div>
+    </div>
+    <div class="question-marks">
+      <span class="qmark" style="top:10%;left:10%;animation-delay:0s;font-size:60px">?</span>
+      <span class="qmark" style="top:60%;left:5%;animation-delay:1s;font-size:40px">?</span>
+      <span class="qmark" style="top:20%;right:5%;animation-delay:2s;font-size:50px">?</span>
+      <span class="qmark" style="bottom:20%;right:10%;animation-delay:3s;font-size:45px">?</span>
+    </div>
+  </div>
+  <div class="scene-title">Every founder asks the <span class="highlight">same question</span></div>
+  <div class="scene-sub">"Is this the right location for my business?" — and most answer it with gut feel, a broker's pitch, and a prayer.</div>
+  
+</section>
+
+<!-- ═══════════ SCENE 2: EINSTEIN ENTERS ═══════════ -->
+<section class="scene scene-2" id="scene-2">
+  <div class="einstein-container">
+    <div class="einstein">
+      <div class="brain-glow"></div>
+      <div class="lightbulb">💡</div>
+      <div class="einstein-head">
+        <div class="einstein-hair">
+          <div class="hair-strand" style="--r:-20deg"></div>
+          <div class="hair-strand" style="--r:-10deg"></div>
+          <div class="hair-strand" style="--r:0deg"></div>
+          <div class="hair-strand" style="--r:10deg"></div>
+          <div class="hair-strand" style="--r:20deg"></div>
+          <div class="hair-strand" style="--r:30deg"></div>
+        </div>
+        <div class="einstein-glasses"><span class="glass"></span><span class="glass-bridge"></span><span class="glass"></span></div>
+        <div class="einstein-mustache"><div class="mustache-half left"></div><div class="mustache-half right"></div></div>
+        <div class="einstein-smile"></div>
+      </div>
+      <div class="einstein-tie"></div>
+      <div class="einstein-body"></div>
+    </div>
+  </div>
+  <div class="scene-title">Meet your <span class="highlight">Real Estate Einstein</span></div>
+  <div class="scene-sub">An AI-powered decision engine that analyzes 7 layers of intelligence — from macroeconomics to sidewalk conditions — to tell you exactly how likely your business is to succeed at any location.</div>
+</section>
+
+<!-- ═══════════ SCENE 3: 7 LAYERS ═══════════ -->
+<section class="scene scene-3" id="scene-3">
+  <div class="scene-title" style="margin-bottom:8px">7 Layers of <span class="highlight">Intelligence</span></div>
+  <div class="scene-sub" style="margin-bottom:20px">We analyze everything a human advisor would — and 100x more.</div>
+  <div class="layers-stack">
+    <div class="layer-bar">
+      <span class="layer-icon">🌐</span>
+      <div class="layer-info"><div class="layer-label">L0</div><div class="layer-name">Macro Climate</div><div class="layer-bar-fill" style="--w:72%;background:#bf5af2"></div></div>
+      <div class="layer-score" style="color:#bf5af2">72</div>
+    </div>
+    <div class="layer-bar">
+      <span class="layer-icon">🏙️</span>
+      <div class="layer-info"><div class="layer-label">L1</div><div class="layer-name">City Dynamics</div><div class="layer-bar-fill" style="--w:61%;background:#00e8cc"></div></div>
+      <div class="layer-score" style="color:#00e8cc">61</div>
+    </div>
+    <div class="layer-bar">
+      <span class="layer-icon">📍</span>
+      <div class="layer-info"><div class="layer-label">L2</div><div class="layer-name">Block Intelligence</div><div class="layer-bar-fill" style="--w:82%;background:#3b82f6"></div></div>
+      <div class="layer-score" style="color:#3b82f6">82</div>
+    </div>
+    <div class="layer-bar">
+      <span class="layer-icon">📊</span>
+      <div class="layer-info"><div class="layer-label">L3</div><div class="layer-name">Business Plan Fit</div><div class="layer-bar-fill" style="--w:74%;background:#34d399"></div></div>
+      <div class="layer-score" style="color:#34d399">74</div>
+    </div>
+    <div class="layer-bar">
+      <span class="layer-icon">👥</span>
+      <div class="layer-info"><div class="layer-label">L4</div><div class="layer-name">Talent Accessibility</div><div class="layer-bar-fill" style="--w:68%;background:#f97316"></div></div>
+      <div class="layer-score" style="color:#f97316">68</div>
+    </div>
+    <div class="layer-bar">
+      <span class="layer-icon">🛡️</span>
+      <div class="layer-info"><div class="layer-label">L5</div><div class="layer-name">Resilience & Wildcards</div><div class="layer-bar-fill" style="--w:63%;background:#fbbf24"></div></div>
+      <div class="layer-score" style="color:#fbbf24">63</div>
+    </div>
+    <div class="layer-bar">
+      <span class="layer-icon">🏗️</span>
+      <div class="layer-info"><div class="layer-label">L6</div><div class="layer-name">Zoning & Physical Risk</div><div class="layer-bar-fill" style="--w:70%;background:#ef4444"></div></div>
+      <div class="layer-score" style="color:#ef4444">70</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ SCENE 4: PoS SCORE ═══════════ -->
+<section class="scene scene-4" id="scene-4">
+  <div class="scene-title">One number. <span class="highlight">Your odds.</span></div>
+  <div class="scene-sub" style="margin-bottom:10px">Not a generic location score — your Probability of Success for YOUR vision, YOUR goals, at THIS address.</div>
+  <div class="pos-display">
+    <div class="data-streams">
+      <div class="data-stream">census_tract.median_income = $125,000</div>
+      <div class="data-stream">mta.entries.14st_union_sq = 38,492</div>
+      <div class="data-stream">overpass.cafes.ring1 = 3</div>
+      <div class="data-stream">dob.violations.active = 1</div>
+      <div class="data-stream">fed.rate = 3.5% | cpi = 2.7%</div>
+    </div>
+    <div class="pos-ring">
+      <div class="pos-label">PROBABILITY OF SUCCESS</div>
+      <div class="pos-number" id="pos-counter">0%</div>
+      <div class="pos-range">62% — 78%</div>
+    </div>
+  </div>
+  <div class="pos-verdict">GO — MONITOR RISKS</div>
+</section>
+
+<!-- ═══════════ SCENE 5: LOAN PACKAGE ═══════════ -->
+<section class="scene scene-5" id="scene-5">
+  <div class="scene-title">From score to <span class="highlight">funded</span></div>
+  <div class="scene-sub" style="margin-bottom:10px">One click generates your SBA 7(a) loan package — matched to the right bank for your stage.</div>
+  <div class="doc-animation">
+    <div class="doc-page"><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div></div>
+    <div class="doc-page"><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div></div>
+    <div class="doc-page"><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div><div class="doc-line"></div></div>
+    <div class="stamp">LOAN<br>READY</div>
+  </div>
+  <div class="bank-chips">
+    <div class="bank-chip">Huntington Bank<span class="match-tag">PRE-REVENUE SPECIALIST</span></div>
+    <div class="bank-chip">Live Oak Bank<span class="match-tag">STARTUP LENDING</span></div>
+    <div class="bank-chip">Celtic Bank<span class="match-tag">SBA SPECIALIST</span></div>
+    <div class="bank-chip">Pursuit (CDFI)<span class="match-tag">COMMUNITY LENDING</span></div>
+  </div>
+</section>
+
+<!-- ═══════════ SCENE 6: CTA ═══════════ -->
+<section class="scene scene-6" id="scene-6">
+  <div class="scene-title">Stop guessing.<br><span class="highlight">Start knowing.</span></div>
+  <div class="scene-sub" style="margin-bottom:30px">Analyze any NYC address in 30 seconds. Get your Probability of Success. Generate your loan package. Open your business.</div>
+  <a href="/coffee/overview" target="_top" class="cta-btn">
+    ☕ ANALYZE YOUR LOCATION
+    <span style="font-family:'DM Mono',monospace;font-size:12px;opacity:0.7">→</span>
+  </a>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num">25+</div><div class="stat-label">NYC NEIGHBORHOODS</div></div>
+    <div class="stat-box"><div class="stat-num">7</div><div class="stat-label">INTELLIGENCE LAYERS</div></div>
+    <div class="stat-box"><div class="stat-num">16</div><div class="stat-label">LIVE DATA SOURCES</div></div>
+    <div class="stat-box"><div class="stat-num">8</div><div class="stat-label">MATCHED LENDERS</div></div>
+  </div>
+  <div style="margin-top:40px;font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:2.5px">SOMA INTEL — REAL ESTATE EINSTEIN FOR FOUNDERS</div>
+</section>
+
+<script>
+// Particles
+(function(){
+  var c=document.getElementById('particles');
+  var colors=['#ff2d55','#00e8cc','#bf5af2','#ffd60a','#3b82f6'];
+  for(var i=0;i<30;i++){
+    var p=document.createElement('div');p.className='particle';
+    var s=2+Math.random()*4;
+    p.style.cssText='width:'+s+'px;height:'+s+'px;left:'+Math.random()*100+'%;background:'+colors[i%colors.length]+';animation-duration:'+(8+Math.random()*12)+'s;animation-delay:'+Math.random()*10+'s;';
+    c.appendChild(p);
+  }
+})();
+
+// AUTO-PLAY scenes on timer
+(function(){
+  var scenes=document.querySelectorAll('.scene');
+  var nav=document.getElementById('nav-dots');
+  var cur=0;
+  scenes.forEach(function(s,i){
+    var d=document.createElement('button');d.className='nav-dot';
+    d.onclick=function(){go(i)};
+    nav.appendChild(d);
+  });
+  var dots=nav.querySelectorAll('.nav-dot');
+  function go(i){scenes.forEach(function(s,j){s.classList.toggle('visible',j===i)});dots.forEach(function(d,j){d.classList.toggle('active',j===i)});cur=i;if(i===3)animPoS();}
+  go(0);
+  var t=setInterval(function(){if(cur>=scenes.length-1){clearInterval(t);return;}go(cur+1);},4000);
+  document.addEventListener('click',function(e){if(e.target.closest('.nav-dot')||e.target.closest('.cta-btn'))return;go(Math.min(cur+1,scenes.length-1));});
+})();
+
+// PoS counter (triggered by auto-play)
+var posAnimated=false;
+function animPoS(){
+  var el=document.getElementById('pos-counter');
+  if(!el||posAnimated)return;posAnimated=true;
+  var s=0,e=72,d=2000,t0=performance.now();
+  function tick(n){var p=Math.min((n-t0)/d,1);el.textContent=Math.round(s+(1-Math.pow(1-p,3))*(e-s))+'%';if(p<1)requestAnimationFrame(tick);}
+  requestAnimationFrame(tick);
+}
+</script>
+</body>
+</html>

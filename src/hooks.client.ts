@@ -6,3 +6,9 @@
 // const dsn = import.meta.env.VITE_SENTRY_DSN;
 // if (dsn) { Sentry.init({ dsn, ... }); }
 // export const handleError = Sentry.handleErrorWithSentry();
+
+export const handleError = ({ error, event }: any) => {
+    console.error('Client Error:', error);
+};
+
+export const init = () => {};

@@ -12,7 +12,8 @@
  * Output: Fit IQ score (0-100) + dimension breakdown + grade + missing fields
  */
 
-import { getServiceSupabase } from './supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import {
 	buildDynamicConfig,
 	type DynamicConceptConfig,
@@ -262,37 +263,27 @@ function resolveConfig(businessType: string): BusinessConfig {
 // 04.19.2026 13:35 Score Consolidation — extracted from fit-iq-engine.ts line 298
 
 async function loadBlockGroupData(geoid: string): Promise<BlockGroupData> {
-	const supabase = getServiceSupabase();
-
-	// Fetch from all three tables in parallel
+	// Fetch from all three tables in parallel using Drizzle
 	const [intelRes, enrichedRes, scoresRes] = await Promise.all([
-		supabase.from('block_group_intel').select('source, data').eq('geoid', geoid),
-		supabase.from('enriched_entities')
-			.select('entity_category, entity_data')
-			.eq('location_key', geoid)
-			.eq('entity_type', 'block_group_intel'),
-		supabase.from('block_group_scores').select('score_type, score, components').eq('geoid', geoid),
+		db.execute(sql`SELECT source, data FROM block_group_intel WHERE geoid = ${geoid}`),
+		db.execute(sql`SELECT entity_category, entity_data FROM enriched_entities WHERE location_key = ${geoid} AND entity_type = 'block_group_intel'`),
+		db.execute(sql`SELECT score_type, score, components FROM block_group_scores WHERE geoid = ${geoid}`)
 	]);
 
-	// FIX-008: check .error on all three queries before using .data
-	if (intelRes.error) console.error('[FitIQ] block_group_intel error:', intelRes.error.message);
-	if (enrichedRes.error) console.error('[FitIQ] enriched_entities error:', enrichedRes.error.message);
-	if (scoresRes.error) console.error('[FitIQ] block_group_scores error:', scoresRes.error.message);
-
 	const intel: Record<string, any> = {};
-	if (!intelRes.error && intelRes.data) {
-		for (const row of intelRes.data) intel[row.source] = row.data;
+	if (intelRes.rows) {
+		for (const row of intelRes.rows) intel[row.source as string] = row.data;
 	}
 
 	const enriched: Record<string, any> = {};
-	if (!enrichedRes.error && enrichedRes.data) {
-		for (const row of enrichedRes.data) enriched[row.entity_category] = row.entity_data;
+	if (enrichedRes.rows) {
+		for (const row of enrichedRes.rows) enriched[row.entity_category as string] = row.entity_data;
 	}
 
 	const scores: Record<string, any> = {};
-	if (!scoresRes.error && scoresRes.data) {
-		for (const row of scoresRes.data) {
-			scores[row.score_type] = { score: row.score ?? 0, components: row.components ?? {} };
+	if (scoresRes.rows) {
+		for (const row of scoresRes.rows) {
+			scores[row.score_type as string] = { score: row.score ?? 0, components: row.components ?? {} };
 		}
 	}
 

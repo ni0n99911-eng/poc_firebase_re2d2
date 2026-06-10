@@ -12,7 +12,8 @@
  * This powers /api/compare (POST endpoint) and the future /app/compare UI route.
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { latLngToGeoid, geoidToBorough } from './block-group';
 // 04.19.2026 13:00 Changed from normalizeConceptKey to normalizeBusinessType (canonical registry)
 import { normalizeBusinessType } from '$lib/intel/registry/business-type-registry';
@@ -132,33 +133,24 @@ async function loadLocationProfile(
 	location: CompareLocation,
 	conceptType: string
 ): Promise<LocationProfile | null> {
-	const supabase = getServiceSupabase();
-	const suffix = conceptType === 'full_service_restaurant' ? '' : `:${conceptType}`;
-
 	// Load scores and raw intel in parallel
 	const [scoresRes, intelRes] = await Promise.all([
-		supabase
-			.from('block_group_scores')
-			.select('score_type, score, components')
-			.eq('geoid', location.geoid),
-		supabase
-			.from('block_group_intel')
-			.select('source, data')
-			.eq('geoid', location.geoid),
+		db.execute(sql`SELECT score_type, score, components FROM block_group_scores WHERE geoid = ${location.geoid}`),
+		db.execute(sql`SELECT source, data FROM block_group_intel WHERE geoid = ${location.geoid}`),
 	]);
 
-	if (!scoresRes.data || scoresRes.data.length === 0) return null;
+	if (!scoresRes.rows || scoresRes.rows.length === 0) return null;
 
 	// Index scores by type
 	const scores: Record<string, { score: number; components: any }> = {};
-	for (const row of scoresRes.data) {
-		scores[row.score_type] = { score: row.score ?? 0, components: row.components ?? {} };
+	for (const row of scoresRes.rows) {
+		scores[row.score_type] = { score: row.score ? Number(row.score) : 0, components: row.components ?? {} };
 	}
 
 	// Index raw intel by source
 	const rawIntel: Record<string, any> = {};
-	if (intelRes.data) {
-		for (const row of intelRes.data) {
+	if (intelRes.rows) {
+		for (const row of intelRes.rows) {
 			rawIntel[row.source] = row.data;
 		}
 	}
@@ -239,18 +231,16 @@ export async function findBlendCandidates(
 	lng: number,
 	primaryGeoid: string
 ): Promise<{ geoid: string; weight: number }[]> {
-	const supabase = getServiceSupabase();
-
 	// Find nearby block groups by centroid distance
-	// We can't do true PostGIS queries, so fetch all BGs in a bounding box
+	// We can't do true PostGIS queries easily here if we don't have PostGIS, 
+	// but using a simple bounding box
 	const BBOX_DEG = 0.005; // ~550m
-	const { data: nearbyBGs } = await supabase
-		.from('block_groups')
-		.select('geoid, centroid_lat, centroid_lng')
-		.gte('centroid_lat', lat - BBOX_DEG)
-		.lte('centroid_lat', lat + BBOX_DEG)
-		.gte('centroid_lng', lng - BBOX_DEG)
-		.lte('centroid_lng', lng + BBOX_DEG);
+	const nearbyRes = await db.execute(sql`
+		SELECT geoid, centroid_lat, centroid_lng FROM block_groups
+		WHERE centroid_lat >= ${lat - BBOX_DEG} AND centroid_lat <= ${lat + BBOX_DEG}
+		  AND centroid_lng >= ${lng - BBOX_DEG} AND centroid_lng <= ${lng + BBOX_DEG}
+	`);
+	const nearbyBGs = nearbyRes.rows || [];
 
 	if (!nearbyBGs || nearbyBGs.length <= 1) {
 		return [{ geoid: primaryGeoid, weight: 1.0 }];
@@ -259,7 +249,7 @@ export async function findBlendCandidates(
 	// Compute distances
 	const withDist = nearbyBGs.map(bg => ({
 		geoid: bg.geoid,
-		dist: haversineM(lat, lng, bg.centroid_lat, bg.centroid_lng),
+		dist: haversineM(lat, lng, Number(bg.centroid_lat), Number(bg.centroid_lng)),
 	})).sort((a, b) => a.dist - b.dist);
 
 	const primary = withDist[0];

@@ -1,0 +1,1 @@
+import{n as o}from"./B7TueCto.js";function c(e,r,i,s,t,n){return{locationIQ:50,grade:"C",indices:{},conceptType:r,conceptLabel:r,archetype:"impulse",signals:[],sourcesPerIndex:{}}}function a(e){const r=o(e.businessType);return c(e.report,r,e.precomputed,e.visionTier,e.avgTicket,e.historicalImpactTypes)}export{a as runIQScore};

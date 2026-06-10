@@ -10,8 +10,17 @@
 		businessType = 'Cafe',
 		onLocationChange = null as ((loc: {lat: number, lng: number}) => void) | null,
 		showStreetView = true,
+		compact = false,
+		showPin = true,
 		apiKey = ''
 	} = $props();
+
+	export function resize() {
+		if (map) {
+			// Trigger a resize event to ensure it renders correctly if unhidden
+			google.maps.event.trigger(map, 'resize');
+		}
+	}
 
 	let mapContainer: HTMLDivElement;
 	let streetViewContainer: HTMLDivElement;
@@ -119,7 +128,6 @@
 		map = new google.maps.Map(mapContainer, {
 			center,
 			zoom: 16,
-			styles: darkMapStyles,
 			disableDefaultUI: false,
 			zoomControl: true,
 			streetViewControl: false,
@@ -159,7 +167,7 @@
 			}
 		});
 
-		mainMarker.addListener('click', () => {
+		mainMarker.addListener('gmp-click', () => {
 			if (infoWindow && map) {
 				infoWindow.setContent(`
 					<div style="color:#1d1d1f;padding:4px;min-width:180px;">
@@ -186,6 +194,32 @@
 		}
 	}
 
+	let prevLat = lat;
+	let prevLng = lng;
+	$effect(() => {
+		if (map && (lat !== prevLat || lng !== prevLng)) {
+			prevLat = lat;
+			prevLng = lng;
+			map.panTo({ lat, lng });
+			if (mainMarker) {
+				mainMarker.position = { lat, lng };
+			}
+			radiusCircles.forEach(circle => circle.setCenter({ lat, lng }));
+			if (streetViewPanorama) {
+				streetViewPanorama.setPosition({ lat, lng });
+			}
+		}
+	});
+
+	$effect(() => {
+		const _c = competitors;
+		const _s = stations;
+		if (map) {
+			addCompetitorMarkers();
+			addStationMarkers();
+		}
+	});
+
 	function addCompetitorMarkers() {
 		competitorMarkers.forEach(m => m.map = null);
 		competitorMarkers = [];
@@ -199,7 +233,7 @@
 				title: comp.name,
 			});
 
-			marker.addListener('click', () => {
+			marker.addListener('gmp-click', () => {
 				if (infoWindow && map) {
 					infoWindow.setContent(`
 						<div style="color:#1d1d1f;padding:4px;min-width:160px;">
@@ -229,7 +263,7 @@
 				title: station.name,
 			});
 
-			marker.addListener('click', () => {
+			marker.addListener('gmp-click', () => {
 				if (infoWindow && map) {
 					infoWindow.setContent(`
 						<div style="color:#1d1d1f;padding:4px;min-width:160px;">
@@ -259,7 +293,7 @@
 				title: poi.name,
 			});
 
-			marker.addListener('click', () => {
+			marker.addListener('gmp-click', () => {
 				if (infoWindow && map) {
 					infoWindow.setContent(`
 						<div style="color:#1d1d1f;padding:4px;">
@@ -386,7 +420,7 @@
 	</div>
 
 	<!-- Main Map -->
-	<div bind:this={mapContainer} class="map-container">
+	<div bind:this={mapContainer} class="map-container" class:compact>
 		{#if !apiKey}
 			<div class="no-key-fallback">
 				<p>🗺️ Google Maps API key required</p>
@@ -464,6 +498,10 @@
 		width: 100%;
 		height: 500px;
 		position: relative;
+	}
+
+	.map-container.compact {
+		height: 400px;
 	}
 
 	.no-key-fallback {

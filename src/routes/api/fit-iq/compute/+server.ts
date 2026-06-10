@@ -15,7 +15,9 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth-middleware';
 import { computeFitIQ, type LaunchpadProfile } from '$lib/fit-iq-engine';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 
 interface FitIQRequest {
 	geoid: string;
@@ -46,28 +48,34 @@ async function getCachedFitIQ(
 	launchpadHash: string
 ): Promise<any | null> {
 	try {
-		const supabase = getServiceSupabase();
-		const { data, error } = await supabase
-			.from('fit_iq_cache')
-			.select('*')
-			.eq('user_id', userId)
-			.eq('geoid', geoid)
-			.eq('business_type', businessType)
-			.gt('expires_at', new Date().toISOString())
-			.maybeSingle();
+		const cachedRows = await db
+			.select()
+			.from(schema.fitIqCache)
+			.where(
+				and(
+					eq(schema.fitIqCache.userId, userId),
+					eq(schema.fitIqCache.geoid, geoid)
+				)
+			);
 
-		if (error || !data) return null;
+		const validRow = cachedRows.find(row => {
+			const d = row.data as any || {};
+			if (d.business_type !== businessType) return false;
+			if (d.launchpad_hash !== launchpadHash) return false;
+			if (d.expires_at && new Date(d.expires_at).getTime() < Date.now()) return false;
+			return true;
+		});
 
-		// If launchpad changed, cache is stale
-		if (data.launchpad_hash !== launchpadHash) return null;
+		if (!validRow) return null;
+		const dData = validRow.data as any;
 
 		return {
-			fitIQ: data.fit_iq,
-			grade: data.grade,
-			dimensions: data.dimensions,
-			archetype: data.archetype,
-			archetypeScore: data.archetype_score,
-			alignment: data.alignment,
+			fitIQ: validRow.score,
+			grade: dData.grade,
+			dimensions: dData.dimensions,
+			archetype: dData.archetype,
+			archetypeScore: dData.archetype_score,
+			alignment: dData.alignment,
 			_cached: true,
 		};
 	} catch (err) {
@@ -84,21 +92,40 @@ async function cacheFitIQResult(
 	result: any
 ): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
-		await supabase.from('fit_iq_cache').upsert({
-			user_id: userId,
-			geoid: geoid,
-			business_type: businessType,
-			fit_iq: result.fitIQ,
-			grade: result.grade,
-			dimensions: result.dimensions,
-			archetype: result.archetype || null,
-			archetype_score: result.archetypeScore || null,
-			alignment: result.alignment || null,
-			launchpad_hash: launchpadHash,
-			computed_at: new Date().toISOString(),
-			expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h TTL
-		}, { onConflict: 'user_id,geoid,business_type' });
+		const id = `${userId}_${geoid}_${businessType}`;
+		await db.insert(schema.fitIqCache).values({
+			id,
+			userId,
+			geoid,
+			score: result.fitIQ,
+			data: {
+				business_type: businessType,
+				grade: result.grade,
+				dimensions: result.dimensions,
+				archetype: result.archetype || null,
+				archetype_score: result.archetypeScore || null,
+				alignment: result.alignment || null,
+				launchpad_hash: launchpadHash,
+				computed_at: new Date().toISOString(),
+				expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+			}
+		}).onConflictDoUpdate({
+			target: schema.fitIqCache.id,
+			set: {
+				score: result.fitIQ,
+				data: {
+					business_type: businessType,
+					grade: result.grade,
+					dimensions: result.dimensions,
+					archetype: result.archetype || null,
+					archetype_score: result.archetypeScore || null,
+					alignment: result.alignment || null,
+					launchpad_hash: launchpadHash,
+					computed_at: new Date().toISOString(),
+					expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+				}
+			}
+		});
 	} catch (err) {
 		// Non-critical — don't fail the request
 		console.warn('[FitIQ] Cache write failed (non-blocking):', err instanceof Error ? err.message : err);
@@ -162,17 +189,19 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		// ── Shadow Mode Logging (fire-and-forget) ──
 		if (body.legacyFitIq !== undefined) {
-			const supabase = getServiceSupabase();
-			supabase.from('fit_iq_shadow_log').insert({
-				user_id: auth.userId,
+			db.insert(schema.fitIqShadowLog).values({
+				id: crypto.randomUUID(),
 				geoid: body.geoid,
-				concept: body.launchpad.businessType,
-				legacy_score: body.legacyFitIq,
-				shadow_score: result.fitIQ,
-				discrepancy: Math.abs(body.legacyFitIq - result.fitIQ),
-				input_snapshot: body.launchpad
-			}).then(({ error }) => {
-				if (error) console.warn('[FitIQ] Shadow log write failed:', error);
+				logData: {
+					user_id: auth.userId,
+					concept: body.launchpad.businessType,
+					legacy_score: body.legacyFitIq,
+					shadow_score: result.fitIQ,
+					discrepancy: Math.abs(body.legacyFitIq - result.fitIQ),
+					input_snapshot: body.launchpad
+				}
+			}).catch(err => {
+				console.warn('[FitIQ] Shadow log write failed:', err);
 			});
 		}
 

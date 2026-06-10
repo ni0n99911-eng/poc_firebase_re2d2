@@ -8,6 +8,7 @@
 	import PWAInstallPrompt from '$lib/components/PWAInstallPrompt.svelte';
 	import PWABottomNav from '$lib/components/PWABottomNav.svelte';
 	import { authedFetch } from '$lib/authed-fetch';
+	import { auth } from '$lib/firebase/client';
 	import '../app.css';
 
 
@@ -312,8 +313,6 @@
 			onSessionUpdate();
 		});
 
-		// Start Clerk session keepalive for authenticated pages
-		initClerkSession();
 
 		// Theme B: backend health check — surface amber banner if any dep is down
 		// Only runs on app pages, once per session
@@ -354,10 +353,9 @@
 
 	async function doSignOut() {
 		try {
-			if (window.Clerk) {
-				await window.Clerk.signOut();
-				window.location.href = '/login';
-			}
+			await auth.signOut();
+			await fetch('/api/session', { method: 'DELETE' });
+			window.location.href = '/login';
 		} catch (err) {
 			console.error('Sign out error:', err);
 			window.location.href = '/login';

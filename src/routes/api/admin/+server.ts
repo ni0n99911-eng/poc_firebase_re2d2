@@ -1,8 +1,10 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { supabase } from '$lib/supabase';
+import { db } from '$lib/db-server';
+import { users, moduleAccess, emailWhitelist } from '$lib/db/schema';
 import { sendWelcomeEmail } from '$lib/email';
 import { getAdminEmails } from '$lib/modules';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * Admin API endpoint - handles user management, module access, and whitelist operations
@@ -81,14 +83,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const hasAdminModule = false; // Legacy — admin module no longer exists
 	const userId = locals.user?.id;
 
-	// Check Supabase for the user's email to verify super admin status
 	let isSuperAdmin = false;
 	if (userId) {
-		const { data: userData } = await supabase
-			.from('users')
-			.select('email')
-			.eq('id', userId)
-			.single();
+		const userDataArr = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+		const userData = userDataArr[0];
 		isSuperAdmin = userData ? (await getAdminEmails()).includes(userData.email?.toLowerCase() ?? '') : false;
 	}
 
@@ -143,35 +141,29 @@ async function approveUser(req: ApproveUserRequest) {
 	const { userId, role = 'member', modules = [] } = req;
 
 	// Get user info for the welcome email
-	const { data: userData } = await supabase
-		.from('users')
-		.select('name, email')
-		.eq('id', userId)
-		.single();
+	const userDataArr = await db.select({ name: users.email, email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+	const userData = userDataArr[0];
 
 	// Update user role
-	const { error: roleError } = await supabase
-		.from('users')
-		.update({ role })
-		.eq('id', userId);
-
-	if (roleError) {
+	try {
+		await db.update(users).set({ role }).where(eq(users.id, userId));
+	} catch (roleError: any) {
 		throw error(500, `Failed to approve user: ${roleError.message}`);
 	}
 
 	// Grant modules
 	if (modules.length > 0) {
 		const moduleInserts = modules.map(module => ({
-			user_id: userId,
+			userId: userId,
 			module,
-			granted_by: userId // Self-granted by admin
+			grantedBy: userId // Self-granted by admin
 		}));
 
-		const { error: modulesError } = await supabase
-			.from('module_access')
-			.upsert(moduleInserts, { onConflict: 'user_id,module' });
-
-		if (modulesError) {
+		try {
+			for (const mod of moduleInserts) {
+				await db.insert(moduleAccess).values(mod).onConflictDoNothing(); // simpler than complex upsert for access
+			}
+		} catch (modulesError: any) {
 			throw error(500, `Failed to grant modules: ${modulesError.message}`);
 		}
 	}
@@ -190,19 +182,16 @@ async function denyUser(req: DenyUserRequest) {
 	const { userId } = req;
 
 	// Delete all module access for this user
-	const { error: accessError } = await supabase
-		.from('module_access')
-		.delete()
-		.eq('user_id', userId);
-
-	if (accessError) {
+	try {
+		await db.delete(moduleAccess).where(eq(moduleAccess.userId, userId));
+	} catch (accessError: any) {
 		throw error(500, `Failed to revoke access: ${accessError.message}`);
 	}
 
 	// Delete the user
-	const { error: userError } = await supabase.from('users').delete().eq('id', userId);
-
-	if (userError) {
+	try {
+		await db.delete(users).where(eq(users.id, userId));
+	} catch (userError: any) {
 		throw error(500, `Failed to delete user: ${userError.message}`);
 	}
 
@@ -213,28 +202,21 @@ async function updateModules(req: UpdateModulesRequest) {
 	const { userId, module, grant } = req;
 
 	if (grant) {
-		// Grant module access — use upsert to handle duplicates
-		const { error: grantError } = await supabase
-			.from('module_access')
-			.upsert({
-				user_id: userId,
+		try {
+			await db.insert(moduleAccess).values({
+				userId,
 				module,
-				granted_by: userId
-			}, { onConflict: 'user_id,module' });
-
-		if (grantError) {
+				grantedBy: userId
+			}).onConflictDoNothing();
+		} catch (grantError: any) {
 			console.error('Grant module error:', grantError);
 			throw error(500, `Failed to grant module: ${grantError.message}`);
 		}
 	} else {
 		// Revoke module access
-		const { error: revokeError } = await supabase
-			.from('module_access')
-			.delete()
-			.eq('user_id', userId)
-			.eq('module', module);
-
-		if (revokeError) {
+		try {
+			await db.delete(moduleAccess).where(and(eq(moduleAccess.userId, userId), eq(moduleAccess.module, module)));
+		} catch (revokeError: any) {
 			throw error(500, `Failed to revoke module: ${revokeError.message}`);
 		}
 	}
@@ -245,12 +227,9 @@ async function updateModules(req: UpdateModulesRequest) {
 async function changeRole(req: ChangeRoleRequest) {
 	const { userId, role } = req;
 
-	const { error: err } = await supabase
-		.from('users')
-		.update({ role })
-		.eq('id', userId);
-
-	if (err) {
+	try {
+		await db.update(users).set({ role }).where(eq(users.id, userId));
+	} catch (err: any) {
 		throw error(500, `Failed to change role: ${err.message}`);
 	}
 
@@ -261,19 +240,16 @@ async function deleteUser(req: DeleteUserRequest) {
 	const { userId } = req;
 
 	// Delete all module access
-	const { error: accessError } = await supabase
-		.from('module_access')
-		.delete()
-		.eq('user_id', userId);
-
-	if (accessError) {
+	try {
+		await db.delete(moduleAccess).where(eq(moduleAccess.userId, userId));
+	} catch (accessError: any) {
 		throw error(500, `Failed to revoke access: ${accessError.message}`);
 	}
 
 	// Delete user
-	const { error: userError } = await supabase.from('users').delete().eq('id', userId);
-
-	if (userError) {
+	try {
+		await db.delete(users).where(eq(users.id, userId));
+	} catch (userError: any) {
 		throw error(500, `Failed to delete user: ${userError.message}`);
 	}
 
@@ -283,16 +259,12 @@ async function deleteUser(req: DeleteUserRequest) {
 async function addWhitelist(req: AddWhitelistRequest, adminId: string) {
 	const { email, modules = [] } = req;
 
-	const { error: err } = await supabase.from('email_whitelist').insert({
-		email: email.toLowerCase(),
-		modules,
-		added_by: adminId
-	});
-
-	if (err) {
-		if (err.message.includes('unique')) {
-			throw error(400, 'Email already whitelisted');
-		}
+	try {
+		await db.insert(emailWhitelist).values({
+			email: email.toLowerCase(),
+			modules
+		}).onConflictDoNothing();
+	} catch (err: any) {
 		throw error(500, `Failed to add whitelist: ${err.message}`);
 	}
 
@@ -302,12 +274,9 @@ async function addWhitelist(req: AddWhitelistRequest, adminId: string) {
 async function removeWhitelist(req: RemoveWhitelistRequest) {
 	const { email } = req;
 
-	const { error: err } = await supabase
-		.from('email_whitelist')
-		.delete()
-		.eq('email', email.toLowerCase());
-
-	if (err) {
+	try {
+		await db.delete(emailWhitelist).where(eq(emailWhitelist.email, email.toLowerCase()));
+	} catch (err: any) {
 		throw error(500, `Failed to remove whitelist: ${err.message}`);
 	}
 
@@ -317,12 +286,9 @@ async function removeWhitelist(req: RemoveWhitelistRequest) {
 async function updateWhitelistModules(req: UpdateWhitelistModulesRequest) {
 	const { email, modules } = req;
 
-	const { error: err } = await supabase
-		.from('email_whitelist')
-		.update({ modules })
-		.eq('email', email.toLowerCase());
-
-	if (err) {
+	try {
+		await db.update(emailWhitelist).set({ modules }).where(eq(emailWhitelist.email, email.toLowerCase()));
+	} catch (err: any) {
 		throw error(500, `Failed to update modules: ${err.message}`);
 	}
 

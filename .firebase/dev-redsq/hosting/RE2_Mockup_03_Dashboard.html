@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RE² — Intelligence Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #F6F8FB;
+    --white: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-alt: #F0F3F7;
+    --border: #E0E5ED;
+    --border-subtle: #EBF0F5;
+    --teal: #0D7C6E;
+    --teal-bright: #0D9488;
+    --teal-glow: rgba(13,124,110,0.04);
+    --teal-ring: rgba(13,124,110,0.1);
+    --amber: #B45309;
+    --amber-soft: rgba(180,83,9,0.05);
+    --red: #DC2626;
+    --red-soft: rgba(220,38,38,0.05);
+    --green: #059669;
+    --green-soft: rgba(5,150,105,0.05);
+    --text: #1A202C;
+    --text-secondary: #5A6578;
+    --text-dim: #8A95A8;
+    --text-muted: #B0B9C8;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Top Bar ─── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0 32px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .topbar-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--teal); font-size: 11px; vertical-align: super; }
+
+  .topbar-address {
+    margin-left: 16px;
+    padding: 5px 14px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .topbar-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+  .topbar-concept {
+    padding: 5px 14px;
+    background: var(--teal-glow);
+    border: 1px solid var(--teal-ring);
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--teal);
+  }
+
+  .topbar-tabs {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+  }
+  .topbar-tab {
+    padding: 6px 14px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+  }
+  .topbar-tab:hover { color: var(--text-secondary); }
+  .topbar-tab.active {
+    background: var(--surface-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* ─── Hero Section ─── */
+  .hero {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 32px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  /* ─── Score Ring ─── */
+  .score-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ring-container {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin-bottom: 24px;
+  }
+
+  .ring-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .ring-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 6;
+  }
+  .ring-fill {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ring-fill.location { stroke: var(--teal); filter: drop-shadow(0 0 6px rgba(13,124,110,0.2)); }
+  .ring-fill.fit { stroke: var(--amber); filter: drop-shadow(0 0 6px rgba(180,83,9,0.2)); }
+
+  .ring-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .ring-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 68px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .ring-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .score-pair {
+    display: flex;
+    gap: 32px;
+    margin-top: 8px;
+  }
+  .score-item {
+    text-align: center;
+  }
+  .score-item-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .score-item-value.teal { color: var(--teal-bright); }
+  .score-item-value.amber { color: var(--amber); }
+  .score-item-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ─── Verdict Card ─── */
+  .verdict-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .verdict-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: box-shadow 0.2s;
+  }
+  .verdict-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--amber));
+    opacity: 0.6;
+  }
+  .verdict-tagline {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--teal);
+    margin-bottom: 14px;
+  }
+  .verdict-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  .verdict-body {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text-secondary);
+  }
+  .verdict-body strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ─── Index Bars ─── */
+  .indices {
+    max-width: 1080px;
+    margin: 48px auto 0;
+    padding: 0 32px;
+  }
+  .indices-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .index-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .index-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: default;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .index-card:hover {
+    border-color: var(--teal-ring);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .index-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .index-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: -0.1px;
+  }
+  .index-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .index-value.high { color: var(--green); }
+  .index-value.mid { color: var(--amber); }
+  .index-value.low { color: var(--red); }
+
+  .index-bar-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .index-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .index-bar-fill.high { background: var(--green); }
+  .index-bar-fill.mid { background: var(--amber); }
+  .index-bar-fill.low { background: var(--red); }
+
+  .index-insight {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ─── Heads Up Section ─── */
+  .heads-up {
+    max-width: 1080px;
+    margin: 48px auto 0;
+    padding: 0 32px;
+  }
+  .heads-up-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .alert-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .alert-card {
+    display: flex;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    align-items: flex-start;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .alert-card:hover {
+    border-color: var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .alert-severity {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .alert-severity.high { background: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
+  .alert-severity.medium { background: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); }
+  .alert-severity.low { background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+  .alert-content { flex: 1; }
+  .alert-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .alert-desc {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* ─── Business Model Section ─── */
+  .biz-model {
+    max-width: 1080px;
+    margin: 48px auto 0;
+    padding: 0 32px;
+  }
+  .biz-model-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .biz-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Probability Ring */
+  .prob-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .prob-ring-wrap {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+  .prob-ring-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .prob-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .prob-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .prob-pct { font-size: 20px; }
+  .prob-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .prob-verdict {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .prob-sub {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Financials + Influence */
+  .biz-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .fin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .fin-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .fin-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .fin-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .fin-range {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Influence bars */
+  .influence-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .influence-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .influence-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .influence-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    width: 140px;
+    flex-shrink: 0;
+  }
+  .influence-bar-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .influence-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .influence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+  .influence-fill.positive { background: var(--green); }
+  .influence-fill.negative { background: var(--red); }
+  .influence-pct {
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    width: 36px;
+    text-align: right;
+  }
+  .influence-pct.positive { color: var(--green); }
+  .influence-pct.negative { color: var(--red); }
+
+  /* ─── Playbook Section ─── */
+  .playbook {
+    max-width: 1080px;
+    margin: 48px auto;
+    padding: 0 32px 64px;
+  }
+  .playbook-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .play-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .play-card {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    align-items: flex-start;
+    transition: all 0.2s;
+    cursor: default;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .play-card:hover {
+    border-color: var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  .play-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--teal-glow);
+    border: 1px solid var(--teal-ring);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--teal);
+    flex-shrink: 0;
+  }
+  .play-content { flex: 1; }
+  .play-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .play-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .play-tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .play-tag.urgent {
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid rgba(220,38,38,0.15);
+  }
+  .play-tag.important {
+    background: var(--amber-soft);
+    color: var(--amber);
+    border: 1px solid rgba(180,83,9,0.15);
+  }
+  .play-tag.smart {
+    background: var(--teal-glow);
+    color: var(--teal);
+    border: 1px solid var(--teal-ring);
+  }
+
+  /* ─── Demo scene nav ─── */
+  .demo-nav {
+    position: fixed;
+    top: 58px;
+    right: 16px;
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 3px 5px;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .demo-pill {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 4px 10px;
+    color: var(--text-dim);
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .demo-pill:hover { color: var(--text-secondary); }
+  .demo-pill.active { background: var(--teal-glow); color: var(--teal); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px 0; }
+    .index-grid { grid-template-columns: 1fr; }
+    .biz-grid { grid-template-columns: 1fr; }
+    .fin-grid { grid-template-columns: 1fr; }
+    .topbar-tabs { display: none; }
+    .topbar-concept { display: none; }
+    .indices, .heads-up, .biz-model, .playbook { padding: 0 20px; }
+  }
+
+  /* ─── Sections visibility for demo ─── */
+  .section { display: none; }
+  .section.visible { display: block; }
+  .hero-section { display: none; }
+  .hero-section.visible { display: grid; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar-logo">RE<span>2</span></div>
+  <div class="topbar-address"><div class="topbar-dot"></div>127 E 7th St, East Village</div>
+  <div class="topbar-concept">Kohi -- Matcha + Sake Bar</div>
+  <div class="topbar-tabs">
+    <button class="topbar-tab active" onclick="showView('score')">Score</button>
+    <button class="topbar-tab" onclick="showView('model')">Business Model</button>
+    <button class="topbar-tab" onclick="showView('playbook')">Playbook</button>
+  </div>
+</header>
+
+<!-- Demo Scene Nav -->
+<nav class="demo-nav">
+  <button class="demo-pill active" onclick="showView('score')">Score</button>
+  <button class="demo-pill" onclick="showView('model')">Model</button>
+  <button class="demo-pill" onclick="showView('playbook')">Playbook</button>
+  <button class="demo-pill" onclick="showView('all')">Full</button>
+</nav>
+
+<!-- ─── Score View ─── -->
+<div class="hero hero-section visible" id="scoreHero">
+  <div class="score-block">
+    <div class="ring-container">
+      <svg class="ring-svg" viewBox="0 0 260 260">
+        <!-- Location IQ ring (outer) -->
+        <circle class="ring-bg" cx="130" cy="130" r="115"/>
+        <circle class="ring-fill location" cx="130" cy="130" r="115"
+          stroke-dasharray="723"
+          stroke-dashoffset="181"/>
+        <!-- Fit IQ ring (inner) -->
+        <circle class="ring-bg" cx="130" cy="130" r="95" stroke-width="5"/>
+        <circle class="ring-fill fit" cx="130" cy="130" r="95"
+          stroke-dasharray="597"
+          stroke-dashoffset="203"
+          stroke-width="5"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-number">78</div>
+        <div class="ring-label">Combined Score</div>
+      </div>
+    </div>
+    <div class="score-pair">
+      <div class="score-item">
+        <div class="score-item-value teal">82</div>
+        <div class="score-item-label">Location IQ</div>
+      </div>
+      <div class="score-item">
+        <div class="score-item-value amber">74</div>
+        <div class="score-item-label">Fit IQ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict-card">
+    <div class="verdict-tagline">The Verdict</div>
+    <div class="verdict-headline">This is a strong location for Kohi, with one big caveat.</div>
+    <div class="verdict-body">
+      127 E 7th St sits in one of the best corridors in Manhattan for a concept like yours. The <strong>foot traffic is excellent</strong>, the demographic skews heavily toward your target (25-38, above-median income, health-conscious), and the evening economy is thriving.
+      <br><br>
+      The concern is <strong>competition density</strong>. There are 14 specialty coffee and tea shops within a 4-block radius. Your matcha-to-sake pivot is genuinely differentiated, but your daytime traffic will face real headwinds. The numbers work if you can convert <strong>15% of evening customers into daytime regulars</strong>. That's aggressive but achievable with your sourcing story.
+    </div>
+  </div>
+</div>
+
+<!-- ─── Indices ─── -->
+<div class="section visible" id="indicesSection">
+  <div class="indices">
+    <div class="indices-title">Six-Index Breakdown</div>
+    <div class="index-grid">
+      <div class="index-card">
+        <div class="index-card-header">
+          <span class="index-name">Transit Access</span>
+          <span class="index-value high">91</span>
+        </div>
+        <div class="index-bar-track"><div class="index-bar-fill high" style="width: 91%"></div></div>
+        <div class="index-insight">3 subway lines within 4 min walk. F, L, 6 trains.</div>
+      </div>
+      <div class="index-card">
+        <div class="index-card-header">
+          <span class="index-name">Demographics</span>
+          <span class="index-value high">87</span>
+        </div>
+        <div class="index-bar-track"><div class="index-bar-fill high" style="width: 87%"></div></div>
+        <div class="index-insight">Median age 31. 72% college-educated. $92K median income.</div>
+      </div>
+      <div class="index-card">
+        <div class="index-card-header">
+          <span class="index-name">Vibrancy</span>
+          <span class="index-value high">84</span>
+        </div>
+        <div class="index-bar-track"><div class="index-bar-fill high" style="width: 84%"></div></div>
+        <div class="index-insight">High Yelp density. 4.2 avg rating nearby. Active nightlife.</div>
+      </div>
+      <div class="index-card">
+        <div class="index-card-header">
+          <span class="index-name">Safety</span>
+          <span class="index-value mid">71</span>
+        </div>
+        <div class="index-bar-track"><div class="index-bar-fill mid" style="width: 71%"></div></div>
+        <div class="index-insight">Moderate after 11pm. Petty crime above avg for Manhattan.</div>
+      </div>
+      <div class="index-card">
+        <div class="index-card-header">
+          <span class="index-name">Competition</span>
+          <span class="index-value mid">62</span>
+        </div>
+        <div class="index-bar-track"><div class="index-bar-fill mid" style="width: 62%"></div></div>
+        <div class="index-insight">14 specialty coffee/tea in 4 blocks. Saturated daytime.</div>
+      </div>
+      <div class="index-card">
+        <div class="index-card-header">
+          <span class="index-name">Momentum</span>
+          <span class="index-value high">79</span>
+        </div>
+        <div class="index-bar-track"><div class="index-bar-fill high" style="width: 79%"></div></div>
+        <div class="index-insight">3 new leases signed this quarter. Rent trending +4% YoY.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Heads Up ─── -->
+<div class="section visible" id="headsUpSection">
+  <div class="heads-up">
+    <div class="heads-up-title">Heads Up</div>
+    <div class="alert-cards">
+      <div class="alert-card">
+        <div class="alert-severity high"></div>
+        <div class="alert-content">
+          <div class="alert-title">Heavy coffee competition on this block</div>
+          <div class="alert-desc">14 specialty shops within 4 blocks. Your evening concept is the differentiator -- lean into it hard in your marketing.</div>
+        </div>
+      </div>
+      <div class="alert-card">
+        <div class="alert-severity medium"></div>
+        <div class="alert-content">
+          <div class="alert-title">Rent pressure is real here</div>
+          <div class="alert-desc">E 7th between 1st and A averages $85/sqft. For 1,000 sqft that's $7,080/mo. You'll want to negotiate hard on the first 6 months.</div>
+        </div>
+      </div>
+      <div class="alert-card">
+        <div class="alert-severity low"></div>
+        <div class="alert-content">
+          <div class="alert-title">Liquor license timeline</div>
+          <div class="alert-desc">SLA processing for this CB district averages 4-6 months. Start the application before you sign the lease if possible.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Business Model ─── -->
+<div class="section" id="modelSection">
+  <div class="biz-model">
+    <div class="biz-model-title">Business Model</div>
+    <div class="biz-grid">
+      <div class="prob-card">
+        <div class="prob-ring-wrap">
+          <svg class="prob-ring-svg" viewBox="0 0 180 180">
+            <circle fill="none" stroke="var(--border)" stroke-width="5" cx="90" cy="90" r="80"/>
+            <circle fill="none" stroke="var(--green)" stroke-width="5" cx="90" cy="90" r="80"
+              stroke-dasharray="502"
+              stroke-dashoffset="126"
+              stroke-linecap="round"
+              style="filter: drop-shadow(0 0 4px rgba(5,150,105,0.2))"/>
+          </svg>
+          <div class="prob-center">
+            <div class="prob-number">75<span class="prob-pct">%</span></div>
+            <div class="prob-label">Success Odds</div>
+          </div>
+        </div>
+        <div class="prob-verdict">Strong Outlook</div>
+        <div class="prob-sub">Above average for specialty coffee in Manhattan</div>
+      </div>
+
+      <div class="biz-details">
+        <div class="fin-grid">
+          <div class="fin-card">
+            <div class="fin-label">Monthly Revenue</div>
+            <div class="fin-value">$38K</div>
+            <div class="fin-range">$32K -- $45K range</div>
+          </div>
+          <div class="fin-card">
+            <div class="fin-label">Rent / Revenue</div>
+            <div class="fin-value">19%</div>
+            <div class="fin-range">Target: under 15%</div>
+          </div>
+          <div class="fin-card">
+            <div class="fin-label">Break Even</div>
+            <div class="fin-value">14 mo</div>
+            <div class="fin-range">12 -- 18 months</div>
+          </div>
+        </div>
+
+        <div class="influence-card">
+          <div class="influence-title">What's Driving Your Odds</div>
+
+          <div class="influence-row">
+            <div class="influence-label">Dual revenue model</div>
+            <div class="influence-bar-wrap">
+              <div class="influence-bar"><div class="influence-fill positive" style="width: 85%"></div></div>
+              <div class="influence-pct positive">+12%</div>
+            </div>
+          </div>
+          <div class="influence-row">
+            <div class="influence-label">Transit score</div>
+            <div class="influence-bar-wrap">
+              <div class="influence-bar"><div class="influence-fill positive" style="width: 70%"></div></div>
+              <div class="influence-pct positive">+8%</div>
+            </div>
+          </div>
+          <div class="influence-row">
+            <div class="influence-label">Target demo match</div>
+            <div class="influence-bar-wrap">
+              <div class="influence-bar"><div class="influence-fill positive" style="width: 55%"></div></div>
+              <div class="influence-pct positive">+6%</div>
+            </div>
+          </div>
+          <div class="influence-row">
+            <div class="influence-label">Competition density</div>
+            <div class="influence-bar-wrap">
+              <div class="influence-bar"><div class="influence-fill negative" style="width: 65%"></div></div>
+              <div class="influence-pct negative">-9%</div>
+            </div>
+          </div>
+          <div class="influence-row">
+            <div class="influence-label">Rent pressure</div>
+            <div class="influence-bar-wrap">
+              <div class="influence-bar"><div class="influence-fill negative" style="width: 40%"></div></div>
+              <div class="influence-pct negative">-5%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Playbook ─── -->
+<div class="section" id="playbookSection">
+  <div class="playbook">
+    <div class="playbook-title">Your Next 5 Moves</div>
+    <div class="play-list">
+      <div class="play-card">
+        <div class="play-num">1</div>
+        <div class="play-content">
+          <div class="play-title">Start your liquor license application now</div>
+          <div class="play-desc">Community Board 3 has a 4-6 month processing time. File the SLA application before you sign the lease. Contact CB3's licensing committee directly.</div>
+          <span class="play-tag urgent">Do this week</span>
+        </div>
+      </div>
+      <div class="play-card">
+        <div class="play-num">2</div>
+        <div class="play-content">
+          <div class="play-title">Negotiate a 3-month rent abatement</div>
+          <div class="play-desc">This block has 2 vacant storefronts. Use that leverage. Ask for free rent during buildout plus 50% off months 1-3. Standard ask for this market.</div>
+          <span class="play-tag urgent">Do this week</span>
+        </div>
+      </div>
+      <div class="play-card">
+        <div class="play-num">3</div>
+        <div class="play-content">
+          <div class="play-title">Run a 2-week pop-up to validate evening demand</div>
+          <div class="play-desc">Before committing to buildout, test the sake + small plates concept. Partner with an existing bar in the area for a weekend residency. You'll learn more in 2 weeks than 6 months of planning.</div>
+          <span class="play-tag important">Before signing</span>
+        </div>
+      </div>
+      <div class="play-card">
+        <div class="play-num">4</div>
+        <div class="play-content">
+          <div class="play-title">Map your daytime competition personally</div>
+          <div class="play-desc">Visit all 14 specialty shops within 4 blocks. Note their hours, pricing, seating, and what they don't do. Your gap is the matcha sourcing story and the evening pivot. Confirm it in person.</div>
+          <span class="play-tag important">Before signing</span>
+        </div>
+      </div>
+      <div class="play-card">
+        <div class="play-num">5</div>
+        <div class="play-content">
+          <div class="play-title">Budget $12K for a brand identity package</div>
+          <div class="play-desc">In a market this competitive, your visual identity needs to be as sharp as your concept. Japanese minimalism gives you a strong design direction. Invest in signage, packaging, and social presence before opening day.</div>
+          <span class="play-tag smart">Month 1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showView(view) {
+  const scoreHero = document.getElementById('scoreHero');
+  const indices = document.getElementById('indicesSection');
+  const headsUp = document.getElementById('headsUpSection');
+  const model = document.getElementById('modelSection');
+  const playbook = document.getElementById('playbookSection');
+
+  // Reset
+  [scoreHero].forEach(el => el.classList.remove('visible'));
+  [indices, headsUp, model, playbook].forEach(el => el.classList.remove('visible'));
+
+  // Update tabs
+  document.querySelectorAll('.topbar-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.demo-pill').forEach(p => p.classList.remove('active'));
+
+  if (view === 'score') {
+    scoreHero.classList.add('visible');
+    indices.classList.add('visible');
+    headsUp.classList.add('visible');
+    document.querySelectorAll('.topbar-tab')[0].classList.add('active');
+    document.querySelectorAll('.demo-pill')[0].classList.add('active');
+  } else if (view === 'model') {
+    model.classList.add('visible');
+    document.querySelectorAll('.topbar-tab')[1].classList.add('active');
+    document.querySelectorAll('.demo-pill')[1].classList.add('active');
+  } else if (view === 'playbook') {
+    playbook.classList.add('visible');
+    document.querySelectorAll('.topbar-tab')[2].classList.add('active');
+    document.querySelectorAll('.demo-pill')[2].classList.add('active');
+  } else if (view === 'all') {
+    scoreHero.classList.add('visible');
+    indices.classList.add('visible');
+    headsUp.classList.add('visible');
+    model.classList.add('visible');
+    playbook.classList.add('visible');
+    document.querySelectorAll('.demo-pill')[3].classList.add('active');
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

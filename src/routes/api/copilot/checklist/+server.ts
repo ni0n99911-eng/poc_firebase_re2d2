@@ -13,7 +13,8 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth-middleware';
 import { callLLM } from '$lib/openrouter-llm';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
 
 // ── Types ──
 
@@ -70,18 +71,20 @@ async function logCopilotConversation(
 	latencyMs: number
 ): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
-		const { error } = await supabase.from('copilot_conversations').insert({
-			user_id: userId,
-			copilot_type: 'checklist',
-			geoid: null,
-			action,
-			request_data: requestData,
-			response_summary: responseSummary.slice(0, 200),
-			model_used: modelUsed,
-			latency_ms: latencyMs,
+		await db.insert(schema.copilotConversations).values({
+			id: crypto.randomUUID(),
+			userId: userId,
+			context: action,
+			messages: {
+				copilot_type: 'checklist',
+				geoid: null,
+				action,
+				request_data: requestData,
+				response_summary: responseSummary.slice(0, 200),
+				model_used: modelUsed,
+				latency_ms: latencyMs,
+			}
 		});
-		if (error) throw error;
 	} catch (err) {
 		console.warn('[ChecklistCopilot] Failed to log conversation:', err instanceof Error ? err.message : err);
 	}

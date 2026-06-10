@@ -62,11 +62,9 @@ function toStatePlane(lat: number, lng: number): { x: number; y: number } {
 /**
  * Fetch sidewalk café permit data near a location.
  */
-export async function fetchSidewalkCafes(
-	lat: number,
+export async function fetchSidewalkCafes(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<SidewalkCafeData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<SidewalkCafeData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'sidewalk-cafes');
 	const cached = await intelCache.getAsync<SidewalkCafeData>(cacheKey);
 	if (cached?.fresh) return cached.data;

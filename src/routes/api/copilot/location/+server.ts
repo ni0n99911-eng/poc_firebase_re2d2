@@ -13,7 +13,9 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth-middleware';
 import { callLLM } from '$lib/openrouter-llm';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
+import { sql, eq } from 'drizzle-orm';
 import { computeFitIQ, type LaunchpadProfile } from '$lib/fit-iq-engine';
 // 04.19.2026 13:00 Changed from normalizeConceptKey to normalizeBusinessType (canonical registry)
 import { normalizeBusinessType } from '$lib/intel/registry/business-type-registry';
@@ -119,18 +121,20 @@ async function logCopilotConversation(
 	latencyMs: number
 ): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
-		const { error } = await supabase.from('copilot_conversations').insert({
-			user_id: userId,
-			copilot_type: copilotType,
-			geoid,
-			action,
-			request_data: requestData,
-			response_summary: responseSummary.slice(0, 200),
-			model_used: modelUsed,
-			latency_ms: latencyMs,
+		await db.insert(schema.copilotConversations).values({
+			id: crypto.randomUUID(),
+			userId: userId,
+			context: action,
+			messages: {
+				copilot_type: copilotType,
+				geoid,
+				action,
+				request_data: requestData,
+				response_summary: responseSummary.slice(0, 200),
+				model_used: modelUsed,
+				latency_ms: latencyMs,
+			}
 		});
-		if (error) throw error;
 	} catch (err) {
 		// Non-critical — don't fail the request
 		console.warn('[Copilot] Failed to log conversation:', err instanceof Error ? err.message : err);
@@ -181,56 +185,70 @@ interface LocationContext {
 }
 
 async function loadLocationContext(geoid: string): Promise<LocationContext> {
-	const supabase = getServiceSupabase();
-
-	// M5 FIX: Wrap block_group_visions query in Promise.resolve for resilience
-	// Supabase query builders are thenables but NOT native Promises (no .catch()),
-	// so we wrap in Promise.resolve() to get a real Promise with .catch() support.
-	// This table comes from Thread 5's vision pipeline and may not exist yet.
-	const visionPromise: Promise<any> = Promise.resolve(
-		supabase.from('block_group_visions')
-			.select('narrative, structured')
-			.eq('geoid', geoid)
-			.eq('vision_type', 'location')
-			.limit(1)
-			.maybeSingle()
-	).catch((err: any) => {
+	let visionData = null;
+	try {
+		const vRes = await db.execute(sql`
+			SELECT narrative, structured
+			FROM block_group_visions
+			WHERE geoid = ${geoid} AND vision_type = 'location'
+			LIMIT 1
+		`);
+		if (vRes && vRes.length > 0) {
+			visionData = vRes[0];
+		}
+	} catch (err: any) {
 		console.warn('[LocationCopilot] block_group_visions query failed (M5 resilience):', err?.message || err);
-		return { data: null, error: err };
-	});
+	}
 
-	const [scoresRes, intelRes, enrichedRes, visionRes] = await Promise.all([
-		supabase.from('block_group_scores').select('score_type, score, components').eq('geoid', geoid),
-		supabase.from('block_group_intel').select('source, data').eq('geoid', geoid),
-		supabase.from('enriched_entities')
-			.select('entity_category, entity_data')
-			.eq('location_key', geoid)
-			.eq('entity_type', 'block_group_intel'),
-		visionPromise,
-	]);
+	let scoresResData: any[] = [];
+	try {
+		scoresResData = await db.select({
+			score_type: schema.blockGroupScores.scoreType,
+			score: schema.blockGroupScores.score,
+			components: schema.blockGroupScores.components
+		}).from(schema.blockGroupScores).where(eq(schema.blockGroupScores.geoid, geoid));
+	} catch (e: any) {
+		console.warn('[LocationCopilot] block_group_scores error:', e.message);
+	}
 
-	// F-08: log errors on parallel reads — silent failures starve AI of context
-	if (scoresRes.error)   console.warn('[LocationCopilot] block_group_scores error:', scoresRes.error.message, `(code: ${scoresRes.error.code})`);
-	if (intelRes.error)    console.warn('[LocationCopilot] block_group_intel error:', intelRes.error.message, `(code: ${intelRes.error.code})`);
-	if (enrichedRes.error) console.warn('[LocationCopilot] enriched_entities error:', enrichedRes.error.message, `(code: ${enrichedRes.error.code})`);
+	let intelResData: any[] = [];
+	try {
+		intelResData = await db.select({
+			source: schema.blockGroupIntel.source,
+			data: schema.blockGroupIntel.data
+		}).from(schema.blockGroupIntel).where(eq(schema.blockGroupIntel.geoid, geoid));
+	} catch (e: any) {
+		console.warn('[LocationCopilot] block_group_intel error:', e.message);
+	}
+
+	let enrichedResData: any[] = [];
+	try {
+		enrichedResData = await db.execute(sql`
+			SELECT entity_category, entity_data
+			FROM enriched_entities
+			WHERE location_key = ${geoid} AND entity_type = 'block_group_intel'
+		`);
+	} catch (e: any) {
+		console.warn('[LocationCopilot] enriched_entities error:', e.message);
+	}
 
 	// F-07: Parse scores by type. Active score types: location_iq, location_iq_v2 (Location IQ),
 	// vision_iq, vision_iq:* (Vision IQ), fit_iq (Fit IQ). Deprecated: location_iq_v1.
 	const scores: Record<string, any> = {};
-	if (scoresRes.data) for (const r of scoresRes.data) scores[r.score_type] = { score: r.score, components: r.components };
+	for (const r of scoresResData) scores[r.score_type] = { score: r.score, components: r.components };
 
 	const intel: Record<string, any> = {};
-	if (intelRes.data) for (const r of intelRes.data) intel[r.source] = r.data;
+	for (const r of intelResData) intel[r.source] = r.data;
 
 	const enriched: Record<string, any> = {};
-	if (enrichedRes.data) for (const r of enrichedRes.data) enriched[r.entity_category] = r.entity_data;
+	for (const r of enrichedResData) enriched[r.entity_category] = r.entity_data;
 
 	return {
 		geoid,
 		scores,
 		intel,
 		enriched,
-		vision: visionRes.data as any || null,
+		vision: visionData,
 	};
 }
 

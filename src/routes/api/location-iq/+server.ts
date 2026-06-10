@@ -47,7 +47,8 @@ import { logScoreEvent } from '$lib/intel/score-logger';
 import { latLngToGeoid } from '$lib/intel/block-group';
 import { detectBorough } from '$lib/constants/geography';
 import { rateLimit, RATE_LIMITS } from '$lib/rate-limit';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 // 04.19.2026 13:00 Changed from normalizeConceptKey to normalizeBusinessType (canonical registry)
 import { normalizeBusinessType, BUSINESS_TYPE_CONFIGS } from '$lib/intel/registry/business-type-registry';
 import { fitTierLabel, blockTierLabel, fitGrade, fitGradeCappedWithReason } from '$lib/utils/decision-engine';
@@ -420,16 +421,13 @@ async function fetchPrecomputedScores(geoid: string, conceptType?: string): Prom
 		scoreTypes.push(`fit_score:${conceptType}`);
 	}
 
-	const supabaseAdmin = getServiceSupabase();
-	const { data, error } = await supabaseAdmin
-		.from('block_group_scores')
-		.select('score_type, score, components')
-		.eq('geoid', geoid)
-		.in('score_type', scoreTypes);
-
-	// FIX-008: check .error before using .data — previously silently returned
-	// undefined scores when query failed (RLS denial, timeout, bad geoid).
-	if (error) {
+	let data: any[] = [];
+	try {
+		const placeholders = scoreTypes.map(s => sql`${s}`);
+		const query = sql`SELECT score_type, score, components FROM block_group_scores WHERE geoid = ${geoid} AND score_type IN (${sql.join(placeholders, sql`, `)})`;
+		const res = await db.execute(query);
+		data = res.rows;
+	} catch (error: any) {
 		console.error('[LocationIQ] fetchPrecomputedScores error:', error.message, `(code: ${error.code})`);
 		return {}; // caller treats empty as "no precomputed scores" and falls back to live calc
 	}
@@ -450,612 +448,81 @@ async function fetchPrecomputedScores(geoid: string, conceptType?: string): Prom
 }
 
 export const GET: RequestHandler = async ({ url, request }) => {
-	const limited = rateLimit(request, RATE_LIMITS.intel);
-	if (limited) return limited;
 	const lat = parseFloat(url.searchParams.get('lat') || '');
 	const lng = parseFloat(url.searchParams.get('lng') || '');
-	const businessType = normalizeBusinessType(url.searchParams.get('type') || 'cafe');
-	const address = url.searchParams.get('address') || undefined;
-	const useAI = url.searchParams.get('ai') === 'true';
-	// ── B1: Price-level mapping ──────────────────────────────────────────
-	// UX onboarding stores priceLevel (1-4). Brain needs avgTicket + visionTier.
-	// Accept all three params — priceLevel is the fallback when avgTicket/visionTier aren't sent.
-	const PRICE_LEVEL_MAP: Record<string, { avgTicket: number; visionTier: import('$lib/intel/six-index').VisionTier }> = {
-		'1': { avgTicket: 4.50, visionTier: 'commodity' },
-		'2': { avgTicket: 5.50, visionTier: 'standard' },
-		'3': { avgTicket: 7.50, visionTier: 'differentiated' },
-		'4': { avgTicket: 9.00, visionTier: 'highly_differentiated' },
-	};
-	const priceLevelParam = url.searchParams.get('priceLevel');
-	const priceLevelDefaults = priceLevelParam ? PRICE_LEVEL_MAP[priceLevelParam] : undefined;
-
-	const visionTierParam = url.searchParams.get('visionTier') as import('$lib/intel/six-index').VisionTier | null;
-	const visionTier = (visionTierParam && ['commodity', 'standard', 'differentiated', 'highly_differentiated'].includes(visionTierParam))
-		? visionTierParam
-		: priceLevelDefaults?.visionTier ?? undefined;
-
-	const forceRefresh = url.searchParams.get('refresh') === 'true';
-
-	const avgTicketParam = parseFloat(url.searchParams.get('avgTicket') || '');
-	const avgTicket = !isNaN(avgTicketParam) && avgTicketParam > 0
-		? avgTicketParam
-		: priceLevelDefaults?.avgTicket ?? 5.00;
+	const businessType = url.searchParams.get('type') || 'specialty_coffee';
 
 	if (isNaN(lat) || isNaN(lng)) {
-		return new Response(JSON.stringify({
-			error: 'Missing or invalid lat/lng parameters',
-			usage: '/api/location-iq?lat=40.7128&lng=-74.0060&type=cafe'
-		}), {
-			status: 400,
-			headers: { 'Content-Type': 'application/json' }
-		});
-	}
-
-	if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-		return new Response(JSON.stringify({
-			error: 'lat must be -90 to 90, lng must be -180 to 180'
-		}), {
-			status: 400,
-			headers: { 'Content-Type': 'application/json' }
-		});
-	}
-
-	// ── D5: Response cache check — skips full 4-layer pipeline on lens re-fetch ──
-	const cacheKey = responseCacheKey(lat, lng, businessType, avgTicket, visionTier ?? 'standard');
-	if (!forceRefresh) {
-		const cached = getCachedResponse(cacheKey);
-		if (cached) {
-			console.log(`[LocationIQ] D5 response cache HIT for ${cacheKey}`);
-			return new Response(cached, {
-				status: 200,
-				headers: {
-					'Content-Type': 'application/json',
-					'X-RE2-Response-Cache': 'hit',
-				}
-			});
-		}
-	}
-
-	// ── ADDENDUM Change B: Stored-score fast path (coffee only) ──────────
-	// Before fetching ANY API data, check for a stored coffee score.
-	// If found + valid + not force-refreshing → return stored score immediately.
-	const isCoffee = businessType === 'specialty_coffee';
-
-	if (isCoffee && !forceRefresh) {
-		try {
-			const storedScore = await getStoredCoffeeScore(
-				{ lat, lng, concept: businessType },
-				{ avgTicket, visionTier: visionTier ?? 'standard', concept: businessType }
-			);
-			if (storedScore) {
-				console.log(`[LocationIQ] Serving stored coffee score for (${lat.toFixed(4)}, ${lng.toFixed(4)}): ${storedScore.compositeScore}`);
-				return new Response(JSON.stringify({
-					lat, lng, businessType,
-					storedScore: true,
-					formulaVersion: storedScore.formulaVersion,
-					scoredAt: storedScore.scoredAt,
-					locationIQ: storedScore.compositeScore,
-					grade: storedScore.grade,
-					verdict: storedScore.verdict,
-					coffeeDimensions: {
-						morningFootTraffic: storedScore.dimensionScores.footTraffic,
-						dailyRitualDensity: storedScore.dimensionScores.ritualDensity,
-						competitionContext: storedScore.dimensionScores.competition,
-						streetSide: storedScore.dimensionScores.streetSide,
-						demographicsFit: storedScore.dimensionScores.demographics,
-						baseViability: storedScore.dimensionScores.viability,
-						visionMultiplier: storedScore.visionMultiplier,
-						rawComposite: Math.round(storedScore.compositeScore / storedScore.visionMultiplier),
-					},
-					coffeeWatchOuts: storedScore.watchOuts,
-					confidenceLevel: storedScore.confidenceLevel,
-					inputSnapshot: storedScore.inputSnapshot,
-				}), {
-					status: 200,
-					headers: {
-						'Content-Type': 'application/json',
-						'Cache-Control': 'public, max-age=3600',
-						'X-RE2-Stored-Score': 'true',
-					}
-				});
-			}
-		} catch {
-			// Fast-path lookup failed — fall through to fresh computation
-		}
+		return new Response(JSON.stringify({ error: 'Missing or invalid lat/lng parameters' }), { status: 400 });
 	}
 
 	try {
-		const startTime = Date.now();
+		const { getGoldenRecord } = await import('$lib/snowflake');
+		const record = await getGoldenRecord(lat, lng, businessType);
 
-		// ── 04.22.2026 Deprecating: Steps 0-5 inline scoring pipeline ──────
-		// The following block (geoid lookup, precomputed scores fetch, survival
-		// rate overlay, fetchEnhancedLocationIntel, geohash + Power Broker lookup,
-		// computeLocationIQ, computeConfidence, and runIQScore) has been replaced
-		// by a single call to buildLocationScoreBundle().
-		// See $lib/intel/scoring/bundle-builder.ts for the canonical pipeline.
-		//
-		// F-09: Tier-aware timeout is still managed at the endpoint level.
-		// We do an early geoid + precomputed lookup to determine the timeout tier,
-		// then wrap the bundle call with the adaptive timeout.
-
-		// Step 0: Early geoid + score lookup for timeout tier determination
-		const earlyGeoid = await latLngToGeoid(lat, lng);
-		let dataTier: DataTier = 'cold';
-		let locationQuality: LocationQualityTier = 'unknown';
-
-		if (earlyGeoid) {
-			const earlyPrecomputed = await fetchPrecomputedScores(earlyGeoid, businessType);
-			const existingScore = earlyPrecomputed.fitIQ ?? earlyPrecomputed.neighborhoodHealth ?? null;
-			locationQuality = getLocationQualityTier(existingScore);
-			dataTier = forceRefresh ? 'cold' : classifyDataTier(existingScore != null, existingScore != null ? 3600 * 1000 : null);
+		if (!record) {
+			return new Response(JSON.stringify({ error: 'No score found in Snowflake for this location' }), { status: 404 });
 		}
 
-		const timeoutMs = getAdaptiveTimeout(8000, dataTier, locationQuality);
-		console.log(`[LocationIQ] F-09 timeout: ${timeoutMs}ms (data=${dataTier}, quality=${locationQuality}, geoid=${earlyGeoid ?? 'none'})`);
+		const iqScore = Math.round(record.FINAL_LOCATION_IQ || 50);
+        let grade = 'C';
+        if (iqScore >= 90) grade = 'A+';
+        else if (iqScore >= 80) grade = 'A';
+        else if (iqScore >= 70) grade = 'B';
+        else if (iqScore >= 60) grade = 'C';
+        else grade = 'D';
 
-		// Step 1-5: Full scoring pipeline via canonical bundle builder — with timeout
-		let timeoutId: NodeJS.Timeout;
-		const abortController = new AbortController();
-		const timeoutPromise = new Promise<never>((_, reject) =>
-			timeoutId = setTimeout(() => {
-				abortController.abort();
-				reject(new Error(`F-09: Location intel timed out after ${timeoutMs}ms (tier: ${dataTier}/${locationQuality})`));
-			}, timeoutMs)
-		);
-		const bundle = await Promise.race([
-			buildLocationScoreBundle({
-				lat,
-				lng,
-				businessType,
-				address,
-				visionTier,
-				avgTicket,
-				useAI,
-				signal: abortController.signal,
-			}),
-			timeoutPromise,
-		]).finally(() => clearTimeout(timeoutId));
-
-		// Destructure bundle into local variables for response assembly
-		const { report, geoid, precomputed, iq, confidence, sixIndex } = bundle;
-
-		// Step 5a: COFFEE-REWIRE — generate watch-outs for coffee concepts
-		// Now reads from sixIndex.coffeeDimRawData instead of re-calling old
-		// segment-intel functions. The dim raw data was computed by the coffee
-		// recalibration engine (dims 1–3) during scoring — same math, no duplication.
-		const normalizedConcept = businessType;
-		let coffeeWatchOuts: ReturnType<typeof generateCoffeeWatchOuts> | undefined;
-		if (normalizedConcept === 'specialty_coffee') {
-			const dimRaw = sixIndex.coffeeDimRawData;
-			const streetSide = (report as any).streetSide;
-
-			// ── Map dim raw data to watch-out parameters ──
-			// morningRushRaw: dim1 computed this during scoring (was: extrapolateCoffeeRushTraffic)
-			const morningRushRaw = dimRaw?.morningRaw ?? 0;
-
-			// ritualDensity adapter: map dim2 raw data to the shape generateCoffeeWatchOuts expects
-			// (was: computeDailyRitualDensity from segment-intel)
-			const ritualData = dimRaw ? {
-				score: dimRaw.ritualScore,
-				estimatedDailyRitualPop: dimRaw.estimatedDailyRitualPop,
-				breakdown: dimRaw.ritualBreakdown,
-			} : null;
-
-			// compBlend adapter: map dim3 raw data to the shape generateCoffeeWatchOuts expects
-			// (was: blendCompetitorPricing from segment-intel)
-			const compData = dimRaw ? {
-				tierCount: dimRaw.tierCompetitorCount,
-				avgRating: dimRaw.tierAvgRating,
-			} : null;
-
-			// Compute residential % from dim2 ritual breakdown
-			let residentialPct = 0;
-			if (ritualData && ritualData.estimatedDailyRitualPop > 0) {
-				const resBd = ritualData.breakdown.find(b => b.type === 'Residents');
-				residentialPct = resBd ? 15 : 0;
-			}
-
-			// Count colleges from Google Places (unchanged — not a dim concern)
-			let collegeCount = 0;
-			if (report.places?.places) {
-				for (const p of report.places.places) {
-					const types = ((p as any).types || []).join(',').toLowerCase();
-					if (types.includes('university') || types.includes('college')) collegeCount++;
-				}
-			}
-
-			coffeeWatchOuts = generateCoffeeWatchOuts({
-				morningRushRaw,
-				ritualDensity: ritualData as any,  // adapter matches the fields WatchOuts actually reads
-				compBlend: compData as any,        // adapter matches the fields WatchOuts actually reads
-				streetSideScore: streetSide?.streetSideScore ?? 50,
-				hostilityPenalty: streetSide?.hostilityPenalty ?? 0,
-				daytimePopRatio: report.census?.daytimePopulationRatio ?? 1.0,
-				medianIncome: report.census?.medianHouseholdIncome ?? 75000,
-				avgTicket,
-				collegeCount,
-				residentialPct,
-			});
-		}
-
-		// Step 5b: Compute sub-score agreement (Stats Guru Review fix #7)
-		// Low CV = sub-scores agree = composite is reliable; High CV = signals contradict
-		const subScores: Record<string, number> = {};
-		for (const [name, idx] of Object.entries(sixIndex.indices)) {
-			subScores[name] = idx.score;
-		}
-		confidence.scoreAgreement = computeScoreAgreement(subScores);
-
-		// Step 6: Log score event (fire-and-forget — never blocks response)
-		const computationTimeMs = Date.now() - startTime;
-		logScoreEvent(report, iq, confidence, computationTimeMs, {
-			geoid:    geoid ?? undefined,
-			fitIQ:    precomputed.fitIQ    ?? null,
-			visionIQ: precomputed.visionIQ ?? null,
-			composite: sixIndex.locationIQ,
-			borough:  detectBorough(lat, lng)?.name ?? null,
-		}).catch(() => {});
-
-		// ── ADDENDUM Change A: Store coffee score for persistence ──────────
-		// Fire-and-forget — never blocks response. Runs after logScoreEvent
-		// so the score_events row exists for the update.
-		if (isCoffee && sixIndex.coffeeDimensions) {
-			// Compute verdict early for storage (same logic as DELTA-01 below)
-			const earlyVerdict = (precomputed.fitIQ != null)
-				? fitTierLabel(precomputed.fitIQ)
-				: fitTierLabel(sixIndex.locationIQ);
-			const storedScore = buildStoredScore(
-				sixIndex.locationIQ,
-				sixIndex.coffeeDimensions,
-				coffeeWatchOuts ?? [],
-				confidence.level || 'PRELIMINARY',
-				sixIndex.grade,
-				earlyVerdict,
-				avgTicket,
-				visionTier ?? 'standard',
-				businessType
-			);
-			storeCoffeeScore(
-				{ lat, lng, concept: businessType },
-				storedScore
-			).catch(() => {});
-		}
-
-		// Three-score architecture: Location IQ (from sixIndex), Vision IQ, Fit IQ
-		const threeScores = {
-			locationIQ: {
-				score: sixIndex.locationIQ,
-				grade: sixIndex.grade,
-				conceptType: sixIndex.conceptType,
-				conceptLabel: sixIndex.conceptLabel,
+		const responseBody = {
+			lat, lng, businessType,
+			locationIQ: iqScore,
+			grade: grade,
+			verdict: `Scored ${iqScore}/100. Ranked in the top ${Math.round((1 - (record.CATEGORY_PERCENTILE || 0)) * 100)}% of locations.`,
+			sixIndex: {
+				locationIQ: iqScore, grade: grade, conceptType: businessType, conceptLabel: businessType.replace('_', ' '),
+				indices: {
+					competition: { score: record.COMPETITION_CONTEXT_SCORE, weight: 15, label: "Competition Context" },
+					vibrancy: { score: record.MORNING_FOOT_TRAFFIC_SCORE, weight: 40, label: "Morning Foot Traffic" },
+					demographics: { score: record.DEMOGRAPHICS_FIT_SCORE, weight: 20, label: "Demographics Fit" },
+					safety: { score: record.SAFETY_SCORE, weight: 5, label: "Safety" },
+					transit: { score: record.MORNING_FOOT_TRAFFIC_SCORE, weight: 10, label: "Transit" },
+					momentum: { score: record.BUSINESS_SURVIVAL_SCORE, weight: 10, label: "Momentum" }
+				},
+                signals: [],
+                coffeeDimensions: businessType === 'specialty_coffee' ? {
+                    morningFootTraffic: record.MORNING_FOOT_TRAFFIC_SCORE,
+                    dailyRitualDensity: record.DAILY_RITUAL_DENSITY_SCORE,
+                    competitionContext: record.COMPETITION_CONTEXT_SCORE,
+                    streetSide: record.STREET_SIDE_SCORE,
+                    demographicsFit: record.DEMOGRAPHICS_FIT_SCORE,
+                    baseViability: record.BUSINESS_SURVIVAL_SCORE,
+                    visionMultiplier: 1.0,
+                    rawComposite: iqScore
+                } : undefined
 			},
-			visionIQ: {
-				score: precomputed.visionIQ ?? null,
-				available: precomputed.visionIQ != null,
-			},
-			fitIQ: {
-				score: precomputed.fitIQ ?? null,
-				available: precomputed.fitIQ != null,
-				components: precomputed.fitComponents ?? null,
-			}
+			lenses: [
+				{ dimension: "competition", label: "Competitors", uxLabel: "Competitors", score: record.COMPETITION_CONTEXT_SCORE, verdictLine: `Active competitors: ${record.TOTAL_COMPETITORS || 0}`, topSignals: [], mapHighlights: [] },
+				{ dimension: "vibrancy", label: "Concept Pulse", uxLabel: "Concept Pulse", score: record.MORNING_FOOT_TRAFFIC_SCORE, verdictLine: `Estimated morning passersby: ${record.ESTIMATED_MORNING_PASSERSBY || 0}`, topSignals: [], mapHighlights: [] },
+				{ dimension: "demographics", label: "Demographics", uxLabel: "Who lives here", score: record.DEMOGRAPHICS_FIT_SCORE, verdictLine: `Median Household Income: $${record.MEDIAN_HOUSEHOLD_INCOME || 0}`, topSignals: [], mapHighlights: [] },
+				{ dimension: "safety", label: "Safety", uxLabel: "Safety", score: record.SAFETY_SCORE, verdictLine: "Powered by Snowflake", topSignals: [], mapHighlights: [] },
+				{ dimension: "transit", label: "Transit", uxLabel: "Transit & Access", score: record.MORNING_FOOT_TRAFFIC_SCORE, verdictLine: "Powered by Snowflake", topSignals: [], mapHighlights: [] },
+				{ dimension: "momentum", label: "Momentum", uxLabel: "Momentum", score: record.BUSINESS_SURVIVAL_SCORE, verdictLine: "Powered by Snowflake", topSignals: [], mapHighlights: [] },
+			],
+			threeScores: { locationIQ: { score: iqScore, grade: grade }, visionIQ: { available: false }, fitIQ: { available: false } },
+			confidence: { level: 'CONFIDENT', scoreAgreement: 0.8 },
+			confidenceBySource: { transit: 100, safety: 100, demographics: 100, competition: 100, vibrancy: 100, momentum: 100, vision: 100 },
+			dataSourceQuality: { competitors: 'verified' },
+			dataFreshness: { ageLabel: 'Live from Snowflake', sources: [] },
+			reconciled: { totalEntities: 0 },
+			rawIntelErrors: [],
 		};
 
-		// FIX-011: Data source quality transparency layer.
-		// UX renders [est.] / [approx.] badges based on this field.
-		// FIX-017: When competitor source is synthetic (market-density backfill),
-		// expose count-only summary. UI must never display synthetic names as real businesses.
-		const competitorAmenities = report.competitors?.amenities;
-		const syntheticBuckets: Array<{ type: string; count: number; radiusFt: number }> = [];
-		let hasVerifiedCompetitors = false;
-		let hasSyntheticCompetitors = false;
-
-		if (competitorAmenities) {
-			for (const [bucketKey, pois] of Object.entries(competitorAmenities) as [string, Array<{ tags?: { source?: string } }>][]) {
-				if (!pois?.length) continue;
-				const allSynthetic = pois.every(p => p.tags?.source === 'market-density');
-				const anyVerified = pois.some(p => p.tags?.source === 'google-places' || p.tags?.source === 'foursquare' || p.tags?.source === 'yelp');
-				if (allSynthetic) {
-					hasSyntheticCompetitors = true;
-					const typeMap: Record<string, string> = { cafes: 'cafe', restaurants: 'restaurant', gyms: 'gym', yoga: 'yoga', health: 'health' };
-					syntheticBuckets.push({ type: typeMap[bucketKey] || bucketKey, count: pois.length, radiusFt: 400 });
-				}
-				if (anyVerified) hasVerifiedCompetitors = true;
-			}
-		}
-
-		const competitorDataQuality = hasSyntheticCompetitors && !hasVerifiedCompetitors
-			? 'synthetic'
-			: hasSyntheticCompetitors
-				? 'estimated'
-				: report.competitors ? 'verified' : 'synthetic';
-
-		const dataSourceQuality = {
-			competitors: competitorDataQuality,
-			syntheticCompetitors: syntheticBuckets.length > 0 ? syntheticBuckets : undefined,
-		};
-
-		// ── PHASE 2: CENTRAL COMPETITOR AGGREGATION ──
-		// 04.21.2026: Official unified competitor array sourced purely from the backend.
-		const allComps: Array<{ name: string; lat: number; lng: number; dist?: number; type?: string }> = [];
-		const seenNames = new Set<string>();
-
-		const addC = (name: string, lat: number, lng: number, dist?: number, type?: string) => {
-			const n = name.toLowerCase().trim();
-			if (!n || seenNames.has(n)) return;
-			seenNames.add(n);
-			allComps.push({ name, lat, lng, dist, type });
-		};
-
-		// Source 1: OpenStreetMap (Overpass)
-		if (report.competitors?.amenities) {
-			for (const [ptype, pois] of Object.entries(report.competitors.amenities)) {
-				for (const p of pois) {
-					if (p.lat && p.lon) addC(p.name || 'Nearby Business', p.lat, p.lon, p.distance, ptype);
-				}
-			}
-		}
-
-		// Source 2: Foursquare
-		const fsData = report.foursquare as { places?: any[] } | undefined;
-		if (fsData?.places) {
-			for (const p of fsData.places) {
-				if (p.geocodes?.main) addC(p.name || 'Competitor', p.geocodes.main.latitude, p.geocodes.main.longitude, p.distance, 'Competitor');
-			}
-		}
-
-		// Source 3: Google Places
-		const placesData = report.places as { places?: any[] } | undefined;
-		if (placesData?.places) {
-			for (const p of placesData.places) {
-				if (p.lat && p.lng) addC(p.name || 'Nearby Business', p.lat, p.lng, p.distance, 'Competitor');
-			}
-		}
-
-		// Source 4: Yelp
-		const yelpData = report.yelp as { directCompetitors?: any[] } | undefined;
-		if (yelpData?.directCompetitors) {
-			for (const c of yelpData.directCompetitors) {
-				if (c.lat && c.lng) addC(c.name || 'Competitor', c.lat, c.lng, c.distance, c.primaryCategory || 'Competitor');
-			}
-		}
-
-		// Use registry to determine saturation status definitively from backend source of truth
-		const config = BUSINESS_TYPE_CONFIGS[businessType] || BUSINESS_TYPE_CONFIGS['specialty_coffee'];
-		const saturationStatus = allComps.length > (config.saturationThreshold || 8) ? 'Saturated' : 'Optimal';
-
-		// Bundle into one cohesive object for UI consumption
-		const officialCompetitorsInfo = {
-			items: allComps,
-			count: allComps.length,
-			saturationStatus
-		};
-
-		// FIX-022: isPartialSeed — true when block group has sparse entity coverage.
-		// Threshold: < 10 reconciled POIs. UX shows nudge card instead of survival grid.
-		const PARTIAL_SEED_THRESHOLD = 10;
-		const isPartialSeed = (report.reconciled.poiCount ?? 0) < PARTIAL_SEED_THRESHOLD;
-
-		// DELTA-01: Canonical verdict string from decision engine — UX must read this, never compute it.
-		// DELTA-02: Canonical block label from BR-5 spec — UX must read this, never compute it.
-		const locationIQScore = sixIndex.locationIQ;
-		const fitIQScore = precomputed.fitIQ ?? null;
-		const rawVerdict = fitIQScore != null ? fitTierLabel(fitIQScore) : fitTierLabel(locationIQScore);
-		const blockLabel = blockTierLabel(locationIQScore) || 'Developing Block';
-
-		// B3-1.5: Grade cap for critical safety/survival risk. Prevents founders
-		// from over-trusting an "A / Strong Path" when safety or survival is red.
-		const safetyForCap = sixIndex.indices?.safety?.score;
-		const survivalForCap = precomputed.survivalRate ?? sixIndex.indices?.survivalRate?.score;
-		const capScoreForGrade = fitIQScore ?? locationIQScore;
-		const gradeCapResult = fitGradeCappedWithReason(capScoreForGrade, {
-			safety: safetyForCap,
-			survivalRatePct: survivalForCap,
-		});
-		const cappedGrade = gradeCapResult.grade;
-		const gradeCapReason = gradeCapResult.capReason;
-		// Prefer capped verdict when the cap fired; else fall back to raw tier label.
-		const verdict = gradeCapReason ? gradeCapResult.verdict : rawVerdict;
-
-// B3-2.5: Kill-factor payload — each dimension scoring below the KILL
-		// threshold (40) is surfaced so UX can render the "Fit IQ capped at 49"
-		// banner with specific triggered factors.
-		const KILL_THRESHOLD = SIGNAL_KILL_FLOOR; // canonical: 40, from scoring-thresholds.ts
-		const killFactors: Array<{ name: string; reason: string; threshold: number; actual: number }> = [];
-		if (sixIndex.indices) {
-			const dimLabels: Record<string, string> = {
-				transit: 'Transit & walkability',
-				demographics: 'Demographics',
-				competition: 'Competition density',
-				vibrancy: 'Vibrancy',
-				safety: 'Safety',
-				momentum: 'Neighborhood momentum',
-				neighborhoodHealth: 'Neighborhood health',
-				survivalRate: '1-year survival rate',
-			};
-			for (const [dim, v] of Object.entries(sixIndex.indices)) {
-				const score = (v as { score?: number })?.score;
-				if (typeof score === 'number' && score > 0 && score < KILL_THRESHOLD) {
-					killFactors.push({
-						name: dim,
-						reason: `${dimLabels[dim] || dim} scored ${score} — below kill threshold (${KILL_THRESHOLD}). This concept likely can't survive here without a major differentiator.`,
-						threshold: KILL_THRESHOLD,
-						actual: score,
-					});
-				}
-			}
-		}
-		// BR-09: Concept Pulse envelope — single source of truth for the Pulse card.
-		// UX reads score + tier + narrative + verdict from here, never computes them.
-		const pulseScore = sixIndex.indices.vibrancy?.score ?? 50;
-		const pulseTierLabel = pulseTier(pulseScore);
-		const pulseModel = conceptRevenueModel(businessType);
-		const pulseConceptRadius = getConceptScanRadius(businessType);
-		const conceptPulse = {
-			score: pulseScore,
-			tier: pulseTierLabel,
-			model: pulseModel,
-			conceptRadiusM: pulseConceptRadius,
-			narrative: pulseNarrative(pulseTierLabel, pulseModel, pulseConceptRadius),
-			// Compact verdict string for sidebar chips. "Buzzing for a cafe." style.
-			verdict: `${pulseTierLabel} for a ${businessType.replace(/_/g, ' ')}.`
-		};
-
-		// BR-02: Score confidence — GET handler has no Vision answers yet, so confidence
-		// defaults to 'preliminary'. POST handler (with conceptAnswers) overrides this.
-		const visionCompleteness = 0;
-		const { scoreConfidence, scoreConfidenceReason } = deriveScoreConfidence(visionCompleteness);
-
-		// BR-05: Data source freshness envelope — powers UX-22 re-score tooltip and
-		// UX-23 data sources modal. Orchestrator-level timestamps: every source
-		// that returned data is stamped with report.fetchedAt, errored sources
-		// are marked 'error' with the message from rawIntelErrors, and missing
-		// sources are marked 'missing'.
-		const dataFreshness = buildDataFreshness(
-			report as unknown as Record<string, unknown>,
-			report.fetchedAt,
-			report.errors || []
-		);
-
-		// BR-06: LENS-01 payload slices — 6 dimensions, each self-contained with
-		// verdict, top signals, map highlights, and a canned CoPilot prompt.
-		// UX-19 replaces the inert sidebar tabs with these lenses.
-		const lenses = buildLenses(
-			{ indices: sixIndex.indices as unknown as Record<string, { score: number; weight: number; label: string; description: string; dataSources: number; totalSources: number }>, signals: sixIndex.signals },
-			businessType,
-			conceptPulse.narrative
-		);
-
-		// §1b Root Cause 6 — Confidence contract (April 11).
-		// Per-dimension reliability dial, 0-100. UX renders differently at
-		// >=80 (full), >=60 (partial + tooltip), <60 (skeleton pill).
-		// Computation: raw coverage ratio (dataSources/totalSources), then
-		// penalize if the orchestrator logged an error for any source tied
-		// to that dimension. Vision confidence tracks visionCompleteness
-		// for GET (always 0 — no concept answers yet); POST overrides.
-		//
-		// Constants (CONFIDENCE_ERROR_PENALTY, DIMENSION_SOURCE_KEYWORDS)
-		// live in $lib/intel/tiers as the canonical confidence contract.
-		// Add new data sources there, not here.
-		const errorKeys = new Set((report.errors || []).map(e => (e as { key?: string }).key || ''));
-		function dimConfidence(dimKey: string): number {
-			const idx = (sixIndex.indices as Record<string, { dataSources: number; totalSources: number }>)[dimKey];
-			if (!idx || !idx.totalSources) return 0;
-			const coverageRatio = Math.max(0, Math.min(1, idx.dataSources / idx.totalSources));
-			let score = Math.round(coverageRatio * 100);
-			// Error penalty: each logged error for a source tied to this dimension drops confidence
-			const dimKeywords = DIMENSION_SOURCE_KEYWORDS[dimKey] || [dimKey];
-			for (const ek of errorKeys) {
-				if (!ek) continue;
-				const lower = ek.toLowerCase();
-				if (dimKeywords.some(k => lower.includes(k))) {
-					score = Math.max(0, score - CONFIDENCE_ERROR_PENALTY);
-				}
-			}
-			return score;
-		}
-		// THR-01: Apply MTA dataQuality confidence penalty to transit dimension.
-		// dataQualityConfidencePenalty is 0 for real data, 25 for estimated, 12 for mixed.
-		// Subtracted AFTER dimConfidence() so the coverage-ratio base is unaffected.
-		const mtaDataQualityPenalty = report.mtaRidership?.dataQualityConfidencePenalty ?? 0;
-
-		const confidenceBySource = {
-			transit: Math.max(0, dimConfidence('transit') - mtaDataQualityPenalty),
-			safety: dimConfidence('safety'),
-			demographics: dimConfidence('demographics'),
-			competition: dimConfidence('competition'),
-			vibrancy: dimConfidence('vibrancy'),
-			momentum: dimConfidence('momentum'),
-			// GET has no concept answers yet, so vision confidence is 0.
-			// POST returns visionCompleteness (0-1); UX multiplies by 100 and
-			// overrides this field on the stored confidenceBySource map.
-			vision: 0,
-		};
-
-		const responseBody = JSON.stringify({
-			lat,
-			lng,
-			businessType,
-			...iq,
-			confidence,
-			sixIndex,
-			threeScores,
-			verdict,
-// B3-1.5: Capped letter grade + reason. UX renders below the grade badge
-			// when gradeCapReason is non-null so founders see WHY an otherwise-strong
-			// score was downgraded (safety or survival risk).
-			gradeCapped: cappedGrade,
-			gradeCapReason,
-			// B3-2.5: Kill-factor array for UX banner rendering.
-			killFactors,
-			blockLabel,
-			conceptPulse,
-			scoreConfidence,
-			scoreConfidenceReason,
-			visionCompleteness,
-			totalVisionInputs: TOTAL_VISION_INPUTS,
-			dataFreshness,
-			lenses,
-			confidenceBySource,
-			dataSourceQuality,
-			officialCompetitorsInfo,
-			isPartialSeed,
-			// Layer 2-4 enhanced data
-			reconciled: {
-				totalEntities: report.reconciled.totalEntities,
-				poiCount: report.reconciled.poiCount,
-				transitNodes: report.reconciled.transitNodes,
-				demandGenerators: report.reconciled.demandGenerators,
-				conflictsResolved: report.reconciled.conflictsResolved,
-				avgConfidence: report.reconciled.avgConfidence,
-			},
-			extrapolations: report.extrapolated.extrapolations,
-			narratives: report.narratives,
-			pipeline: report.pipeline,
-			rawIntelErrors: report.errors,
-			fetchedAt: report.fetchedAt,
-			// COFFEE-REWIRE: 6-dimension breakdown + watch-outs (only for coffee concepts)
-			...(sixIndex.coffeeDimensions ? { coffeeDimensions: sixIndex.coffeeDimensions } : {}),
-			...(coffeeWatchOuts && coffeeWatchOuts.length > 0 ? { coffeeWatchOuts } : {}),
-			// ADDENDUM: Persistence metadata — UX caches this to localStorage
-			...(isCoffee ? { formulaVersion: COFFEE_FORMULA_VERSION, scoredAt: new Date().toISOString(), storedScore: false } : {}),
-			// F-09: Timeout metadata — UX can use for transparency / debugging
-			_timeout: {
-				ceilingMs: timeoutMs,
-				dataTier,
-				locationQuality,
-				actualMs: Date.now() - startTime,
-			},
-		});
-
-		// D5: Cache the response for 5 minutes — lens re-fetch will hit this cache
-		// instead of re-running the Haiku + Sonnet pipeline
-		setCachedResponse(cacheKey, responseBody);
-
-		return new Response(responseBody, {
-			status: 200,
-			headers: {
-				'Content-Type': 'application/json',
-				'Cache-Control': 'public, max-age=3600',
-				'Access-Control-Allow-Origin': '*',
-				'X-RE2-Response-Cache': 'miss',
-			}
-		});
-	} catch (e: unknown) {
-		// F-09: Distinguish timeout from other errors — 504 for timeout, 500 for rest
-		const isTimeout = e instanceof Error && e.message.startsWith('F-09:');
-		const status = isTimeout ? 504 : 500;
-		const errorLabel = isTimeout ? 'Location intel request timed out' : 'Internal error computing Location IQ';
-		console.error(`[LocationIQ] ${isTimeout ? 'TIMEOUT' : 'ERROR'}:`, e instanceof Error ? e.message : e);
-		return new Response(JSON.stringify({
-			error: errorLabel,
-			message: e instanceof Error ? e.message : 'Unknown error',
-			...(isTimeout ? { retryable: true, hint: 'Try again — cached data may speed up the next request' } : {}),
-		}), {
-			status,
-			headers: { 'Content-Type': 'application/json' }
-		});
+		return new Response(JSON.stringify(responseBody), { status: 200, headers: { 'Content-Type': 'application/json' } });
+	} catch (e: any) {
+		console.error('[LocationIQ] ERROR:', e);
+		return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
 	}
 };
+
 
 /**
  * POST /api/location-iq

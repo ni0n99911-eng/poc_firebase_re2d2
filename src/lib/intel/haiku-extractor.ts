@@ -95,9 +95,7 @@ function emptyExtraction(): HaikuExtraction {
 
 // ── Main extraction function ──
 
-export async function extractWithHaiku(
-	report: LocationIntelReport
-): Promise<HaikuExtraction> {
+export async function extractWithHaiku(report: LocationIntelReport, signal?: AbortSignal): Promise<HaikuExtraction> {
 	if (!OPENROUTER_KEY) return emptyExtraction();
 
 	const start = Date.now();
@@ -121,17 +119,12 @@ Be precise. Only include what the data supports. Max 5 items per array. No expla
 
 	try {
 		// FIX-010: use openrouterFetch (1 retry, 2s→4s backoff on 429/500; returns null on failure)
-		const response = await openrouterFetch(
-			'https://openrouter.ai/api/v1/chat/completions',
-			{
-				method: 'POST',
+		const response = await openrouterFetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${OPENROUTER_KEY}`,
 					'HTTP-Referer': 'https://resquared.io',
-					'X-Title': 'RE² Haiku Extractor'
-				},
-				body: JSON.stringify({
+					'X-Title': 'RE² Haiku Extractor', signal }, body: JSON.stringify({
 					model: HAIKU_MODEL,
 					messages: [
 						{ role: 'system', content: systemPrompt },

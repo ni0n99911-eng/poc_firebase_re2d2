@@ -13,7 +13,9 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth-middleware';
 import { callLLM } from '$lib/openrouter-llm';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
+import { eq } from 'drizzle-orm';
 import { getBenchmark, type IndustryBenchmark } from '$lib/industry-benchmarks';
 // 04.19.2026 13:00 Changed from normalizeConceptKey to normalizeBusinessType (canonical registry)
 import { normalizeBusinessType } from '$lib/intel/registry/business-type-registry';
@@ -124,18 +126,20 @@ async function logCopilotConversation(
 	latencyMs: number
 ): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
-		const { error } = await supabase.from('copilot_conversations').insert({
-			user_id: userId,
-			copilot_type: copilotType,
-			geoid,
-			action,
-			request_data: requestData,
-			response_summary: responseSummary.slice(0, 200),
-			model_used: modelUsed,
-			latency_ms: latencyMs,
+		await db.insert(schema.copilotConversations).values({
+			id: crypto.randomUUID(),
+			userId: userId,
+			context: action,
+			messages: {
+				copilot_type: copilotType,
+				geoid,
+				action,
+				request_data: requestData,
+				response_summary: responseSummary.slice(0, 200),
+				model_used: modelUsed,
+				latency_ms: latencyMs,
+			}
 		});
-		if (error) throw error;
 	} catch (err) {
 		// Non-critical — don't fail the request
 		console.warn('[Copilot] Failed to log conversation:', err instanceof Error ? err.message : err);
@@ -546,12 +550,14 @@ export const POST: RequestHandler = async ({ request }) => {
 		const startMs = Date.now();
 
 		// Load location scores for context
-		const supabase = getServiceSupabase();
-		const { data: scoreRows, error: scoresErr } = await supabase
-			.from('block_group_scores')
-			.select('score_type, score, components')
-			.eq('geoid', body.geoid);
-		if (scoresErr) console.warn('[BusinessCopilot] block_group_scores error:', scoresErr.message, `(code: ${scoresErr.code})`);
+		const scoreRows = await db
+			.select({
+				score_type: schema.blockGroupScores.scoreType,
+				score: schema.blockGroupScores.score,
+				components: schema.blockGroupScores.components
+			})
+			.from(schema.blockGroupScores)
+			.where(eq(schema.blockGroupScores.geoid, body.geoid));
 
 		const locationScores: Record<string, any> = {};
 		if (scoreRows) {

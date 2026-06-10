@@ -14,14 +14,17 @@
 		"test:watch": "vitest"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^7.0.0",
+		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/kit": "^2.50.2",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@types/pg": "^8.20.0",
 		"@vite-pwa/sveltekit": "^1.1.0",
+		"drizzle-kit": "^0.31.10",
 		"netlify-cli": "^24.3.0",
 		"rollup": "^4.60.0",
 		"svelte": "^5.51.0",
 		"svelte-check": "^4.4.2",
+		"tsx": "^4.22.4",
 		"typescript": "^5.9.3",
 		"vite": "^7.3.1",
 		"vite-plugin-pwa": "^1.2.0",
@@ -34,12 +37,18 @@
 		"@capacitor/android": "^8.3.1",
 		"@capacitor/cli": "^8.3.1",
 		"@capacitor/core": "^8.3.1",
-		"@clerk/backend": "^1.19.3",
 		"@sentry/sveltekit": "^10.45.0",
-		"@supabase/supabase-js": "^2.99.2",
 		"@sveltejs/adapter-netlify": "^6.0.4",
 		"docx": "^9.6.1",
+		"dotenv": "^17.4.2",
+		"drizzle-orm": "^0.45.2",
+		"firebase": "^12.14.0",
+		"firebase-admin": "^13.10.0",
+		"firebase-tools": "^15.19.0",
 		"maplibre-gl": "^5.21.0",
-		"resend": "^6.9.4"
+		"postgres": "^3.4.9",
+		"resend": "^6.9.4",
+		"snowflake-sdk": "^2.4.3",
+		"xlsx": "^0.18.5"
 	}
 }

@@ -126,11 +126,9 @@ async function fetchSocrataCount(
  * Compute momentum trends by comparing recent vs prior 6-month periods.
  * Uses 6 parallel Socrata queries (2 per source × 3 sources).
  */
-export async function fetchMomentumData(
-	lat: number,
+export async function fetchMomentumData(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<MomentumData | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<MomentumData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'momentum');
 	const cached = await intelCache.getAsync<MomentumData>(cacheKey);
 	if (cached?.fresh) return cached.data;

@@ -9,7 +9,6 @@
 
 import type { RequestHandler } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { getSupabase } from '$lib/supabase';
 import { processCheckIns } from '$lib/outcome-checkins';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -27,8 +26,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		const supabase = getSupabase();
-		const result = await processCheckIns(supabase);
+		const result = await processCheckIns();
 
 		return new Response(JSON.stringify({
 			ok: true,

@@ -13,7 +13,8 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
@@ -41,14 +42,13 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: `component must be one of: ${validComponents.join(', ')}` }, { status: 400 });
 		}
 
-		const supabase = getServiceSupabase();
-
-		const { error } = await supabase
-			.from('recommendation_feedback')
-			.insert({
-				user_id: userId || 'anonymous',
+		await db.insert(schema.recommendationFeedback).values({
+			id: crypto.randomUUID(),
+			userId: userId || 'anonymous',
+			recommendationId: null,
+			feedback: feedback,
+			data: {
 				recommendation_type: component,
-				recommendation_id: null,
 				recommended_item: {
 					component,
 					item_id: itemId || null,
@@ -60,18 +60,11 @@ export const POST: RequestHandler = async ({ request }) => {
 					source: 'feedback_button',
 					...(context || {})
 				},
-				// Also populate the new columns from migration 006
 				session_id: sessionId || null,
 				component,
-				item_id: itemId || null,
-				feedback
-			});
-
-		if (error) {
-			console.error('[Feedback API] Supabase insert error:', error);
-			// Still return 200 — feedback failure should never surface to user
-			return json({ ok: false, error: error.message });
-		}
+				item_id: itemId || null
+			}
+		});
 
 		return json({ ok: true });
 	} catch (err) {
@@ -88,32 +81,28 @@ export const GET: RequestHandler = async ({ url }) => {
 	try {
 		const component = url.searchParams.get('component');
 
-		const supabase = getServiceSupabase();
-
-		let query = supabase
-			.from('recommendation_feedback')
-			.select('component, feedback, action', { count: 'exact' });
+		let data = await db.select().from(schema.recommendationFeedback);
 
 		if (component) {
-			query = query.eq('component', component);
+			data = data.filter(r => {
+				const d = r.data as any || {};
+				return d.component === component || d.recommendation_type === component;
+			});
 		}
 
-		const { data, error, count } = await query;
-
-		if (error) {
-			return json({ error: error.message }, { status: 500 });
-		}
+		const count = data.length;
 
 		// Aggregate by component
 		const stats: Record<string, { helpful: number; not_helpful: number; total: number }> = {};
 
 		for (const row of data || []) {
-			const comp = row.component || row.recommendation_type || 'unknown';
+			const d = row.data as any || {};
+			const comp = d.component || d.recommendation_type || 'unknown';
 			if (!stats[comp]) {
 				stats[comp] = { helpful: 0, not_helpful: 0, total: 0 };
 			}
 			stats[comp].total++;
-			if (row.feedback === 'helpful' || row.action === 'upvoted') {
+			if (row.feedback === 'helpful' || d.action === 'upvoted') {
 				stats[comp].helpful++;
 			} else {
 				stats[comp].not_helpful++;

@@ -39,7 +39,8 @@ import { buildDynamicConfig } from '$lib/intel/dynamic-concept-config';
 import { resolveConceptType } from '$lib/intel/six-index';
 import { latLngToGeoid } from '$lib/intel/block-group';
 import { detectBorough } from '$lib/constants/geography';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { normalizeBusinessType } from '$lib/intel/registry/business-type-registry';
 import { getSurvivalRate } from '$lib/intel/survival-rate';
 import type { LocationIntelReport } from '$lib/intel/types';
@@ -119,20 +120,21 @@ async function fetchPrecomputedScores(
 		scoreTypes.push(`fit_score:${conceptType}`);
 	}
 
-	const supabaseAdmin = getServiceSupabase();
-	const { data, error } = await supabaseAdmin
-		.from('block_group_scores')
-		.select('score_type, score, components')
-		.eq('geoid', geoid)
-		.in('score_type', scoreTypes);
-
-	if (error) {
+	let data: any[] = [];
+	try {
+		const result = await db.execute(sql`
+			SELECT score_type, score, components 
+			FROM block_group_scores 
+			WHERE geoid = ${geoid} AND score_type = ANY(${scoreTypes})
+		`);
+		data = result.rows || [];
+	} catch (error: any) {
 		console.error('[BundleBuilder] fetchPrecomputedScores error:', error.message, `(code: ${error.code})`);
 		return {};
 	}
 
 	const result: PrecomputedScores & { visionIQ?: number; fitIQ?: number; fitComponents?: Record<string, unknown> } = {};
-	for (const row of data || []) {
+	for (const row of data) {
 		if (row.score_type === 'six_neighborhood_health') result.neighborhoodHealth = row.score;
 		if (row.score_type === 'six_survival_rate') result.survivalRate = row.score;
 		if (row.score_type === 'six_commercial_density') result.commercialDensity = row.score;

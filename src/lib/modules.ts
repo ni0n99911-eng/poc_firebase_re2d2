@@ -48,24 +48,7 @@ export const SUPER_ADMINS = ['gaurav.joshi06@gmail.com', 'kalpna.gaule@gmail.com
  * in hooks.server.ts and API route guards.
  */
 export async function getAdminEmails(): Promise<string[]> {
-	try {
-		const { createClient } = await import('@supabase/supabase-js');
-		const url  = (typeof process !== 'undefined' ? process.env.SUPABASE_URL  : undefined) ?? '';
-		const key  = (typeof process !== 'undefined' ? process.env.SUPABASE_SERVICE_ROLE_KEY : undefined) ?? '';
-		if (!url || !key) return SUPER_ADMINS;
-
-		const supabase = createClient(url, key);
-		const { data, error } = await supabase
-			.from('admin_users')
-			.select('email')
-			.eq('active', true)
-			.eq('role', 'super_admin');
-
-		if (error || !data?.length) return SUPER_ADMINS;
-		return data.map((r: { email: string }) => r.email.toLowerCase());
-	} catch {
-		return SUPER_ADMINS;
-	}
+	return SUPER_ADMINS;
 }
 
 export type EinsteinModule = 'location-einstein' | 'space-einstein' | 'business-einstein' | 'loan-einstein' | 'launch-einstein' | 'operations-einstein';
@@ -158,36 +141,7 @@ export const PRICING_TIERS = {
  * The returned shape mirrors PRICING_TIERS so callers are drop-in compatible.
  */
 export async function fetchPricingTiers(): Promise<typeof PRICING_TIERS> {
-	try {
-		const { createClient } = await import('@supabase/supabase-js');
-		const url  = (typeof process !== 'undefined' ? process.env.SUPABASE_URL  : undefined) ?? '';
-		const key  = (typeof process !== 'undefined' ? process.env.SUPABASE_SERVICE_ROLE_KEY : undefined) ?? '';
-		if (!url || !key) return PRICING_TIERS;
-
-		const supabase = createClient(url, key);
-		const { data, error } = await supabase
-			.from('pricing_tiers')
-			.select('slug, name, price_cents, period, modules')
-			.eq('active', true)
-			.order('display_order');
-
-		if (error || !data?.length) return PRICING_TIERS;
-
-		// Reconstruct into the same shape as the inline constant
-		return Object.fromEntries(
-			data.map((row: { slug: string; name: string; price_cents: number | null; period: string; modules: string[] }) => [
-				row.slug,
-				{
-					name: row.name,
-					modules: row.modules as EinsteinModule[],
-					price: row.price_cents == null ? 'Free' : row.price_cents / 100,
-					period: row.period,
-				}
-			])
-		) as unknown as typeof PRICING_TIERS;
-	} catch {
-		return PRICING_TIERS;
-	}
+	return PRICING_TIERS;
 }
 
 // ──────────────────────────────────────────────

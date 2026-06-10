@@ -36,7 +36,9 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { rateLimit, RATE_LIMITS } from '$lib/rate-limit';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import * as schema from '$lib/db/schema';
+import { eq } from 'drizzle-orm';
 import { OPENROUTER_URL, openRouterHeaders } from '$lib/constants/aiConfig';
 
 // Generate a stable cache key from input parameters
@@ -165,14 +167,16 @@ export const POST: RequestHandler = async ({ request }) => {
 		// Check Supabase cache (if client available)
 		let cachedBrief: { narrative: string; cached_at: string } | null = null;
 		try {
-			const db = getServiceSupabase();
-			const { data: cached, error } = await db
-				.from('ai_briefs')
-				.select('narrative, cached_at')
-				.eq('cache_key', cacheKey)
-				.single();
+			const cachedRows = await db
+				.select()
+				.from(schema.aiBriefs)
+				.where(eq(schema.aiBriefs.id, cacheKey))
+				.limit(1);
+			
+			const cachedRow = cachedRows[0];
+			const cached = cachedRow ? (cachedRow.briefData as any) : null;
 
-			if (!error && cached) {
+			if (cached) {
 				// Check if cache is still fresh (24 hours)
 				const cachedAtMs = new Date(cached.cached_at).getTime();
 				const nowMs = Date.now();
@@ -271,18 +275,30 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		// Cache the result (fire-and-forget)
 		try {
-			const db = getServiceSupabase();
 			await db
-				.from('ai_briefs')
-				.upsert({
-					cache_key: cacheKey,
-					persona_type: body.persona_type,
-					address: body.address,
-					narrative,
-					composite_score: body.composite_score,
-					cached_at: new Date().toISOString()
-				}, { onConflict: 'cache_key' })
-				.select();
+				.insert(schema.aiBriefs)
+				.values({
+					id: cacheKey,
+					briefData: {
+						persona_type: body.persona_type,
+						address: body.address,
+						narrative,
+						composite_score: body.composite_score,
+						cached_at: new Date().toISOString()
+					}
+				})
+				.onConflictDoUpdate({
+					target: schema.aiBriefs.id,
+					set: {
+						briefData: {
+							persona_type: body.persona_type,
+							address: body.address,
+							narrative,
+							composite_score: body.composite_score,
+							cached_at: new Date().toISOString()
+						}
+					}
+				});
 		} catch (cacheErr) {
 			// Cache write failed; that's OK—return the result anyway
 			console.warn('[GenerateBrief] Cache write failed:', cacheErr instanceof Error ? cacheErr.message : cacheErr);

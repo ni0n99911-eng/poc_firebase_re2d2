@@ -1,0 +1,547 @@
+import { error } from "@sveltejs/kit";
+import { p as private_env } from "../../../../chunks/private.js";
+import { O as OPENROUTER_URL, o as openRouterHeaders } from "../../../../chunks/aiConfig.js";
+const _meta = { "description": "Persona-specific coaching content for AI onboarding coach, sidebar, and inline coaching messages", "usage": "Imported by onboarding-chat endpoint, CoachingBubble, AICoach", "version": "3.0" };
+const coffee_shop = { "displayName": "Coffee Shop", "industryStats": { "survivalRate5yr": "60% in NYC (above the 45% restaurant average)", "marketSize": "$100B+ US industry, ~3,800 shops in NYC", "avgRevenueFirstYear": "$250K-$500K depending on location and concept", "growthTrend": "Specialty coffee growing 12% annually; commodity coffee flat" }, "commonMistakes": [{ "mistake": "Competing on price with Starbucks and Dunkin'", "why": "Chain coffee is a loss-leader. They can sell at $3 because they make money on food and volume. You can't.", "whatToDo": "Own a specialty — matcha, pour-over, single-origin. Charge $5-9 and justify it with quality and experience." }, { "mistake": "Underestimating the buildout timeline", "why": "NYC DOB permits average 3-4 months. Plumbing and grease trap requirements for coffee shops add 2-6 weeks.", "whatToDo": "Budget 5-7 months from lease signing to opening. Start DOB applications immediately." }, { "mistake": "Ignoring the dead zone between 2pm and 5pm", "why": "Morning rush ends by 11am. Lunch crowd leaves by 2pm. Most coffee shops hemorrhage money from 2-5pm.", "whatToDo": "Plan for it: remote worker incentives, afternoon specials, events, or a food menu that extends lunch traffic." }, { "mistake": "Not budgeting for a proper espresso machine", "why": "A quality 2-group espresso machine costs $8K-$20K. Founders often budget $3K and end up with equipment that breaks under NYC volume.", "whatToDo": "Budget $15K-$25K for equipment. Consider leasing to reduce upfront cost." }, { "mistake": "Choosing a location based on rent alone", "why": "A $4K/month spot with no foot traffic will cost you more in marketing and lost revenue than a $8K spot on a busy corridor.", "whatToDo": "Use RE² to score the location. Rent-to-revenue ratio matters more than raw rent." }], "successPatterns": [{ "pattern": "Specialty focus with a sourcing story", "example": "Cha Cha Matcha built a brand around Japanese matcha with an Instagram-worthy aesthetic. Priced 40% above generic matcha competitors.", "takeaway": "Your origin story IS your marketing. Where your beans come from, how they're roasted, why you chose matcha — this is what people share." }, { "pattern": "Day/night revenue split", "example": "Devocion in Williamsburg does coffee by day, wine and events by evening. Revenue per square foot is 60% higher than pure coffee shops.", "takeaway": "You're paying rent 24/7. Use more of those hours." }, { "pattern": "Community programming", "example": "Birch Coffee built loyalty through latte art classes, cupping events, and partnerships with local artists. Customer retention 3x industry average.", "takeaway": "Events create regulars. Regulars create revenue stability." }], "financialBenchmarks": { "avgTicketRange": [4.5, 9], "dailyCustomerRange": [80, 200], "rentToRevenueMax": 0.15, "buildoutPerSqft": [80, 200], "monthsToBreakeven": [12, 24], "idealSqft": [600, 1500], "monthlyRentRange": [4e3, 15e3], "staffingMinimum": "2-3 for counter service, 4-5 for full cafe with food", "cogsTarget": "0.28-0.35 for drinks, 0.35-0.45 for food" }, "targetCustomerInsights": { "remoteWorkers": { "description": "Need WiFi, outlets, table space. High LTV — they come daily and spend $8-12 per visit.", "locationSignal": "Look for neighborhoods with high residential density + coworking spaces nearby", "warning": "They occupy tables for 2-4 hours. You need enough seating to absorb this without turning away walk-ins." }, "students": { "description": "Price-sensitive but loyal. Great for off-peak hours (2-5pm).", "locationSignal": "Proximity to universities, community colleges", "warning": "They spend less per visit ($4-6) and tip less. Don't build your model around them." }, "healthConscious": { "description": "Will pay premium for organic, matcha, alt-milk, adaptogens. Growing segment.", "locationSignal": "Neighborhoods with yoga studios, organic grocers, fitness centers nearby", "warning": "They're trend-sensitive. Your menu needs to evolve with the health zeitgeist." }, "commuters": { "description": "High volume, low dwell time. Want speed and consistency.", "locationSignal": "Within 2 blocks of subway entrance or bus stop", "warning": "They're price-sensitive and will switch to the closer option. Location is everything for this segment." }, "dateNight": { "description": "Evening crowd, higher spend ($15-40/person), atmosphere-driven.", "locationSignal": "Neighborhoods with restaurant/bar density, foot traffic after 6pm", "warning": "Requires liquor license for most concepts. SLA application takes 4-6 months in NYC." } }, "locationFactors": { "critical": ["Foot traffic volume (minimum 500 pedestrians/hour during peak)", "Proximity to subway (within 4-minute walk)", "Competition density (fewer than 8 specialty shops in 3-block radius)"], "important": ["Demographic match (median age, income, education)", "Evening foot traffic (if dual-revenue model)", "Visibility from street (corner locations command 20-30% premium but convert 40% more walk-ins)"], "niceToHave": ["Nearby office buildings (corporate catering potential)", "Proximity to parks or plazas (outdoor seating opportunity)", "Historical/architecturally interesting space (Instagram factor)"] }, "coachingOpeners": { "afterSelection": "Good pick. Coffee's a crowded market in NYC but the shops that carve out a real identity tend to do well. The ones that struggle are usually trying to out-Starbucks Starbucks on price.", "visionPrompt": "Tell me about your vision — what's the name, and what would make someone walk past three other shops to get to yours?", "customerPrompt": "Who's your ideal regular — the person who shows up three times a week?", "financialTransition": "Let me sketch out the financials based on what you've told me and what I know about similar concepts in the city.", "addressTransition": "Alright, you've got a solid concept. Got an address you're looking at? Even just a neighborhood — I'll work with whatever you've got." }, "welcomeMessage": "Nice — coffee shops are one of the most rewarding businesses to open. Also one of the trickiest to get the location right. The difference between a packed cafe and an empty one is often just 100 feet in the wrong direction. Let's make sure you pick the right 100 feet.", "didYouKnow": ["Coffee shops within 200ft of a subway exit see 3x more morning traffic than those even one block away. Location precision matters more for coffee than almost any other business type.", "The average specialty coffee shop in NYC does $800-1,200/day. But that number swings wildly based on whether you catch the morning commute wave.", "Third-wave coffee shops have 20% higher average tickets than traditional cafes, but need 30% less foot traffic to hit the same revenue."], "communityInsights": [{ "quote": "I wish someone had told me to check the electrical panel before I fell in love with the space. My dream spot couldn't handle my espresso machines and the upgrade cost $15K.", "source": "r/smallbusiness", "topic": "electrical" }, { "quote": "The best advice I got was to count heads at 7am on a Tuesday. If you don't see 200+ people walk by in 15 minutes, morning rush won't save you.", "source": "Coffee Shop Startups", "topic": "foot_traffic" }, { "quote": "Don't underestimate the power of a gym or coworking space next door. My neighbor is a CrossFit box and they send me 40 customers a day.", "source": "r/coffeeshop", "topic": "force_multipliers" }] };
+const restaurant = { "displayName": "Restaurant", "industryStats": { "survivalRate5yr": "45% in NYC (one of the toughest markets in the US)", "marketSize": "~27,000 restaurants in NYC, $50B+ annual revenue", "avgRevenueFirstYear": "$500K-$1.5M depending on concept and scale", "growthTrend": "Fast-casual growing 8% annually; fine dining flat; ghost kitchens declining" }, "commonMistakes": [{ "mistake": "Overbuilding the space before proving the concept", "why": "Average NYC restaurant buildout costs $150-$400/sqft. A 1,500 sqft space can cost $225K-$600K before you serve a single plate.", "whatToDo": "Consider a pop-up or supper club first. Test the concept for $5K-$15K before committing $200K+." }, { "mistake": "Signing a lease without understanding escalation clauses", "why": "3-5% annual escalations on a $15K/month lease means you're paying $19K/month by year 5. Most founders don't model this.", "whatToDo": "Negotiate a flat rate for years 1-3, or cap escalations at CPI. Get a restaurant real estate attorney." }, { "mistake": "Menu too broad for the kitchen size", "why": "Every menu item requires prep space, storage, and ingredients. 40-item menus in 400 sqft kitchens create chaos.", "whatToDo": "Start with 15-20 items max. You can always expand. Quality and speed beat variety every time." }, { "mistake": "Ignoring the liquor license timeline", "why": "SLA processing in Manhattan averages 4-6 months. Some CB districts take longer. No license = no alcohol revenue.", "whatToDo": "File the SLA application before you sign the lease. Budget $5K-$15K for the license and legal fees." }, { "mistake": "Underestimating labor costs", "why": "NYC minimum wage is $16/hour. A full-service restaurant with 10 staff runs $25K-$40K/month in labor alone.", "whatToDo": "Labor should be 25-35% of revenue. If your model doesn't support that, rethink the concept or the service model." }], "successPatterns": [{ "pattern": "Hyper-specific cuisine niche", "example": "Los Tacos No. 1 in Chelsea Market does exactly three types of tacos. Line out the door daily. Revenue per sqft among the highest in Manhattan.", "takeaway": "Do one thing better than anyone else. Niche beats broad." }, { "pattern": "Counter-service with full-service quality", "example": "Sweetgreen, CAVA, and Dig prove you can charge $15-18 per person without waitstaff. Labor costs drop 40%.", "takeaway": "Fast-casual is the sweet spot for first-time founders. Lower labor, lower risk, faster service." }, { "pattern": "Neighborhood void filler", "example": "A Thai restaurant in a neighborhood with zero Thai options will draw from a wider radius than one competing with 5 others.", "takeaway": "Use RE²'s competition data to find the gap. Being the only [cuisine] in a 6-block radius is a superpower." }], "financialBenchmarks": { "avgTicketRange": [12, 45], "dailyCustomerRange": [60, 300], "rentToRevenueMax": 0.1, "buildoutPerSqft": [150, 400], "monthsToBreakeven": [18, 36], "idealSqft": [1e3, 3e3], "monthlyRentRange": [8e3, 35e3], "staffingMinimum": "6-8 for counter-service, 12-20 for full-service", "cogsTarget": "0.28-0.35 for food, 0.20-0.25 for beverages" }, "targetCustomerInsights": { "officeWorkers": { "description": "Lunch crowd, 11:30am-1:30pm. Want speed, consistency, $12-18 price point.", "locationSignal": "Within 3 blocks of major office buildings or commercial corridors", "warning": "100% dependent on office occupancy. Remote work has reduced weekday lunch traffic 20-30% in many neighborhoods." }, "residents": { "description": "Dinner crowd, repeat customers, higher spend. Build relationships.", "locationSignal": "High residential density, mixed-use buildings", "warning": "Dinner is where margins are made or lost. You need a liquor program to make dinner profitable." }, "tourists": { "description": "High volume in tourist corridors, one-time visits, Instagram-driven.", "locationSignal": "Near tourist attractions, hotels, Times Square, SoHo, LES", "warning": "Tourist traffic is seasonal and unpredictable. Don't build your base revenue assumption on it." } }, "locationFactors": { "critical": ["Ventilation and grease trap infrastructure (retrofitting costs $50K-$150K)", "Foot traffic (lunch concept needs 1000+ pedestrians/hour)", "ADA compliance and bathroom access"], "important": ["Delivery zone demographics (60% of NYC restaurant revenue now involves delivery)", "Outdoor seating potential (sidewalk cafe license adds 20-30% revenue)", "Proximity to complementary businesses (bars, theaters = post-event dining)"], "niceToHave": ["Corner location with dual frontage", "Existing restaurant build-out (saves $100K+ in construction)", "Gas line already installed (electric-only kitchens limit your menu)"] }, "coachingOpeners": { "afterSelection": "Restaurants are the hardest retail category in NYC — 55% close within 3 years. The ones that make it almost always nail one of three things: a hyper-specific cuisine niche, a destination experience, or filling a neighborhood void.", "visionPrompt": "What's your concept? I'm looking for the one sentence that would make someone say 'I need to try that place.'", "customerPrompt": "Who's filling your seats? Lunch rush office workers, neighborhood regulars, destination diners — these are very different businesses.", "financialTransition": "Restaurant math is unforgiving, so let me map out realistic numbers based on your concept and what I've seen work in similar spots.", "addressTransition": "Got a space in mind? Even a neighborhood. For restaurants, the infrastructure matters almost as much as the location — I'll check for ventilation, grease traps, and existing kitchen buildouts." }, "welcomeMessage": "Restaurant founders are some of the bravest people we know. Here's what most don't realize until it's too late: the lease matters more than the recipe. 80% of restaurant costs are locked in before you serve your first plate.", "didYouKnow": ["A restaurant lease in NYC averages 10-15 years. That's longer than most marriages. Getting the location right is the single most important decision you'll make.", "Restaurants with existing hood ventilation and grease traps save $25K-$60K in buildout. Always ask if the space was previously food service.", "A liquor license in NYC costs $4,500+ and takes 3-6 months. Some zones restrict it entirely. Check before you fall in love with a space."], "communityInsights": [{ "quote": "The #1 thing I'd do differently: I would have hired a restaurant broker instead of a regular commercial broker. They know which spaces have the kitchen infrastructure.", "source": "r/restaurateur", "topic": "infrastructure" }, { "quote": "My rent is 6% of revenue and I'm thriving. My friend's rent is 12% and he's barely surviving. Same neighborhood, same cuisine. The lease is everything.", "source": "Restaurant Business Online", "topic": "rent_ratio" }] };
+const florist = { "displayName": "Florist", "industryStats": { "survivalRate5yr": "65% in NYC (higher than food service due to lower overhead)", "marketSize": "$7B US industry, growing 3-4% annually", "avgRevenueFirstYear": "$150K-$350K for a storefront; $80K-$200K for a studio model", "growthTrend": "Event/wedding floristry growing fastest; everyday retail declining vs. online (1-800-Flowers, Farmgirl)" }, "commonMistakes": [{ "mistake": "Stocking too much perishable inventory", "why": "Cut flowers have a 5-7 day shelf life. Unsold inventory is a 100% loss. Average florist waste rate is 15-25%.", "whatToDo": "Start with a made-to-order model + limited grab-and-go. Build standing orders with local businesses before scaling inventory." }, { "mistake": "Competing with supermarket flowers on price", "why": "Trader Joe's sells roses for $6. You can't beat that. You shouldn't try.", "whatToDo": "Sell design, not flowers. Custom arrangements, subscriptions, event work. Your value is taste and expertise." }, { "mistake": "Undervaluing delivery", "why": "60% of floral purchases in NYC involve delivery. Most independent florists charge $10-15 for delivery that costs them $20-30.", "whatToDo": "Price delivery at cost + margin ($15-25 minimum). Or partner with a delivery service. Don't subsidize delivery from arrangement margins." }], "successPatterns": [{ "pattern": "Subscription model for recurring revenue", "example": "BloomNation members report 40% of revenue from weekly/bi-weekly subscriptions to offices and restaurants.", "takeaway": "10 standing orders at $75/week = $3K/month guaranteed. That's your base before a single walk-in." }, { "pattern": "Event/wedding specialization", "example": "Wedding floristry averages $3K-$8K per event in NYC. 2 weddings per month transforms your revenue.", "takeaway": "Build a wedding portfolio even if you start with friends' weddings at cost. The portfolio pays for itself." }, { "pattern": "Retail + studio hybrid", "example": "Small storefront for walk-ins + back-of-house studio for event and subscription work. Keeps rent manageable.", "takeaway": "You don't need a big showroom. 300-500 sqft retail + workspace is the sweet spot." }], "financialBenchmarks": { "avgTicketRange": [35, 85], "dailyCustomerRange": [8, 30], "rentToRevenueMax": 0.15, "buildoutPerSqft": [40, 100], "monthsToBreakeven": [8, 18], "idealSqft": [400, 1e3], "monthlyRentRange": [3e3, 1e4], "staffingMinimum": "1-2 for studio, 2-3 for retail", "cogsTarget": "0.35-0.45 for flowers, 0.15-0.25 for supplies" }, "targetCustomerInsights": { "eventPlanners": { "description": "High-value, repeat clients. Average event spend $1,500-$8,000.", "locationSignal": "Proximity to event venues, hotels, wedding-heavy neighborhoods", "warning": "Seasonal — wedding season is May-October. You need other revenue streams for winter." }, "giftBuyers": { "description": "Walk-in and delivery. Occasion-driven (birthdays, anniversaries, apologies).", "locationSignal": "High foot traffic corridors, near restaurants and date-night neighborhoods", "warning": "Valentine's Day and Mother's Day account for 30% of annual gift purchases. Staff up accordingly." }, "businesses": { "description": "Standing orders for lobbies, restaurants, hotels. Predictable weekly revenue.", "locationSignal": "Commercial districts, near boutique hotels and upscale restaurants", "warning": "Businesses expect net-30 payment terms. Cash flow management is critical." } }, "locationFactors": { "critical": ["Refrigeration access (essential for flower storage)", "Water access and drainage", "Foot traffic for walk-in sales"], "important": ["Street visibility and window display space", "Proximity to event venues", "Loading zone for delivery vehicles"], "niceToHave": ["Outdoor display permitted", "Corner location", "Proximity to complementary businesses (bakeries, wine shops)"] }, "coachingOpeners": { "afterSelection": "Floristry has better margins than most retail — if you build recurring revenue. The shops that thrive in NYC aren't waiting for walk-ins. They've got standing orders with restaurants and offices that cover the rent before the door opens.", "visionPrompt": "What's your angle? Are you thinking full-service retail, event/wedding specialist, subscription-focused, or something else?", "customerPrompt": "Who's buying from you most often — gift buyers walking in, brides planning events, or businesses wanting weekly arrangements?", "financialTransition": "Florist math is interesting — low buildout cost, but perishable inventory means waste management is key. Let me run the numbers for your concept.", "addressTransition": "Where are you thinking? For florists, street visibility and refrigeration access matter a lot — I'll factor both in." }, "welcomeMessage": "Florist founders have incredible creative vision. The tricky part: your revenue model completely changes based on whether you're walk-in retail, event-focused, or both. That choice determines which locations work for you.", "didYouKnow": ["Walk-in florists live and die by foot traffic and street visibility. Event florists can thrive on side streets near hospitals and venues.", "Proximity to hospitals drives 40%+ of revenue for many NYC florists. It's the most underappreciated location factor in the business.", "Walk-in coolers add significant electrical load. If you're planning one, verify the space can handle it — retrofitting is expensive."], "communityInsights": [{ "quote": "I moved from a beautiful side street to a busy corner with half the space. My revenue tripled in 3 months.", "source": "Florist Community Forum", "topic": "visibility" }] };
+const barbershop = { "displayName": "Barbershop", "industryStats": { "survivalRate5yr": "70% in NYC (one of the most resilient retail categories)", "marketSize": "$6B US barbershop market, growing 4% annually", "avgRevenueFirstYear": "$120K-$300K for a 3-5 chair shop", "growthTrend": "Premium barbershops (Blind Barber, Fellow Barber model) growing 10%+; traditional shops flat" }, "commonMistakes": [{ "mistake": "Too many chairs, not enough barbers", "why": "Empty chairs look bad and waste rent. A 6-chair shop with 3 barbers is a 6-chair shop paying rent on 3 unused stations.", "whatToDo": "Start with 3-4 chairs, staffed. Grow chairs as demand proves out." }, { "mistake": "Not building a booking system from day one", "why": "Walk-in-only models lose 30% of potential customers who don't want to wait. Young professionals expect online booking.", "whatToDo": "Use Booksy, Vagaro, or Square Appointments from day one. Build a waitlist culture, not a walk-in-and-hope culture." }, { "mistake": "Pricing too low to compete with existing shops", "why": "A $20 haircut at NYC rent requires 15+ cuts/day just to break even. That's unsustainable.", "whatToDo": "Premium positioning with $35-60 cuts. Add services: beard trims, hot towel, product line. Revenue per chair matters more than volume." }], "successPatterns": [{ "pattern": "Experience-driven premium model", "example": "Blind Barber combines barbershop + bar. Fellow Barber adds retail product line. Both charge $55+ per cut.", "takeaway": "The haircut is the anchor. The experience, products, and atmosphere are where margins live." }, { "pattern": "Neighborhood anchor with loyalty", "example": "Family-run shops with 20+ year tenure have clients who've been coming since childhood. Retention is near 100%.", "takeaway": "Barbershops are relationship businesses. Invest in your barbers staying — profit sharing, good chairs, good culture." }, { "pattern": "Membership/subscription model", "example": "Some premium shops offer $100-150/month unlimited cuts. Guarantees recurring revenue and chair utilization.", "takeaway": "Predictable revenue from memberships lets you hire confidently." }], "financialBenchmarks": { "avgTicketRange": [25, 65], "dailyCustomerRange": [12, 40], "rentToRevenueMax": 0.15, "buildoutPerSqft": [60, 150], "monthsToBreakeven": [6, 14], "idealSqft": [500, 1200], "monthlyRentRange": [3500, 12e3], "staffingMinimum": "1-2 barbers to start (owner + 1), scale to 4-6", "cogsTarget": "0.08-0.15 (very low COGS — labor is the main cost)" }, "targetCustomerInsights": { "youngProfessionals": { "description": "Ages 25-40, willing to pay $40-60 for a quality cut with booking convenience.", "locationSignal": "Neighborhoods with high median income, creative industry presence", "warning": "They're loyal to their barber, not your shop. If your best barber leaves, clients follow." }, "neighborhoodRegulars": { "description": "All ages, price-conscious but value consistency and community.", "locationSignal": "Residential neighborhoods with stable demographics", "warning": "Building this base takes 6-12 months. Don't panic if the first months are slow." } }, "locationFactors": { "critical": ["Street visibility (barbershop signs are magnets for walk-ins)", "Plumbing for multiple stations", "Zoning for personal service"], "important": ["Parking or transit access for regulars", "Not directly adjacent to another barbershop (even 2 blocks matters)", "Ground floor with signage rights"], "niceToHave": ["Waiting area space (clients bring friends)", "Street-level window for visibility", "Outdoor seating for waiting"] }, "coachingOpeners": { "afterSelection": "Barbershops are one of the most resilient businesses in NYC — 70% five-year survival rate. The key is chair utilization and retention. A barber doing 12 cuts a day at $45 generates $540/day — that's $11K/month from one chair.", "visionPrompt": "What's your vibe? Classic neighborhood shop, premium experience, or something with a twist (bar, retail, events)?", "customerPrompt": "Who's in your chair most? Young professionals booking online, or neighborhood regulars walking in?", "financialTransition": "Barbershop math is straightforward — it's all about chairs and cuts per day. Let me run your numbers.", "addressTransition": "Where are you looking? For barbershops, street visibility and not having another shop within 2 blocks are the two biggest factors." }, "welcomeMessage": "Barbershops are community anchors. Your clients don't just visit — they belong. The right location puts you where your community already gathers, not where the rent is cheapest.", "didYouKnow": ["Barbershops with walk-in traffic do 30-50% more revenue than appointment-only shops in the same area.", "Street-level visibility is critical — basement and second-floor shops struggle with new client acquisition.", "The average barbershop client visits every 3-4 weeks and spends $30-50 per visit. Retention is everything."], "communityInsights": [] };
+const spa_wellness = { "displayName": "Spa / Wellness", "industryStats": { "survivalRate5yr": "55% in NYC", "marketSize": "$20B US spa industry, wellness sector growing 10%+ annually", "avgRevenueFirstYear": "$200K-$600K depending on services and scale", "growthTrend": "Med-spa fastest growing segment (15%+); traditional spa flat; wellness (float, cryo, infrared) emerging" }, "commonMistakes": [{ "mistake": "Building out too many treatment rooms before proving demand", "why": "Each treatment room costs $15K-$50K to build. Empty rooms burn cash.", "whatToDo": "Start with 2-3 rooms, prove utilization above 60%, then expand." }, { "mistake": "Not understanding licensing requirements", "why": "NYC requires specific licenses for aesthetics, massage, and medical procedures. Violations carry $5K-$25K fines.", "whatToDo": "Get legal counsel on licensing BEFORE signing a lease. Some spa services require specific zoning." }, { "mistake": "Underpricing to fill the schedule", "why": "A $60 facial takes the same time as an $120 facial. Your room capacity is fixed — optimize for revenue per room-hour.", "whatToDo": "Price for your target market from day one. Discount with packages, not list prices." }], "successPatterns": [{ "pattern": "Membership model with add-on upsells", "example": "Heyday Facials charges $95/month for one facial, members spend 30% more on add-ons and products.", "takeaway": "Monthly membership creates predictable revenue. Product retail adds 15-25% to total revenue." }, { "pattern": "Niche specialization", "example": "Cryotherapy-only, float tank-only, or facial-only concepts have lower buildout costs and simpler operations than full-service spas.", "takeaway": "Specialists can charge premium prices and build stronger brands than generalists." }], "financialBenchmarks": { "avgTicketRange": [65, 200], "dailyCustomerRange": [8, 30], "rentToRevenueMax": 0.12, "buildoutPerSqft": [100, 300], "monthsToBreakeven": [12, 24], "idealSqft": [800, 2500], "monthlyRentRange": [5e3, 2e4], "staffingMinimum": "2-3 practitioners + 1 front desk", "cogsTarget": "0.10-0.20 for services, 0.40-0.50 for retail products" }, "targetCustomerInsights": { "selfCareRegulars": { "description": "Monthly visits, high LTV. Book 2-4 weeks ahead. Respond to packages.", "locationSignal": "High-income residential areas, wellness-focused neighborhoods", "warning": "They're sensitive to ambiance and service quality. One bad review impacts loyalty." }, "specialOccasion": { "description": "Birthdays, anniversaries, holidays. Gift card revenue spike in Nov-Dec.", "locationSignal": "Proximity to upscale retail and restaurants", "warning": "One-time spenders won't build your base revenue. Build systems to convert them to regulars." }, "wellnessFocused": { "description": "Overlaps with yoga, fitness, nutrition. Will pay premium for holistic approach.", "locationSignal": "Neighborhoods with fitness studios, healthy restaurants, wellness communities", "warning": "They're informed consumers. Practitioners need real credentials." } }, "locationFactors": { "critical": ["Zoning explicitly allows spa/wellness services", "Adequate plumbing for wet services (if applicable)", "Professional signage and street presence"], "important": ["Proximity to complementary businesses (yoga, fitness, organic markets)", "Parking availability for driving clients", "Soundproofing potential (sound travels from treatment rooms)"], "niceToHave": ["Natural light", "Quiet block away from noise", "Ground floor access"] }, "coachingOpeners": { "afterSelection": "Wellness is booming in NYC. The key is utilization — an empty treatment room costs the same as a full one. Successful spas hit 70%+ room utilization within 6 months.", "visionPrompt": "What services are you offering? Full-service spa, or a specific niche like facials, massage, or something newer like float tanks or cryotherapy?", "customerPrompt": "Who's your primary client? Luxury self-care seekers, wellness-focused regulars, or medical aesthetics clients?", "financialTransition": "Spa economics are all about room-hours. Let me estimate your revenue potential based on your services and room count.", "addressTransition": "Where are you looking? For spas, zoning is critical — not all commercial spaces allow spa services. I'll check that alongside the location score." }, "welcomeMessage": "Spa founders have incredible vision. The challenge is the gap between the sanctuary in your head and the plumbing reality in the walls. We'll help you find a space that matches both.", "didYouKnow": ["Wet service spas need serious plumbing capacity for simultaneous hot water demand. Locate wet areas near existing plumbing or costs multiply.", "Soundproofing can cost $15-30/sqft. If you need a quiet environment, avoid ground floors on busy streets.", "Spa clients expect easy parking. If your clientele drives, parking availability directly impacts booking rates."], "communityInsights": [{ "quote": "I chose a beautiful space on a quiet street, then realized the building's water heater couldn't handle more than 2 treatment rooms running simultaneously.", "source": "Spa Business Magazine", "topic": "plumbing" }] };
+const fitness = { "displayName": "Fitness Studio", "industryStats": { "survivalRate5yr": "50% in NYC (highly competitive, especially post-COVID)", "marketSize": "$35B US fitness industry, boutique studios ~$7B", "avgRevenueFirstYear": "$200K-$500K for a boutique studio", "growthTrend": "Boutique studios recovering post-COVID; hybrid (in-person + digital) growing fastest" }, "commonMistakes": [{ "mistake": "Overbuilding square footage", "why": "A 3,000 sqft studio at $40/sqft is $120K/year in rent. You need 150+ members just to cover rent.", "whatToDo": "Start with 1,200-1,800 sqft. A 20-person class at $30 in a smaller space is more profitable than a 40-person class in a space twice the size." }, { "mistake": "No pre-sale phase", "why": "Opening day with zero members means burning cash from day one. Successful studios pre-sell 100+ founding memberships before opening.", "whatToDo": "Run a 6-8 week pre-sale with founding member discounts (20-30% off). Goal: cover 2 months of rent before the doors open." }, { "mistake": "Instructor-dependent model", "why": "When your star instructor leaves, their clients leave. Seen this kill studios.", "whatToDo": "Build the brand bigger than any single instructor. Revenue sharing and equity-like incentives help retain talent." }], "successPatterns": [{ "pattern": "Class-based model with autopay memberships", "example": "SoulCycle, Barry's, and Rumble all charge $30-40/class or $200-300/month unlimited. The autopay model creates predictable revenue.", "takeaway": "Monthly memberships at $150-250 with autopay is the proven model. Drop-in classes supplement." }, { "pattern": "Community-first culture", "example": "CrossFit boxes with the strongest communities have 90%+ annual retention vs. 60% industry average.", "takeaway": "Social bonds keep people coming back more than results do. Build community into the product." }], "financialBenchmarks": { "avgTicketRange": [25, 45], "dailyCustomerRange": [30, 100], "rentToRevenueMax": 0.15, "buildoutPerSqft": [50, 150], "monthsToBreakeven": [10, 20], "idealSqft": [1200, 3e3], "monthlyRentRange": [5e3, 18e3], "staffingMinimum": "2-4 instructors + 1 front desk/manager", "cogsTarget": "0.05-0.10 (very low — labor is the main variable cost)" }, "targetCustomerInsights": { "earlyMorningProfessionals": { "description": "Before-work sessions, value time efficiency and consistency. High commitment potential.", "locationSignal": "Residential neighborhoods, transit-accessible from office areas", "warning": "Classes must start 6-7am sharp. Inconsistent scheduling kills this segment." }, "lunchofficeworkers": { "description": "Noon classes, 45-60 minutes max. Need proximity to offices.", "locationSignal": "Within 5 blocks of office clusters", "warning": "Remote work has reduced daytime studio attendance significantly." }, "eveningCommunity": { "description": "After-work, higher energy, strong social bonding. Highest retention potential.", "locationSignal": "Mixed residential/commercial, good transit, walkable from offices", "warning": "Community culture matters more than equipment. Lose the community vibe and you lose them." } }, "locationFactors": { "critical": ["Ceiling height minimum 10ft (required for most classes)", "Ground floor or level entry (no stairs)", "Sound isolation (neighbors will complain)"], "important": ["Residential density within 10-minute walk", "Transit access for after-work crowd", "Parking or bike storage availability"], "niceToHave": ["Natural light and air quality", "Locker room and shower space", "Street-level visibility"] }, "coachingOpeners": { "afterSelection": "Fitness studios live and die by member retention. The industry average is 60% annual retention — the best studios hit 85%+. The difference is almost always community, not equipment.", "visionPrompt": "What's your modality? Yoga, HIIT, cycling, strength, martial arts — and what makes your approach different from what's already out there?", "customerPrompt": "Who's your core member? Early-morning professionals, lunchtime office workers, or evening community builders?", "financialTransition": "Studio math is membership math. Let me model your revenue based on class capacity, price point, and realistic fill rates.", "addressTransition": "Where are you thinking? For fitness studios, ceiling height (minimum 10ft), noise regulations, and ground-floor access matter a lot. I'll check all of that." }, "welcomeMessage": "Fitness founders bring incredible energy. The location math is different for gyms — you need people who will commit to showing up 3-4x per week, not just walk by. That means residential density and transit access matter more than foot traffic.", "didYouKnow": ["Floor load capacity is critical for heavy equipment. Standard office floors handle 50-100 lbs/sqft — a loaded squat rack needs 200+.", "HVAC capacity for high-heat classes (hot yoga, spin) can require 2-3x the standard tonnage. Retrofitting is $5K-$15K.", "Noise from dropped weights and music can violate building codes. Check with the landlord AND neighboring tenants."], "communityInsights": [{ "quote": "My first space had beautiful windows but the floor couldn't handle deadlifts. I had to add $20K in reinforcement before opening.", "source": "r/crossfit", "topic": "floor_load" }] };
+const retail = { "displayName": "Retail Store", "industryStats": { "survivalRate5yr": "50% in NYC (varies wildly by category)", "marketSize": "Varies by category — $5B+ in NYC independent retail", "avgRevenueFirstYear": "$150K-$500K for an independent shop", "growthTrend": "Experience-driven retail growing; commodity retail declining to e-commerce" }, "commonMistakes": [{ "mistake": "Competing with Amazon on price or convenience", "why": "You will lose. Every time. Amazon can undercut and out-deliver you.", "whatToDo": "Sell what Amazon can't: curation, expertise, community, touch-and-feel experience, and local identity." }, { "mistake": "Too much inventory on day one", "why": "Inventory is cash sitting on shelves. Overstocking by 30% is common for first-time founders.", "whatToDo": "Start lean. Stock 60% of what you think you need. Reorder fast sellers. Let data drive your inventory, not gut." }, { "mistake": "Ignoring e-commerce as a revenue channel", "why": "Even the most local shops get 15-30% of revenue online. Not having a web presence is leaving money on the table.", "whatToDo": "Launch a simple Shopify store alongside the physical shop. Ship your best sellers. Use social media as your storefront." }], "successPatterns": [{ "pattern": "Experiential retail + community events", "example": "McNally Jackson Books hosts author readings 3-4 times per week. Events drive foot traffic that converts to sales.", "takeaway": "Events bring people in. People who come for an event spend 40% more than walk-ins." }, { "pattern": "Hyper-curated, neighborhood-specific selection", "example": "Catbird in Williamsburg curates jewelry for a very specific aesthetic. Wouldn't work in Midtown. Perfect for its neighborhood.", "takeaway": "Know your neighborhood. Stock for the people who actually live and work there." }], "financialBenchmarks": { "avgTicketRange": [15, 150], "dailyCustomerRange": [15, 60], "rentToRevenueMax": 0.12, "buildoutPerSqft": [30, 120], "monthsToBreakeven": [8, 18], "idealSqft": [500, 1500], "monthlyRentRange": [3500, 15e3], "staffingMinimum": "1-2 (owner often works the floor)", "cogsTarget": "0.45-0.60 (retail has higher COGS than service businesses)" }, "targetCustomerInsights": { "browsers": { "description": "Weekend foot traffic, discovery-oriented. Window displays convert at 3-5%.", "locationSignal": "High foot traffic retail corridors, tourist areas", "warning": "Browsers don't always buy. You need good conversion and high traffic to make the math work." }, "loyalCollectors": { "description": "Follow your brand, shop seasonally. High ticket, low frequency. Email list is key.", "locationSignal": "Reputation-driven; location matters less for this segment", "warning": "Don't sacrifice walk-in foot traffic to cater to collectors. Balance both." }, "giftShoppers": { "description": "Holiday and birthday spikes. Gift wrapping and curated sets boost average ticket 40%.", "locationSignal": "High foot traffic, holiday seasons peak", "warning": "Gift season (Nov-Dec) can account for 30-40% of annual revenue. Plan hiring accordingly." } }, "locationFactors": { "critical": ["Window display visibility from the sidewalk (converts at 3-5%)", "Foot traffic quality and pattern matching your customer", "Not isolated on a dead block"], "important": ["Complementary (not competing) businesses nearby", "Signage visibility and ability to customize storefront", "Good lighting (natural or installed)"], "niceToHave": ["Corner location with dual frontage", "Existing built-out retail space", "Parking nearby"] }, "coachingOpeners": { "afterSelection": "Retail in NYC is a tale of two cities — commodity retail is dying, but experience-driven shops are thriving. The independent stores that survive are selling curation and community, not just products.", "visionPrompt": "What are you selling, and what makes your selection or approach different from what people can find online?", "customerPrompt": "Who's walking in? Tourists browsing, neighborhood regulars on a mission, or gift shoppers looking for something special?", "financialTransition": "Retail margins vary wildly by category. Let me estimate based on your product type and pricing.", "addressTransition": "Where are you looking? For retail, window display space and foot traffic pattern are everything. I'll analyze both." }, "welcomeMessage": "Retail boutiques are about curation and discovery. Your location needs to match your customer's lifestyle — where they walk, where they browse, where they feel inspired to buy.", "didYouKnow": ["Boutiques on streets with complementary shops (not competitors) see 25% more foot traffic from cross-shopping.", "Window display visibility from the sidewalk is the #1 factor in walk-in conversion for retail.", "NYC boutiques average $150-300/sqft in annual sales. Below $150/sqft, the math gets very tight."], "communityInsights": [] };
+const medical_dental = { "displayName": "Medical / Dental Practice", "industryStats": { "survivalRate5yr": "80% (highest survival rate of any retail category)", "marketSize": "~10,000 dental practices in NYC metro", "avgRevenueFirstYear": "$300K-$800K for a solo practice", "growthTrend": "DSO (Dental Service Organizations) consolidating market; solo practices need to differentiate" }, "commonMistakes": [{ "mistake": "Underestimating the buildout cost for medical/dental space", "why": "Dental buildout averages $150-$250/sqft. A 1,200 sqft office costs $180K-$300K before equipment.", "whatToDo": "Look for existing medical/dental buildouts. Buying a retiring dentist's practice (space + patients) often costs less than building from scratch." }, { "mistake": "Not factoring insurance reimbursement delays", "why": "Insurance pays 30-90 days after service. Cash flow gaps in months 1-6 are the #1 killer of new practices.", "whatToDo": "Budget 6 months of operating expenses as reserves. Consider a mix of insurance and cash-pay/membership patients." }], "successPatterns": [{ "pattern": "Existing buildout acquisition", "example": "Buying out a retiring dentist's practice (buildout + patient book) is often faster and cheaper than building from scratch.", "takeaway": "Buildout is 50%+ of your opening costs. Find an existing space and negotiate the patient book transfer." }, { "pattern": "Membership + insurance hybrid model", "example": "Some dental practices offer membership plans ($50-100/month) plus insurance billing. Membership creates predictable revenue.", "takeaway": "Diversify your revenue — don't rely on insurance reimbursement alone for cash flow." }], "financialBenchmarks": { "avgTicketRange": [150, 500], "dailyCustomerRange": [8, 25], "rentToRevenueMax": 0.08, "buildoutPerSqft": [150, 300], "monthsToBreakeven": [12, 24], "idealSqft": [1e3, 2500], "monthlyRentRange": [5e3, 2e4], "staffingMinimum": "1 practitioner + 1-2 assistants + 1 front desk", "cogsTarget": "0.15-0.25 for supplies and lab work" }, "targetCustomerInsights": { "families": { "description": "Highest LTV — whole family becomes patients. Need parking and weekend hours.", "locationSignal": "High residential density, family-oriented neighborhoods", "warning": "Families need convenient hours. Evening and weekend availability is non-negotiable." }, "professionals": { "description": "Lunch-hour appointments near offices. Value convenience over price.", "locationSignal": "Proximity to office clusters, transit-accessible", "warning": "Time is their scarcity. Efficient operations and on-time service matter." }, "seniors": { "description": "Insurance-driven, high procedure value. Need ADA accessibility and ground floor.", "locationSignal": "Proximity to senior housing, healthcare centers", "warning": "They have specific needs: wheelchair access, clear signage, easy-to-find location." } }, "locationFactors": { "critical": ["Medical/dental zoning explicitly permitted", "Existing or feasible plumbing, electrical, ventilation", "ADA accessibility and ground floor preferred"], "important": ["Proximity to residential or office population", "Parking or transit access (patients drive or need easy access)", "Professional signage and storefront"], "niceToHave": ["Natural light in waiting room", "Easy-to-find location on main street", "Near complementary medical practices"] }, "coachingOpeners": { "afterSelection": "Medical and dental practices have the highest survival rate of any retail category — 80% at five years. Location still matters though. Being visible on a high-traffic corridor vs. a second-floor office can mean a 40% difference in new patient acquisition.", "visionPrompt": "What kind of practice? General dentistry, specialty (ortho, cosmetic), urgent care, or something else? And is this a fresh start or are you buying into an existing practice?", "customerPrompt": "What's your patient mix? Insurance-heavy, cash-pay focused, or a membership model?", "financialTransition": "Medical practice economics are different from retail — insurance reimbursement cycles are the main cash flow challenge. Let me model the numbers.", "addressTransition": "Where are you looking? For medical/dental, zoning and existing infrastructure (plumbing, ventilation, X-ray shielding) can save you $100K+ in buildout." }, "welcomeMessage": "Going out on your own is a big move. The good news: dental practices have one of the highest first-year survival rates of any business. The bad news: buildout costs can hit $300/sqft if you're not careful. We'll help you spot the traps.", "didYouKnow": ["Dental buildout costs range from $150-$300/sqft depending on specialty. That's 3-5x more than most retail spaces.", "Zoning verification is critical — medical use must be explicitly permitted. Don't assume a commercial space allows dental.", "The industry standard for parking is 1 space per 125 sqft. If your patients drive, parking is non-negotiable."], "communityInsights": [{ "quote": "I spent $200K on buildout for a space that turned out to be zoned wrong for dental. The city shut me down 3 months in. Always verify zoning first.", "source": "Dental Economics", "topic": "zoning" }] };
+const something_else = { "displayName": "Something Else", "coachingOpeners": { "afterSelection": "Love it — some of the best businesses don't fit in a box. Tell me what you're building and I'll pull from every data source I have to help you evaluate the location.", "visionPrompt": "Describe your concept in a couple sentences. What is it, and what makes it special?", "customerPrompt": "Who's your ideal customer? Paint me a picture of the person who walks through your door three times a week.", "financialTransition": "Let me estimate the financials based on what you've told me. I'll pull from the closest comparable category and adjust for your specifics.", "addressTransition": "Got an address or neighborhood in mind? I'll score it against the fundamentals — transit, demographics, competition, safety — and tailor the analysis to your concept." } };
+const personaCoachingData = {
+  _meta,
+  coffee_shop,
+  restaurant,
+  florist,
+  barbershop,
+  spa_wellness,
+  fitness,
+  retail,
+  medical_dental,
+  something_else
+};
+function buildOnboardingSystemPrompt(personaType, coachingData, conversationPhase, extractedData) {
+  let industryStatsText = "";
+  if (typeof coachingData.industryStats === "string") {
+    industryStatsText = coachingData.industryStats;
+  } else {
+    industryStatsText = `${coachingData.industryStats.survivalRate5yr} survival rate. ${coachingData.industryStats.growthTrend}`;
+  }
+  const mistakesText = coachingData.commonMistakes.map((m) => {
+    if (typeof m === "string") {
+      return `- ${m}`;
+    }
+    return `- ${m.mistake}: ${m.why} → ${m.whatToDo}`;
+  }).join("\n");
+  const patternsText = coachingData.successPatterns.map((p) => {
+    if (typeof p === "string") {
+      return `- ${p}`;
+    }
+    return `- ${p.pattern}: ${p.takeaway} (Example: ${p.example})`;
+  }).join("\n");
+  const benchmarksText = `
+- Average ticket: $${coachingData.financialBenchmarks.avgTicketRange.join("-$")}
+- Daily customers: ${coachingData.financialBenchmarks.dailyCustomerRange.join("-")}
+- Rent/Revenue max: ${(coachingData.financialBenchmarks.rentToRevenueMax * 100).toFixed(0)}%
+- Buildout: $${coachingData.financialBenchmarks.buildoutPerSqft.join("-$")}/sqft
+- Break-even: ${coachingData.financialBenchmarks.monthsToBreakeven.join("-")} months`;
+  let targetCustomersSection = "";
+  if (conversationPhase === "customers" && coachingData.targetCustomerInsights) {
+    const insights = Object.entries(coachingData.targetCustomerInsights).map(([key, val]) => {
+      if (typeof val === "string") {
+        return `- ${key}: ${val}`;
+      }
+      return `- ${key}: ${val.description} (Location signal: ${val.locationSignal})`;
+    }).join("\n");
+    targetCustomersSection = `
+Target customer insights:
+${insights}
+`;
+  }
+  let founderContextSection = "";
+  if (extractedData.conceptDescription) {
+    founderContextSection = `
+## WHAT THIS FOUNDER HAS TOLD YOU SO FAR
+Concept: ${extractedData.conceptDescription}`;
+    if (extractedData.targetCustomers && extractedData.targetCustomers.length > 0) {
+      founderContextSection += `
+Target customers: ${extractedData.targetCustomers.join(", ")}`;
+    }
+    if (extractedData.differentiators && extractedData.differentiators.length > 0) {
+      founderContextSection += `
+Differentiators: ${extractedData.differentiators.join(", ")}`;
+    }
+    founderContextSection += "\n";
+  }
+  const coachingOpener = coachingData.coachingOpeners?.[conversationPhase] || coachingData.welcomeMessage || "";
+  const standardRules = `## RULES (THE 16x STANDARD)
+
+BREVITY IS LAW — MAXIMUM 3 SENTENCES OF VISIBLE TEXT:
+- One sentence to acknowledge. One sentence of insight with a real number. One question.
+- This is iMessage, not an email. If your response is longer than a text message, it's too long.
+- NEVER use markdown headers, bullet points, or lists. Plain conversational text only.
+
+## CONVERSATION FLOW — TWO PATHS
+
+YOUR VERY FIRST MESSAGE must:
+1. In one warm sentence, ask the founder to share their business concept AND a location they're considering.
+2. Example tone: "Tell me your concept and drop an address — I'll score it. Or if you want help building out your plan first, I can walk you through a few quick questions."
+
+AFTER THEY RESPOND, detect which path they want:
+
+PATH A — FAST TRACK (concept + location given):
+- If they give you a concept AND an address in their first reply, acknowledge in one sentence with a quick insight, then move straight to scoring. 2-3 total exchanges.
+- If they give a concept but no address, ask for the address. That's it. Don't ask more.
+- If they give an address but vague concept, ask ONE clarifying question about the concept, then score.
+
+PATH B — DEEP DIVE (they want more guidance):
+- If they say they want help, OR they only give a concept with no address and seem uncertain, offer to walk through customers → financials → location. Keep it to 5-6 exchanges total.
+- Each exchange: acknowledge in ≤5 words, give one insight with a real number, ask ONE question.
+- Move through: concept → customers → financials → address → score.
+
+CRITICAL: Do NOT force Path B on someone who's ready for Path A. If they have a concept and a location, GET TO SCORING. No unnecessary questions.
+
+NO CHIT-CHAT:
+- Do NOT ask how they're doing or make small talk. Jump straight into their business.
+- After the greeting, every message must MOVE FORWARD. No pleasantries, no filler.
+- If they give you info, acknowledge in ≤5 words and ask the next thing you need.
+- Founders lose interest fast. Earn every reply.
+
+MEMORY IS LAW — NEVER RE-ASK FOR INFORMATION:
+- Read the FULL conversation history before responding.
+- If the user already gave you an address, USE IT. Do not ask "got an address in mind?"
+- If the user already told you their budget, USE IT. Do not ask again.
+- NEVER repeat the same response or phrasing you used earlier in the conversation.
+
+COACHING:
+- Ask ONE question at a time.
+- Use the benchmarks above. Be SPECIFIC — name numbers, neighborhoods, failure modes.
+- Never ask what you can infer. Present inferences as defaults to confirm.
+- Coaching opener for this phase: "${coachingOpener}"
+- Design for the screenshot: what would the founder text to their co-founder?`;
+  const metadataFormat = `## METADATA FORMAT
+After your visible response, emit a JSON block wrapped in <metadata> tags
+(the client will parse and hide this from the founder):
+<metadata>
+{
+  "extracted": { ... },
+  "conversationPhase": "...",
+  "scoringHints": { ... }
+}
+</metadata>`;
+  return `
+You are RE²'s location intelligence coach — a retail location expert who talks via iMessage-style chat. You help founders evaluate locations in NYC.
+
+YOUR PERSONALITY: Warm but direct. Like a busy mentor who genuinely cares but doesn't waste anyone's time. You get founders talking about THEIR vision immediately — no small talk, no filler. Every message earns the next reply.
+
+## YOUR KNOWLEDGE FOR THIS BUSINESS TYPE: ${coachingData.displayName}
+
+Industry context: ${industryStatsText}
+
+Common mistakes founders make:
+${mistakesText}
+
+What successful ${coachingData.displayName.toLowerCase()}s do:
+${patternsText}
+
+Financial benchmarks:
+${benchmarksText}
+${targetCustomersSection}
+${founderContextSection}
+${standardRules}
+
+${metadataFormat}
+`.trim();
+}
+function getPersonaCoaching(personaType) {
+  const data = personaCoachingData;
+  const coaching = data[personaType];
+  if (!coaching) {
+    return null;
+  }
+  return coaching;
+}
+const OPENROUTER_KEY = private_env.OPENROUTER_API_KEY || "";
+const TIER_MODELS = {
+  haiku: "anthropic/claude-haiku-4.5",
+  sonnet: "anthropic/claude-sonnet-4",
+  opus: "anthropic/claude-opus-4"
+};
+const PHASE_TIER_MAP = {
+  greeting: "haiku",
+  business_type: "haiku",
+  acknowledgment: "haiku",
+  concept: "sonnet",
+  customers: "sonnet",
+  differentiators: "sonnet",
+  financials: "sonnet",
+  address: "sonnet",
+  analysis: "opus",
+  verdict: "opus",
+  playbook: "opus",
+  business_model: "opus",
+  complete: "haiku"
+};
+const TIER_PARAMS = {
+  haiku: { temperature: 0.6, max_tokens: 350 },
+  sonnet: { temperature: 0.7, max_tokens: 450 },
+  opus: { temperature: 0.75, max_tokens: 600 }
+};
+const POST = async ({ request }) => {
+  const body = await request.json();
+  const { messages, sessionContext, tier: requestedTier } = body;
+  const isNewConcept = !!sessionContext?.isNewConcept;
+  if (!messages || !Array.isArray(messages)) {
+    throw error(400, "Missing messages array");
+  }
+  const userMessages = messages.filter((m) => m.role === "user");
+  if (userMessages.length > 20) {
+    throw error(429, "Maximum conversation length reached");
+  }
+  const personaKey = sessionContext?.personaKey || "";
+  let coachingData = getPersonaCoaching(personaKey);
+  const phase = sessionContext?.conversationPhase || "greeting";
+  const tier = requestedTier || PHASE_TIER_MAP[phase] || "sonnet";
+  const model = TIER_MODELS[tier] || TIER_MODELS.sonnet;
+  const params = TIER_PARAMS[tier] || TIER_PARAMS.sonnet;
+  const extractedData = sessionContext?.extractedData || {};
+  let conceptAnalysis = null;
+  if ((personaKey === "something_else" || personaKey === "other") && OPENROUTER_KEY) {
+    const conceptDesc = extractedData.conceptDescription || "";
+    const conceptName = extractedData.conceptName || "";
+    const recentUserText = userMessages.slice(-3).map((m) => m.content).join(" ");
+    const hasConceptInfo = conceptDesc.length > 10 || recentUserText.length > 30;
+    if (hasConceptInfo && phase !== "greeting" && phase !== "persona") {
+      try {
+        const analyzeResponse = await fetch(OPENROUTER_URL, {
+          method: "POST",
+          headers: openRouterHeaders(OPENROUTER_KEY),
+          body: JSON.stringify({
+            model: "anthropic/claude-sonnet-4",
+            messages: [
+              {
+                role: "system",
+                content: `You are a commercial real estate analyst. Analyze this business concept and return ONLY valid JSON with: closestPersona (one of: coffee_shop, restaurant, florist, barbershop, spa_wellness, fitness, retail, medical_dental), businessCategory (short name), financialBenchmarks ({avgTicketRange, dailyCustomerRange, rentToRevenueMax, buildoutPerSqft, monthsToBreakeven}), locationFactors ({critical: [], important: [], niceToHave: []}), commonMistakes ([{mistake, why, whatToDo}]). Be NYC-specific and data-driven.`
+              },
+              {
+                role: "user",
+                content: `Business: ${conceptName || "Custom concept"}. Description: ${conceptDesc || recentUserText}. Location: NYC.`
+              }
+            ],
+            temperature: 0.3,
+            max_tokens: 1500
+          })
+        });
+        if (analyzeResponse.ok) {
+          const analyzeResult = await analyzeResponse.json();
+          const analyzeContent = analyzeResult.choices?.[0]?.message?.content || "";
+          const cleaned = analyzeContent.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+          try {
+            conceptAnalysis = JSON.parse(cleaned);
+            const closestKey = conceptAnalysis?.closestPersona || "";
+            const closestCoaching = getPersonaCoaching(closestKey);
+            if (closestCoaching) {
+              coachingData = closestCoaching;
+            }
+          } catch {
+          }
+        }
+      } catch (err) {
+        console.error("[OnboardingChat] Concept analysis failed:", err);
+      }
+    }
+  }
+  let systemPrompt;
+  if (coachingData) {
+    systemPrompt = buildOnboardingSystemPrompt(personaKey, coachingData, phase, extractedData);
+  } else {
+    systemPrompt = buildFallbackSystemPrompt(tier);
+  }
+  if (isNewConcept && messages.length === 0) {
+    systemPrompt += `
+
+## RETURNING USER — NEW CONCEPT
+This is a returning user who already went through onboarding before.
+- Welcome them back in ONE short sentence.
+- Ask them to share the new concept AND drop an address if they have one — you'll score it right away.
+- Also mention they can answer a few quick questions to build out a plan if they prefer.
+- 2-3 sentences max. Be direct.`;
+  }
+  if (conceptAnalysis) {
+    const ca = conceptAnalysis;
+    systemPrompt += `
+
+## Custom Concept Analysis (from Sonnet)
+Business Category: ${ca.businessCategory || "Unknown"}
+Closest Standard Persona: ${ca.closestPersona || "retail"}
+${ca.financialBenchmarks ? `Financial Benchmarks: Avg ticket ${ca.financialBenchmarks.avgTicketRange}, daily customers ${ca.financialBenchmarks.dailyCustomerRange}, rent-to-revenue max ${ca.financialBenchmarks.rentToRevenueMax}, buildout ${ca.financialBenchmarks.buildoutPerSqft}/sqft, breakeven ${ca.financialBenchmarks.monthsToBreakeven}` : ""}
+${ca.locationFactors?.critical ? `Critical Location Factors: ${ca.locationFactors.critical.join(", ")}` : ""}
+${ca.commonMistakes ? `Common Mistakes: ${ca.commonMistakes.map((m) => m.mistake).join("; ")}` : ""}
+
+Use this analysis to give specific, data-backed coaching for this custom business type. Reference these benchmarks naturally in conversation.`;
+  }
+  if (!OPENROUTER_KEY) {
+    const templateResponse = getTemplateResponse(messages, sessionContext);
+    return new Response(JSON.stringify(templateResponse), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  try {
+    const response = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: openRouterHeaders(OPENROUTER_KEY),
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages
+        ],
+        ...params,
+        stream: false
+      })
+    });
+    if (!response.ok) {
+      console.error("OpenRouter error:", response.status);
+      const templateResponse = getTemplateResponse(messages, sessionContext);
+      return new Response(JSON.stringify(templateResponse), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "";
+    const { visibleText, metadata } = parseAIResponse(content);
+    return new Response(JSON.stringify({
+      message: visibleText,
+      metadata
+    }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error("Onboarding chat error:", err);
+    const templateResponse = getTemplateResponse(messages, sessionContext);
+    return new Response(JSON.stringify(templateResponse), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+};
+function buildFallbackSystemPrompt(tier) {
+  let prompt = `You are RE²'s location intelligence coach — a retail location expert who talks via iMessage-style chat.
+
+YOUR PERSONALITY: Warm but direct. Like a busy mentor who genuinely cares but doesn't waste anyone's time.
+
+BREVITY IS LAW:
+- Maximum 3 sentences of visible text. No exceptions.
+- NEVER use markdown, headers, bullet points, or lists. Plain conversational text only.
+- This is iMessage, not an email. Keep it punchy.
+
+CONVERSATION FLOW — TWO PATHS:
+
+Your FIRST message must ask for their concept AND a location in one warm sentence. Also mention they can answer a few more questions if they want help building out a plan.
+
+PATH A — FAST TRACK: If they give concept + address, acknowledge with one quick insight, then move to scoring. 2-3 total exchanges.
+PATH B — DEEP DIVE: If they want guidance, walk through concept → customers → financials → address. 5-6 exchanges max.
+
+CRITICAL: Do NOT force Path B on someone ready for Path A.
+
+NO CHIT-CHAT:
+- Do NOT ask how they're doing or make small talk.
+- After the greeting, every message must MOVE FORWARD.
+- If they give you info, acknowledge in ≤5 words and ask the next thing you need.
+
+MEMORY IS LAW:
+- NEVER re-ask for information already provided.
+- NEVER repeat the same response pattern twice.
+
+COACHING RULES:
+- NEVER ask what you can infer. Present inferences as defaults.
+- Specificity over generality. Name numbers, neighborhoods, failure modes.
+- When you have concept + address, move to scoring. Don't stall.`;
+  if (tier === "haiku") {
+    prompt += "\n\n2 sentences max. Acknowledge + next question.";
+  } else if (tier === "opus") {
+    prompt += "\n\nYou may use up to 4 sentences for deep analysis. Cross-reference concept, customers, financials, location. Be revelatory but concise.";
+  }
+  prompt += `
+
+CRITICAL: After your visible response, append a metadata block:
+<metadata>
+{"extracted":{"personaType":null,"conceptName":null,"conceptDescription":null,"targetCustomers":[],"differentiators":[],"financialEstimates":null,"readyForAddress":false},"conversationPhase":"concept","scoringHints":{}}
+</metadata>
+
+Update fields as you learn. Set "readyForAddress" to true when ready.
+
+CRITICAL PHASE RULES — conversationPhase must be EXACTLY one of these strings (no variations, no custom names):
+"greeting" | "concept" | "customers" | "financials" | "address" | "scoring"
+
+When the user has provided BOTH a business concept AND a street address, you MUST set conversationPhase to exactly "scoring". Not "PATH_A_SCORING", not "complete", not "scoring_detailed" — the exact string "scoring".`;
+  return prompt;
+}
+function normalizePhase(metadata) {
+  const phase = String(metadata.conversationPhase || "").toLowerCase();
+  if (phase.includes("scor") || phase === "complete" || phase.includes("path_a")) {
+    metadata.conversationPhase = "scoring";
+  }
+  const validPhases = ["greeting", "concept", "customers", "financials", "address", "scoring"];
+  if (!validPhases.includes(metadata.conversationPhase)) {
+    metadata.conversationPhase = "concept";
+  }
+  return metadata;
+}
+function parseAIResponse(content) {
+  let visibleText = content;
+  let metadata = null;
+  const tripleMatch = content.match(/<<<METADATA>>>([\s\S]*?)<<<END>>>/);
+  if (tripleMatch) {
+    visibleText = content.replace(/<<<METADATA>>>[\s\S]*?<<<END>>>/, "").trim();
+    try {
+      metadata = normalizePhase(JSON.parse(tripleMatch[1].trim()));
+    } catch {
+    }
+    return { visibleText, metadata };
+  }
+  const xmlMatch = content.match(/<metadata>([\s\S]*?)<\/metadata>/);
+  if (xmlMatch) {
+    visibleText = content.replace(/<metadata>[\s\S]*?<\/metadata>/, "").trim();
+    try {
+      metadata = normalizePhase(JSON.parse(xmlMatch[1].trim()));
+    } catch {
+    }
+    return { visibleText, metadata };
+  }
+  const trailingJsonMatch = content.match(/\n\s*(\{[\s\S]*"extracted"[\s\S]*\})\s*$/);
+  if (trailingJsonMatch) {
+    visibleText = content.replace(/\n\s*\{[\s\S]*"extracted"[\s\S]*\}\s*$/, "").trim();
+    try {
+      metadata = normalizePhase(JSON.parse(trailingJsonMatch[1].trim()));
+    } catch {
+    }
+  }
+  if (!metadata) {
+    const raw = content.toLowerCase();
+    const hasScoring = raw.includes('"conversationphase"') && (raw.includes("scoring") || raw.includes("path_a") || raw.includes("complete"));
+    const hasAddress = /\d+\s+\w+\s+(st|street|ave|avenue|blvd|boulevard|rd|road|way|place|broadway)/i.test(content);
+    if (hasScoring || hasAddress) {
+      visibleText = visibleText.replace(/<metadata>[\s\S]*/i, "").replace(/<<<METADATA>>>[\s\S]*/i, "").replace(/\{\s*"extracted"[\s\S]*/i, "").trim();
+      metadata = { conversationPhase: "scoring", extracted: {} };
+    }
+  }
+  return { visibleText, metadata };
+}
+function getTemplateResponse(messages, sessionContext) {
+  const userMsgCount = messages.filter((m) => m.role === "user").length;
+  const userMessages = messages.filter((m) => m.role === "user");
+  const lastUserMsg = userMessages.pop()?.content?.toLowerCase() || "";
+  const allUserText = userMessages.map((m) => m.content).join(" ").toLowerCase();
+  let detectedPersona = sessionContext?.extractedData?.personaType || null;
+  if (!detectedPersona) {
+    const personaMap = {
+      "coffee": "coffee_shop",
+      "cafe": "coffee_shop",
+      "café": "coffee_shop",
+      "espresso": "coffee_shop",
+      "matcha": "coffee_shop",
+      "protein coffee": "coffee_shop",
+      "restaurant": "restaurant",
+      "dining": "restaurant",
+      "bar": "restaurant",
+      "food": "restaurant",
+      "florist": "florist",
+      "flower": "florist",
+      "dentist": "medical_dental",
+      "dental": "medical_dental",
+      "medical": "medical_dental",
+      "doctor": "medical_dental",
+      "spa": "spa_wellness",
+      "wellness": "spa_wellness",
+      "nail": "spa_wellness",
+      "salon": "spa_wellness",
+      "gym": "fitness",
+      "fitness": "fitness",
+      "yoga": "fitness",
+      "crossfit": "fitness",
+      "pilates": "fitness",
+      "barber": "barbershop",
+      "grooming": "barbershop",
+      "boutique": "retail",
+      "retail": "retail",
+      "fashion": "retail",
+      "shop": "retail",
+      "bakery": "restaurant",
+      "pastry": "restaurant"
+    };
+    const searchText = allUserText + " " + lastUserMsg;
+    for (const [keyword, persona] of Object.entries(personaMap)) {
+      if (searchText.includes(keyword)) {
+        detectedPersona = persona;
+        break;
+      }
+    }
+  }
+  const addressPattern = /\d+\s+\w+\s+(st|street|ave|avenue|blvd|boulevard|rd|road|way|pl|place|west|east|north|south|broadway|madison|park|lex)/i;
+  const allText = allUserText + " " + lastUserMsg;
+  const hasAddress = addressPattern.test(allText);
+  allText.match(addressPattern);
+  const hasBudget = /\$[\d,]+k?|\d+k/i.test(allText);
+  let phase;
+  let message;
+  const isNewConcept = !!sessionContext?.isNewConcept;
+  if (userMsgCount === 0 && isNewConcept) {
+    phase = "concept";
+    message = "Welcome back! Tell me the new concept and drop an address — I'll score it right away. Or if you want, I can walk you through a few quick questions to build out your plan first.";
+  } else if (userMsgCount === 0) {
+    phase = "concept";
+    message = "I'm your location coach. Tell me your concept and drop an address — I'll score it. Or if you want help building out your plan, I can walk you through a few quick questions first.";
+  } else if (hasAddress && detectedPersona) {
+    phase = "scoring";
+    message = "Got it — let me score that location for you.";
+  } else if (userMsgCount === 1 && !hasAddress) {
+    phase = "customers";
+    message = "Got it. Do you have an address in mind? Drop it and I'll score it now — or I can walk you through customers and financials first to sharpen the results.";
+  } else if (userMsgCount === 2 && !hasBudget) {
+    phase = "financials";
+    message = "What's your target rent budget? I'll back into the rest of the numbers from there.";
+  } else if (hasAddress && hasBudget) {
+    phase = "scoring";
+    message = "Got everything I need. Let me score that location for you.";
+  } else if (hasAddress) {
+    phase = "financials";
+    message = `Good location. What rent range are you targeting? That'll help me tell you if the numbers work there.`;
+  } else if (hasBudget) {
+    phase = "address";
+    message = `Got it on the budget. Now — do you have an address or neighborhood in mind? Even a cross-street works.`;
+  } else if (userMsgCount >= 3) {
+    phase = "address";
+    message = "We've got a solid picture of your concept. Drop an address or neighborhood and I'll tell you if the numbers work there.";
+  } else {
+    phase = "concept";
+    message = "Tell me more about what makes your concept different from what's already out there.";
+  }
+  return {
+    message,
+    metadata: {
+      extracted: {
+        personaType: detectedPersona,
+        conceptName: null,
+        conceptDescription: userMsgCount >= 1 ? lastUserMsg : null,
+        targetCustomers: [],
+        differentiators: [],
+        financialEstimates: hasBudget ? {
+          avgTicket: 8,
+          dailyCustomers: 120,
+          monthlyRevenue: [28e3, 38e3],
+          maxRent: 6e3,
+          idealSqft: [800, 1200]
+        } : null,
+        readyForAddress: hasAddress && hasBudget
+      },
+      conversationPhase: phase,
+      scoringHints: {}
+    }
+  };
+}
+export {
+  POST
+};

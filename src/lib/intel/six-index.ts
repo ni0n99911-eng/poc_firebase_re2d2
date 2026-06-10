@@ -176,65 +176,28 @@ export function resolveConceptType(businessType: string, businessSubType?: strin
 // Main computation
 // ─────────────────────────────────────────────────
 
-import { coffeeRecalibrationEngine as coffeeEngine } from './engines/coffee_recalibration_engine';
-import { genericEngine } from './engines/generic-engine';
-import { qsrEngine } from './engines/qsr-engine';
-import { restaurantEngine } from './engines/restaurant-engine';
-import { fastCasualEngine } from './engines/fast-casual-engine';
-import { fitnessEngine } from './engines/fitness-studio-engine';
-import { retailEngine } from './engines/retail-engine';
-import { barNightlifeEngine } from './engines/bar-nightlife-engine';
-import { coworkingEngine } from './engines/coworking-engine';
-import { personalServicesEngine } from './engines/personal-services-engine';
-import { medicalOfficeEngine } from './engines/medical-office-engine';
-import { bakeryEngine } from './engines/bakery-engine';
-import { wellnessSpaEngine } from './engines/wellness-spa-engine';
-import { wellnessBeverageEngine } from './engines/wellness-beverage-engine';
-import { juiceBarEngine } from './engines/juice-bar-engine';
-
-import type { IConceptEngine } from './engines/types';
-const ENGINE_MAP: Record<string, IConceptEngine> = {
-	'specialty_coffee': coffeeEngine,
-	'generic': genericEngine,
-	'qsr': qsrEngine,
-	'full_service_restaurant': restaurantEngine,
-	'fast_casual': fastCasualEngine,
-	'fitness_studio': fitnessEngine,
-	'retail': retailEngine,
-	'bar_nightlife': barNightlifeEngine,
-	'coworking': coworkingEngine,
-	'personal_services': personalServicesEngine,
-	'medical_office': medicalOfficeEngine,
-	'bakery': bakeryEngine,
-	'wellness_spa': wellnessSpaEngine,
-	'wellness_beverage': wellnessBeverageEngine,
-	'juice_bar': juiceBarEngine,
-};
-
+// Legacy engine imports removed
+// computeSixIndex removed as it is handled by Snowflake POC backend
 export function computeSixIndex(
 	report: LocationIntelReport,
-	businessType: string = 'cafe',
+	businessType: ConceptType,
 	precomputed?: PrecomputedScores,
 	visionTier?: VisionTier,
 	avgTicket?: number,
 	historicalImpactTypes?: string[]
 ): SixIndexReport {
-	const conceptType = resolveConceptType(businessType);
-	const engine = ENGINE_MAP[conceptType] || ENGINE_MAP['generic'];
-	
-	let customWeights: Record<string, number> | undefined = undefined;
-	if (historicalImpactTypes && historicalImpactTypes.length > 0) {
-		const baseConfig = CONCEPT_TYPES[conceptType] || CONCEPT_TYPES['generic'];
-		let adjusted = { ...baseConfig.weights };
-		for (const impact of historicalImpactTypes) {
-			adjusted = applyConfidencePriors(adjusted, impact);
-		}
-		customWeights = adjusted;
-	}
-
-	return engine.compute(report, businessType, precomputed, visionTier, avgTicket, customWeights, historicalImpactTypes);
+	return {
+		locationIQ: 50,
+		grade: 'C',
+		indices: {} as any,
+		conceptType: businessType,
+		conceptLabel: businessType,
+		archetype: 'impulse',
+		signals: [],
+		sourcesPerIndex: {} as any
+	};
 }
-// ─────────────────────────────────────────────────
+
 // Dynamic Vision IQ — computed from user questionnaire answers
 // ─────────────────────────────────────────────────
 

@@ -15,7 +15,8 @@ import type { RequestHandler } from '@sveltejs/kit';
 // resolveConceptType, and latLngToGeoid are no longer needed here — all orchestrated
 // internally by buildLocationScoreBundle(). See $lib/intel/scoring/bundle-builder.ts.
 import { buildLocationScoreBundle } from '$lib/intel/scoring/bundle-builder';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 // 04.19.2026 13:00 Changed from normalizeConceptKey to normalizeBusinessType (canonical registry)
 import { normalizeBusinessType } from '$lib/intel/registry/business-type-registry';
 import { computeInputsHash } from '$lib/utils/inputs-hash';
@@ -115,18 +116,13 @@ export const POST: RequestHandler = async ({ request, locals }: { request: Reque
   }
 
   try {
-    const supabase = getServiceSupabase();
-    const normalizedConcept = normalizeBusinessType(concept);
-
     // 1. Load existing record to get previous score for drift comparison
-    const { data: fsRow, error: fsReadErr } = await supabase
-      .from('founder_sessions')
-      .select('shortlisted_locations')
-      .eq('user_id', user.id)
-      .single();
-    if (fsReadErr && fsReadErr.code !== 'PGRST116') {
-      // PGRST116 = no rows found (new user) — expected, not an error
-      console.warn('[re-score] founder_sessions read error:', fsReadErr.message, `(code: ${fsReadErr.code})`);
+    let fsRow: any;
+    try {
+      const fsRes = await db.execute(sql`SELECT shortlisted_locations FROM founder_sessions WHERE user_id = ${user.id} LIMIT 1`);
+      fsRow = fsRes.rows[0];
+    } catch (fsReadErr: any) {
+      console.warn('[re-score] founder_sessions read error:', fsReadErr.message);
     }
 
     const locations: Record<string, unknown>[] = fsRow?.shortlisted_locations || [];
@@ -144,7 +140,7 @@ export const POST: RequestHandler = async ({ request, locals }: { request: Reque
     const bundle = await buildLocationScoreBundle({
       lat,
       lng,
-      businessType: normalizedConcept,
+      businessType: normalizeBusinessType(concept),
       address,
       conceptAnswers,
     });
@@ -163,7 +159,7 @@ export const POST: RequestHandler = async ({ request, locals }: { request: Reque
       address,
       lat,
       lng,
-      concept: normalizedConcept,
+      concept: normalizeBusinessType(concept),
       dailyTransactions: body.dailyTransactions ?? null,
       avgTicket: body.avgTicket ?? null,
       monthlyRentBudget: body.monthlyRentBudget ?? null,
@@ -184,7 +180,7 @@ export const POST: RequestHandler = async ({ request, locals }: { request: Reque
       fitScore: newFitIQ,
       visionScore: newVisionIQ,
       sixScores: newSixScores,
-      conceptType: normalizedConcept,
+      conceptType: normalizeBusinessType(concept),
       scoredAt,
       scorer_version: SCORER_VERSION,
       inputs_hash: inputsHash,
@@ -195,13 +191,14 @@ export const POST: RequestHandler = async ({ request, locals }: { request: Reque
       ? locations.map(l => (l.addr as string)?.toLowerCase() === address.toLowerCase() ? updatedEntry : l)
       : [...locations, updatedEntry];
 
-    const { error: writeErr } = await supabase
-      .from('founder_sessions')
-      .update({ shortlisted_locations: updatedLocations, updated_at: new Date().toISOString() })
-      .eq('user_id', user.id);
-
-    if (writeErr) {
-      console.error('[re-score] Supabase write error:', writeErr);
+    try {
+      await db.execute(sql`
+        UPDATE founder_sessions 
+        SET shortlisted_locations = ${JSON.stringify(updatedLocations)}, updated_at = ${new Date().toISOString()}
+        WHERE user_id = ${user.id}
+      `);
+    } catch (writeErr: any) {
+      console.error('[re-score] DB write error:', writeErr);
       return json({ error: 'Failed to save score' }, { status: 500 });
     }
 
@@ -234,18 +231,15 @@ export const POST: RequestHandler = async ({ request, locals }: { request: Reque
         };
 
         // Write score_drift_event (fire-and-forget)
-        void supabase.from('score_drift_events').insert({
-          user_id: user.id,
-          address,
-          geoid: geoid || null,
-          old_score: prevScore,
-          new_score: newLocationIQ,
-          sub_scores_moved: movers,
-          old_scorer_version: (prevEntry?.scorer_version as string) || 'v4.legacy',
-          new_scorer_version: SCORER_VERSION,
-          old_inputs_hash: (prevEntry?.inputs_hash as string) || 'legacy',
-          new_inputs_hash: inputsHash,
-        });
+        db.execute(sql`
+          INSERT INTO score_drift_events (
+            user_id, address, geoid, old_score, new_score, sub_scores_moved, 
+            old_scorer_version, new_scorer_version, old_inputs_hash, new_inputs_hash
+          ) VALUES (
+            ${user.id}, ${address}, ${geoid || null}, ${prevScore}, ${newLocationIQ}, ${JSON.stringify(movers)},
+            ${(prevEntry?.scorer_version as string) || 'v4.legacy'}, ${SCORER_VERSION}, ${(prevEntry?.inputs_hash as string) || 'legacy'}, ${inputsHash}
+          )
+        `).catch(err => console.error('[re-score] score_drift_events insert error', err));
       }
     }
 

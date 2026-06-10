@@ -16,7 +16,8 @@
  * changes, or score age > 30 days.
  */
 
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { COFFEE_FORMULA_VERSION, COFFEE_SCORE_MAX_AGE_DAYS } from '$lib/constants/scoring-thresholds';
 import type { CoffeeDimensions, VisionTier } from './six-index';
 
@@ -96,27 +97,27 @@ export async function getStoredCoffeeScore(
 	currentInputs: { avgTicket: number; visionTier: VisionTier | 'standard'; concept: string }
 ): Promise<StoredCoffeeScore | null> {
 	try {
-		const supabase = getServiceSupabase();
 		const lat4 = round4(key.lat);
 		const lng4 = round4(key.lng);
 
 		// Query score_events for coffee_score JSONB matching our key
 		// Use lat/lng rounded to 4dp as the spatial key
-		const { data, error } = await supabase
-			.from('score_events')
-			.select('coffee_score')
-			.eq('concept', key.concept)
-			.gte('lat', lat4 - 0.0001)
-			.lte('lat', lat4 + 0.0001)
-			.gte('lng', lng4 - 0.0001)
-			.lte('lng', lng4 + 0.0001)
-			.not('coffee_score', 'is', null)
-			.order('computed_at', { ascending: false })
-			.limit(1);
+		const result = await db.execute(sql`
+			SELECT coffee_score
+			FROM score_events
+			WHERE concept = ${key.concept}
+			  AND lat >= ${lat4 - 0.0001}
+			  AND lat <= ${lat4 + 0.0001}
+			  AND lng >= ${lng4 - 0.0001}
+			  AND lng <= ${lng4 + 0.0001}
+			  AND coffee_score IS NOT NULL
+			ORDER BY computed_at DESC
+			LIMIT 1
+		`);
 
-		if (error || !data?.length) return null;
+		if (!result.rows || !result.rows.length) return null;
 
-		const stored = data[0].coffee_score as StoredCoffeeScore;
+		const stored = result.rows[0].coffee_score as StoredCoffeeScore;
 		if (!stored || !stored.formulaVersion) return null;
 
 		return isScoreValid(stored, currentInputs) ? stored : null;
@@ -176,26 +177,28 @@ export async function storeCoffeeScore(
 	score: StoredCoffeeScore
 ): Promise<void> {
 	try {
-		const supabase = getServiceSupabase();
 		const lat4 = round4(key.lat);
 		const lng4 = round4(key.lng);
 
 		// Update the most recent score_events row for this (lat, lng, concept)
 		// with the coffee_score JSONB blob
-		const { error } = await supabase
-			.from('score_events')
-			.update({ coffee_score: score })
-			.eq('concept', key.concept)
-			.gte('lat', lat4 - 0.0001)
-			.lte('lat', lat4 + 0.0001)
-			.gte('lng', lng4 - 0.0001)
-			.lte('lng', lng4 + 0.0001)
-			.order('computed_at', { ascending: false })
-			.limit(1);
-
-		if (error) {
-			console.warn('[CoffeeScoreStore] Failed to persist score:', error.message);
-		}
+		// PostgreSQL UPDATE with LIMIT requires a subquery or CTE in standard SQL,
+		// but since we just want to update the most recent one we can do:
+		await db.execute(sql`
+			UPDATE score_events
+			SET coffee_score = ${score}
+			WHERE id = (
+				SELECT id
+				FROM score_events
+				WHERE concept = ${key.concept}
+				  AND lat >= ${lat4 - 0.0001}
+				  AND lat <= ${lat4 + 0.0001}
+				  AND lng >= ${lng4 - 0.0001}
+				  AND lng <= ${lng4 + 0.0001}
+				ORDER BY computed_at DESC
+				LIMIT 1
+			)
+		`);
 	} catch (e) {
 		// Fire-and-forget — never block the response
 		console.warn('[CoffeeScoreStore] Store error:', e);

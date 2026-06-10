@@ -101,11 +101,9 @@ const LAND_USE_LABELS: Record<string, string> = {
  * Fetch PLUTO tax lot data near a location.
  * Uses Socrata geo query (within_circle on the_geom).
  */
-export async function fetchPLUTOData(
-	lat: number,
+export async function fetchPLUTOData(lat: number,
 	lng: number,
-	radiusMeters: number = 300
-): Promise<PLUTOData | null> {
+	radiusMeters: number = 300, signal?: AbortSignal): Promise<PLUTOData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'pluto');
 	const cached = await intelCache.getAsync<PLUTOData>(cacheKey);
 	if (cached?.fresh) return cached.data;

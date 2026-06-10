@@ -1,0 +1,25 @@
+const CONCEPT_UI_DEFAULTS = {
+  specialty_coffee: { startup: 15e4, rent: 5e3, sqft: 900, revenue: 38e4, ticket: 8.75, transactions: 180, team: 3, sde: 55e3 },
+  coffee_shop: { startup: 15e4, rent: 5e3, sqft: 900, revenue: 38e4, ticket: 8.75, transactions: 180, team: 3, sde: 55e3 },
+  bakery: { startup: 18e4, rent: 5e3, sqft: 1e3, revenue: 42e4, ticket: 12, transactions: 120, team: 4, sde: 6e4 },
+  fast_casual: { startup: 28e4, rent: 1e4, sqft: 1800, revenue: 62e4, ticket: 16, transactions: 140, team: 8, sde: 8e4 },
+  full_service_restaurant: { startup: 45e4, rent: 14e3, sqft: 2400, revenue: 9e5, ticket: 52, transactions: 60, team: 14, sde: 1e5 },
+  fine_dining: { startup: 6e5, rent: 18e3, sqft: 2800, revenue: 12e5, ticket: 95, transactions: 40, team: 16, sde: 13e4 },
+  bar_nightlife: { startup: 35e4, rent: 1e4, sqft: 2e3, revenue: 65e4, ticket: 24, transactions: 100, team: 9, sde: 85e3 },
+  fitness_studio: { startup: 22e4, rent: 7e3, sqft: 2e3, revenue: 36e4, ticket: 25, transactions: 45, team: 4, sde: 65e3 },
+  retail: { startup: 2e5, rent: 8e3, sqft: 1200, revenue: 48e4, ticket: 65, transactions: 28, team: 3, sde: 6e4 },
+  coworking: { startup: 4e5, rent: 9e3, sqft: 5e3, revenue: 48e4, ticket: 350, transactions: 50, team: 3, sde: 7e4 },
+  medical_office: { startup: 3e5, rent: 8e3, sqft: 1400, revenue: 54e4, ticket: 150, transactions: 12, team: 5, sde: 14e4 },
+  medical_dental: { startup: 3e5, rent: 8e3, sqft: 1400, revenue: 54e4, ticket: 150, transactions: 12, team: 5, sde: 14e4 },
+  personal_services: { startup: 8e4, rent: 4e3, sqft: 600, revenue: 195e3, ticket: 35, transactions: 18, team: 2, sde: 48e3 },
+  barbershop: { startup: 8e4, rent: 4e3, sqft: 600, revenue: 195e3, ticket: 35, transactions: 18, team: 2, sde: 48e3 },
+  wellness_spa: { startup: 25e4, rent: 6e3, sqft: 1600, revenue: 4e5, ticket: 95, transactions: 18, team: 6, sde: 75e3 },
+  spa_wellness: { startup: 25e4, rent: 6e3, sqft: 1600, revenue: 4e5, ticket: 95, transactions: 18, team: 6, sde: 75e3 }
+};
+function getConceptDefaults(conceptKey) {
+  return CONCEPT_UI_DEFAULTS[conceptKey] ?? CONCEPT_UI_DEFAULTS["specialty_coffee"];
+}
+export {
+  CONCEPT_UI_DEFAULTS as C,
+  getConceptDefaults as g
+};

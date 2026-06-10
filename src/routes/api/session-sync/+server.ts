@@ -1,20 +1,22 @@
 /**
  * ═══════════════════════════════════════════════════════
- * RE² Session Sync API — Supabase L2 Persistence
+ * RE² Session Sync API — Cloud SQL L2 Persistence
  * ═══════════════════════════════════════════════════════
  *
  * Server-side endpoint that bridges client localStorage (L1)
- * to Supabase (L2) using service_role key.
+ * to Cloud SQL (L2).
  *
  * POST: Upsert session data (chat store, session, or both)
  * GET:  Load session data for authenticated user (device switch / empty localStorage)
  *
- * Auth: Requires Clerk session (verified in hooks.server.ts)
+ * Auth: Requires Clerk/Firebase session (verified in hooks.server.ts)
  */
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { founderSessions } from '$lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const user = locals.user;
@@ -30,17 +32,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	try {
-		const supabase = getServiceSupabase();
-
-		// FIX-006: Read from full_data (migration 008 renamed 'data' → 'full_data').
 		// Load existing data first so we merge, not overwrite
-		const { data: existing } = await supabase
-			.from('founder_sessions')
-			.select('full_data')
-			.eq('user_id', user.id)
-			.single();
-
-		const existingData = (existing as any)?.full_data || {};
+		const existingArr = await db.select({ fullData: founderSessions.fullData }).from(founderSessions).where(eq(founderSessions.userId, user.id)).limit(1);
+		const existingData = (existingArr.length > 0 ? existingArr[0].fullData : {}) as any || {};
 
 		// Merge new data into existing
 		const merged: Record<string, unknown> = { ...existingData };
@@ -53,34 +47,31 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const conceptDesc = (session?.conceptDescription || chatStore?.extractedData?.conceptDescription || existingData?.session?.conceptDescription || null);
 		const address = (session?.locationData?.address || existingData?.session?.locationData?.address || null);
 
-		// Build upsert payload — include new columns if provided
-		// FIX-006: Write to full_data (migration 008 renamed 'data' → 'full_data')
+		// Build upsert payload
 		const upsertPayload: Record<string, unknown> = {
-			user_id: user.id,
-			session_id: session?.sessionId || chatStore?.sessionId || existingData?.session?.sessionId || `sess_${user.id}`,
-			persona_type: personaType,
-			concept_description: conceptDesc,
+			userId: user.id,
+			sessionId: session?.sessionId || chatStore?.sessionId || existingData?.session?.sessionId || `sess_${user.id}`,
+			personaType: personaType,
+			conceptDescription: conceptDesc,
 			address: address,
-			full_data: merged,
-			updated_at: new Date().toISOString(),
+			fullData: merged,
+			updatedAt: new Date(),
 		};
-		if (journeyState)         upsertPayload.journey_state          = journeyState;
-		if (shortlistedLocations) upsertPayload.shortlisted_locations  = shortlistedLocations;
+		if (journeyState)         upsertPayload.journeyState          = journeyState;
+		if (shortlistedLocations) upsertPayload.shortlistedLocations  = shortlistedLocations;
 
-		const { error: dbError } = await supabase
-			.from('founder_sessions')
-			.upsert(upsertPayload, { onConflict: 'user_id' });
-
-		if (dbError) {
-			console.error('[session-sync] Supabase upsert error:', dbError);
-			// Don't throw — localStorage is primary, Supabase is L2
-			return json({ ok: false, error: dbError.message }, { status: 500 });
-		}
+		// Perform upsert with Drizzle (Postgres specific)
+		await db.insert(founderSessions)
+			.values(upsertPayload as any)
+			.onConflictDoUpdate({
+				target: founderSessions.userId,
+				set: upsertPayload as any
+			});
 
 		return json({ ok: true });
-	} catch (err) {
+	} catch (err: any) {
 		console.error('[session-sync] Error:', err);
-		return json({ ok: false, error: 'Internal error' }, { status: 500 });
+		return json({ ok: false, error: err.message || 'Internal error' }, { status: 500 });
 	}
 };
 
@@ -91,31 +82,27 @@ export const GET: RequestHandler = async ({ locals }) => {
 	}
 
 	try {
-		const supabase = getServiceSupabase();
+		const existingArr = await db.select({
+			fullData: founderSessions.fullData,
+			journeyState: founderSessions.journeyState,
+			shortlistedLocations: founderSessions.shortlistedLocations,
+			updatedAt: founderSessions.updatedAt,
+			createdAt: founderSessions.createdAt
+		}).from(founderSessions).where(eq(founderSessions.userId, user.id)).limit(1);
 
-		// FIX-006: Select full_data (migration 008 renamed 'data' → 'full_data')
-		const { data, error: dbError } = await supabase
-			.from('founder_sessions')
-			.select('full_data, journey_state, shortlisted_locations, updated_at, created_at')
-			.eq('user_id', user.id)
-			.single();
-
-		if (dbError) {
-			// PGRST116 = no rows found — that's fine, new user
-			if (dbError.code === 'PGRST116') {
-				return json({ found: false, data: null });
-			}
-			console.error('[session-sync] Supabase read error:', dbError);
-			return json({ found: false, data: null, error: dbError.message }, { status: 500 });
+		if (existingArr.length === 0) {
+			return json({ found: false, data: null });
 		}
+
+		const data = existingArr[0];
 
 		return json({
 			found: true,
-			data: (data as any)?.full_data || null,
-			journeyState: data?.journey_state || null,
-			shortlistedLocations: data?.shortlisted_locations || [],
-			updatedAt: data?.updated_at,
-			createdAt: data?.created_at
+			data: data.fullData || null,
+			journeyState: data.journeyState || null,
+			shortlistedLocations: data.shortlistedLocations || [],
+			updatedAt: data.updatedAt,
+			createdAt: data.createdAt
 		});
 	} catch (err) {
 		console.error('[session-sync] Error:', err);

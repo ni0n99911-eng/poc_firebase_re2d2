@@ -9,7 +9,9 @@
 
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { founderSessions } from '$lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = locals.user;
@@ -19,19 +21,19 @@ export const load: PageServerLoad = async ({ locals }) => {
 	}
 
 	try {
-		const supabase = getServiceSupabase();
+		// FIX-NAV-02: select fullData (current write path)
+		const existingArr = await db.select({
+			fullData: founderSessions.fullData,
+			updatedAt: founderSessions.updatedAt,
+			createdAt: founderSessions.createdAt
+		}).from(founderSessions).where(eq(founderSessions.userId, user.id)).limit(1);
 
-		// FIX-NAV-02: select both full_data (current write path) and legacy 'data' column
-		const { data, error } = await supabase
-			.from('founder_sessions')
-			.select('full_data, data, updated_at, created_at')
-			.eq('user_id', user.id)
-			.single();
+		const data = existingArr.length > 0 ? existingArr[0] : null;
+		
+		// FIX-NAV-02: use fullData
+		const rawData = data?.fullData;
 
-		// FIX-NAV-02: use full_data with fallback to legacy 'data' column
-		const rawData = (data as any)?.full_data || (data as any)?.data;
-
-		if (error || !rawData) {
+		if (!rawData) {
 			// No data found — new user, send to onboarding
 			throw redirect(303, '/app/onboarding');
 		}
@@ -98,8 +100,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 			lastVerdict: (sessionData.lastVerdict as string) || (session?.verdict as string) || null,
 			hasComparisonLocations: !!(sessionData.scoredLocations && (sessionData.scoredLocations as any[]).length > 1),
 			conversationPhase: (chatStore?.conversationPhase as string) || null,
-			updatedAt: (data as any).updated_at,
-			createdAt: (data as any).created_at
+			updatedAt: data?.updatedAt,
+			createdAt: data?.createdAt
 		};
 
 		return {

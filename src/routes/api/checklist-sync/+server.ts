@@ -9,7 +9,8 @@
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const user = locals.user;
@@ -25,29 +26,21 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	try {
-		const supabase = getServiceSupabase();
 		const now = new Date().toISOString();
 
 		// Build upsert rows
-		const rows = items.map((item: { itemId: string; done: boolean; notes: string }) => ({
-			user_id: user.id,
-			location_id: locationId,
-			item_id: item.itemId,
-			done: item.done,
-			notes: item.notes || '',
-			completed_at: item.done ? now : null,
-			updated_at: now,
-		}));
-
-		const { error: dbError } = await supabase
-			.from('checklist_progress')
-			.upsert(rows, {
-				onConflict: 'user_id,location_id,item_id',
-			});
-
-		if (dbError) {
-			console.error('[checklist-sync] Supabase upsert error:', dbError);
-			return json({ success: false, error: dbError.message }, { status: 500 });
+		for (const item of items) {
+			const completedAt = item.done ? now : null;
+			const notes = item.notes || '';
+			await db.execute(sql`
+				INSERT INTO checklist_progress (user_id, location_id, item_id, done, notes, completed_at, updated_at)
+				VALUES (${user.id}, ${locationId}, ${item.itemId}, ${item.done}, ${notes}, ${completedAt}, ${now})
+				ON CONFLICT (user_id, location_id, item_id) DO UPDATE SET
+					done = EXCLUDED.done,
+					notes = EXCLUDED.notes,
+					completed_at = EXCLUDED.completed_at,
+					updated_at = EXCLUDED.updated_at
+			`);
 		}
 
 		return json({ success: true, updatedAt: now });

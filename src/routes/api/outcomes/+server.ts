@@ -11,7 +11,8 @@
  */
 
 import type { RequestHandler } from '@sveltejs/kit';
-import { getSupabase } from '$lib/supabase';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { rateLimit } from '$lib/rate-limit';
 import { scheduleCheckIns } from '$lib/outcome-checkins';
 
@@ -34,28 +35,20 @@ export const GET: RequestHandler = async ({ request, url, locals }) => {
 		});
 	}
 
-	const supabase = getSupabase();
 	const singleId = url.searchParams.get('id');
 
 	try {
 		if (singleId) {
 			// Single location with all outcomes
-			const { data: location, error: locErr } = await supabase
-				.from('scored_locations')
-				.select('*')
-				.eq('id', singleId)
-				.eq('user_id', userId)
-				.single();
+			const locRes = await db.execute(sql`SELECT * FROM scored_locations WHERE id = ${singleId} AND user_id = ${userId} LIMIT 1`);
+			const location = locRes.rows[0];
 
-			if (locErr || !location) {
+			if (!location) {
 				return new Response(JSON.stringify({ error: 'Location not found' }), { status: 404 });
 			}
 
-			const { data: outcomes } = await supabase
-				.from('outcomes')
-				.select('*')
-				.eq('scored_location_id', singleId)
-				.order('check_in_number', { ascending: true });
+			const outRes = await db.execute(sql`SELECT * FROM outcomes WHERE scored_location_id = ${singleId} ORDER BY check_in_number ASC`);
+			const outcomes = outRes.rows;
 
 			return new Response(JSON.stringify({ location, outcomes: outcomes || [] }), {
 				headers: { 'Content-Type': 'application/json' }
@@ -63,40 +56,35 @@ export const GET: RequestHandler = async ({ request, url, locals }) => {
 		}
 
 		// List all scored locations for this user
-		const { data: locations, error: listErr } = await supabase
-			.from('scored_locations')
-			.select('*')
-			.eq('user_id', userId)
-			.order('scored_at', { ascending: false })
-			.limit(50);
-
-		if (listErr) {
+		let locations = [];
+		try {
+			const listRes = await db.execute(sql`SELECT * FROM scored_locations WHERE user_id = ${userId} ORDER BY scored_at DESC LIMIT 50`);
+			locations = listRes.rows;
+		} catch (listErr) {
 			console.error('[OUTCOMES] List error:', listErr);
 			return new Response(JSON.stringify({ error: 'Failed to fetch locations' }), { status: 500 });
 		}
 
 		// Get latest outcome for each location
-		const locationIds = (locations || []).map(l => l.id);
-		let outcomesMap: Record<string, unknown> = {};
+		const locationIds = locations.map(l => l.id);
+		let outcomesMap: Record<string, any> = {};
 
 		if (locationIds.length > 0) {
-			const { data: outcomes } = await supabase
-				.from('outcomes')
-				.select('*')
-				.in('scored_location_id', locationIds)
-				.order('check_in_number', { ascending: false });
+			const inClause = locationIds.map(id => `'${id}'`).join(',');
+			const outRes = await db.execute(sql.raw(`SELECT * FROM outcomes WHERE scored_location_id IN (${inClause}) ORDER BY check_in_number DESC`));
+			const outcomes = outRes.rows;
 
 			// Group by location, keep latest
-			for (const o of outcomes || []) {
-				if (!outcomesMap[o.scored_location_id]) {
-					outcomesMap[o.scored_location_id] = o;
+			for (const o of outcomes) {
+				if (!outcomesMap[o.scored_location_id as string]) {
+					outcomesMap[o.scored_location_id as string] = o;
 				}
 			}
 		}
 
-		const enriched = (locations || []).map(loc => ({
+		const enriched = locations.map(loc => ({
 			...loc,
-			latestOutcome: outcomesMap[loc.id] || null
+			latestOutcome: outcomesMap[loc.id as string] || null
 		}));
 
 		return new Response(JSON.stringify({ locations: enriched }), {
@@ -126,16 +114,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	const user = (locals as Record<string, unknown>).user as { id: string; email?: string; name?: string };
-	const supabase = getSupabase();
 
 	try {
 		const body = await request.json();
 		const { action } = body;
 
 		if (action === 'save_location') {
-			return await handleSaveLocation(supabase, user, body);
+			return await handleSaveLocation(user, body);
 		} else if (action === 'submit_outcome') {
-			return await handleSubmitOutcome(supabase, user, body);
+			return await handleSubmitOutcome(user, body);
 		} else {
 			return new Response(
 				JSON.stringify({ error: 'Invalid action. Use "save_location" or "submit_outcome".' }),
@@ -152,25 +139,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 // Handlers
 // ─────────────────────────────────────────────────
 
-interface SupabaseClient {
-	from: (table: string) => {
-		insert: (data: Record<string, unknown>) => { select: (cols?: string) => { single: () => Promise<{ data: Record<string, unknown> | null; error: unknown }> } };
-		select: (cols?: string) => {
-			eq: (col: string, val: unknown) => {
-				single: () => Promise<{ data: Record<string, unknown> | null; error: unknown }>;
-				order: (col: string, opts?: Record<string, unknown>) => { limit: (n: number) => Promise<{ data: Record<string, unknown>[] | null; error: unknown }> };
-			};
-			in: (col: string, vals: unknown[]) => {
-				order: (col: string, opts?: Record<string, unknown>) => Promise<{ data: Record<string, unknown>[] | null; error: unknown }>;
-			};
-		};
-	};
-}
-
 async function handleSaveLocation(
-	supabase: ReturnType<typeof getSupabase>,
 	user: { id: string; email?: string; name?: string },
-	body: Record<string, unknown>
+	body: Record<string, any>
 ) {
 	const {
 		address, lat, lng, businessType, conceptType,
@@ -187,43 +158,32 @@ async function handleSaveLocation(
 		);
 	}
 
-	const { data, error } = await supabase
-		.from('scored_locations')
-		.insert({
-			user_id: user.id,
-			address,
-			lat,
-			lng,
-			business_type: businessType || 'cafe',
-			concept_type: conceptType || null,
-			location_iq: locationIQ,
-			niq: niq ?? null,
-			siq: siq ?? null,
-			tiq: tiq ?? null,
-			liq: liq ?? null,
-			grade: grade ?? null,
-			confidence: confidence ?? null,
-			transit_score: transitScore ?? null,
-			demographics_score: demographicsScore ?? null,
-			competition_score: competitionScore ?? null,
-			vibrancy_score: vibrancyScore ?? null,
-			safety_score: safetyScore ?? null,
-			momentum_score: momentumScore ?? null,
-			data_sources_available: dataSourcesAvailable ?? null,
-			data_sources_total: dataSourcesTotal ?? null,
-			signals: signals ?? []
-		})
-		.select()
-		.single();
-
-	if (error) {
+	let data: any = null;
+	try {
+		const res = await db.execute(sql`
+			INSERT INTO scored_locations (
+				user_id, address, lat, lng, business_type, concept_type, 
+				location_iq, niq, siq, tiq, liq, grade, confidence, 
+				transit_score, demographics_score, competition_score, 
+				vibrancy_score, safety_score, momentum_score, 
+				data_sources_available, data_sources_total, signals
+			) VALUES (
+				${user.id}, ${address}, ${lat}, ${lng}, ${businessType || 'cafe'}, ${conceptType || null},
+				${locationIQ}, ${niq ?? null}, ${siq ?? null}, ${tiq ?? null}, ${liq ?? null}, ${grade ?? null}, ${confidence ?? null},
+				${transitScore ?? null}, ${demographicsScore ?? null}, ${competitionScore ?? null},
+				${vibrancyScore ?? null}, ${safetyScore ?? null}, ${momentumScore ?? null},
+				${dataSourcesAvailable ?? null}, ${dataSourcesTotal ?? null}, ${JSON.stringify(signals ?? [])}
+			) RETURNING *
+		`);
+		data = res.rows[0];
+	} catch (error) {
 		console.error('[OUTCOMES] Save location error:', error);
 		return new Response(JSON.stringify({ error: 'Failed to save location' }), { status: 500 });
 	}
 
 	// Schedule check-in emails (fire and forget)
 	if (user.email && data?.id) {
-		scheduleCheckIns(supabase, {
+		scheduleCheckIns({
 			scoredLocationId: data.id as string,
 			userId: user.id,
 			userEmail: user.email,
@@ -238,9 +198,8 @@ async function handleSaveLocation(
 }
 
 async function handleSubmitOutcome(
-	supabase: ReturnType<typeof getSupabase>,
 	user: { id: string },
-	body: Record<string, unknown>
+	body: Record<string, any>
 ) {
 	const {
 		scoredLocationId, verdict, monthsOpen, revenueRange,
@@ -262,35 +221,33 @@ async function handleSubmitOutcome(
 		);
 	}
 
-	const { data, error } = await supabase
-		.from('outcomes')
-		.insert({
-			scored_location_id: scoredLocationId,
-			user_id: user.id,
-			verdict,
-			months_open: monthsOpen ?? null,
-			revenue_range: revenueRange ?? null,
-			satisfaction: satisfaction ?? null,
-			notes: notes ?? null,
-			biggest_surprise: biggestSurprise ?? null,
-			check_in_number: checkInNumber ?? 1
-		})
-		.select()
-		.single();
-
-	if (error) {
+	let data: any = null;
+	try {
+		const res = await db.execute(sql`
+			INSERT INTO outcomes (
+				scored_location_id, user_id, verdict, months_open, 
+				revenue_range, satisfaction, notes, biggest_surprise, check_in_number
+			) VALUES (
+				${scoredLocationId}, ${user.id}, ${verdict}, ${monthsOpen ?? null},
+				${revenueRange ?? null}, ${satisfaction ?? null}, ${notes ?? null}, ${biggestSurprise ?? null}, ${checkInNumber ?? 1}
+			) RETURNING *
+		`);
+		data = res.rows[0];
+	} catch (error) {
 		console.error('[OUTCOMES] Submit outcome error:', error);
 		return new Response(JSON.stringify({ error: 'Failed to submit outcome' }), { status: 500 });
 	}
 
 	// Mark check-in as responded if applicable
 	if (checkInNumber) {
-		await supabase
-			.from('outcome_checkins')
-			.update({ status: 'responded', responded_at: new Date().toISOString() })
-			.eq('scored_location_id', scoredLocationId)
-			.eq('check_in_number', checkInNumber)
-			.eq('user_id', user.id);
+		const nowStr = new Date().toISOString();
+		await db.execute(sql`
+			UPDATE outcome_checkins 
+			SET status = 'responded', responded_at = ${nowStr}
+			WHERE scored_location_id = ${scoredLocationId} 
+			  AND check_in_number = ${checkInNumber} 
+			  AND user_id = ${user.id}
+		`);
 	}
 
 	return new Response(JSON.stringify({ outcome: data }), {

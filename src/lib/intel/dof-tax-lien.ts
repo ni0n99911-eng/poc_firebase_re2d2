@@ -107,7 +107,7 @@ interface LienRow {
  *
  * @param bbl  Borough-Block-Lot (10-digit, e.g. "1001860030")
  */
-export async function fetchTaxLienDetail(bbl: string): Promise<TaxLienRecord | null> {
+export async function fetchTaxLienDetail(bbl: string, signal?: AbortSignal): Promise<TaxLienRecord | null> {
 	if (!bbl || bbl.length < 6) return null;
 
 	const cacheKey = `dof_lien:${bbl}`;

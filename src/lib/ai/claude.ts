@@ -66,10 +66,10 @@ async function callClaudeAPI(
 	model: 'claude-opus-4-1' | 'claude-3-5-sonnet-20241022' = 'claude-3-5-sonnet-20241022',
 	telemetry?: { route: string; userId?: string | null; sessionId?: string | null; metadata?: Record<string, unknown>; cacheTtlHours?: number; bypassCache?: boolean }
 ): Promise<string> {
-	const apiKey = env.OPENROUTER_API_KEY;
+	const apiKey = env.OPENROUTER_API_KEY || (typeof process !== 'undefined' ? process.env.OPENROUTER_API_KEY : undefined);
 	if (!apiKey) {
 		throw new Error(
-			'env.OPENROUTER_API_KEY is not set. Configure it in your environment variables.'
+			'OPENROUTER_API_KEY is not set. Configure it in your environment variables.'
 		);
 	}
 
@@ -95,7 +95,7 @@ async function callClaudeAPI(
 				metadata: telemetry?.metadata,
 				fetcher: () => callOpenRouterRaw(apiKey, openRouterModel, systemPrompt, userMessage, telemetryRoute, telemetry),
 			});
-			return result.content;
+			return typeof result.content === 'string' ? result.content : JSON.stringify(result.content);
 		} catch (cacheErr) {
 			// If the cache wrapper itself blew up (not the fetcher), fall through
 			// to the legacy direct-call path below to preserve availability.

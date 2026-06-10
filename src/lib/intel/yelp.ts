@@ -123,12 +123,10 @@ const CHAIN_NAMES = new Set([
  * Fetch Yelp Fusion data near a location.
  * Returns null if API key is not configured (graceful degradation).
  */
-export async function fetchYelpData(
-	lat: number,
+export async function fetchYelpData(lat: number,
 	lng: number,
 	businessType: string = 'cafe',
-	radiusMeters: number = 800
-): Promise<YelpData | null> {
+	radiusMeters: number = 800, signal?: AbortSignal): Promise<YelpData | null> {
 	const apiKey = env.YELP_API_KEY;
 	if (!apiKey) {
 		console.warn('[Yelp] No API key configured — skipping');
@@ -158,14 +156,12 @@ export async function fetchYelpData(
 		const { resilientFetch } = await import('./retry');
 
 		console.log('[Yelp] Fetching:', `${YELP_BASE}?latitude=${lat}&longitude=${lng}&categories=${categories}`);
-		const res = await resilientFetch(`${YELP_BASE}?${params}`, {
-			timeout: 10000,
+		const res = await resilientFetch(`${YELP_BASE}?${params}`, { timeout: 10000,
 			label: 'Yelp',
 			headers: {
 				'Authorization': `Bearer ${apiKey}`,
 				'Accept': 'application/json'
-			}
-		});
+			}, signal });
 
 		console.log('[Yelp] API response status:', res.status);
 		if (!res.ok) {

@@ -65,12 +65,10 @@ export interface NarrativeResult {
 
 // ── Main generator ──
 
-export async function generateNarratives(
-	report: LocationIntelReport,
+export async function generateNarratives(report: LocationIntelReport,
 	reconciled: ReconciliationResult,
 	extrapolated: ExtrapolationResult,
-	options: { useAI?: boolean } = {}
-): Promise<NarrativeResult> {
+	options: { useAI?: boolean } = {}, signal?: AbortSignal): Promise<NarrativeResult> {
 	const startMs = Date.now();
 
 	// Always generate template-based narratives first
@@ -386,21 +384,20 @@ Transit: ${report.mtaRidership?.totalDailyRidership?.toLocaleString() || 'N/A'} 
 Generate one synthesized insight.`;
 
 	// FIX-010: use openrouterFetch (1 retry, 2s→4s backoff on 429/500; returns null on failure)
-	const response = await openrouterFetch(
-		OPENROUTER_URL,
-		{
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${env.OPENROUTER_API_KEY || ''}`,
-				'HTTP-Referer': 'https://resquared.io',
-				'X-Title': 'RE² Narrative Engine',
-			},
-			body: JSON.stringify({
-				model: 'anthropic/claude-sonnet-4',
-				max_tokens: 512,
-				messages: [
-					{ role: 'system', content: systemPrompt },
+	const response = await openrouterFetch(OPENROUTER_URL, { 
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${env.OPENROUTER_API_KEY || ''}`,
+			'HTTP-Referer': 'https://resquared.io',
+			'X-Title': 'RE² Narrative Engine',
+		},
+		signal,
+		body: JSON.stringify({
+			model: 'anthropic/claude-sonnet-4',
+			max_tokens: 512,
+			messages: [
+				{ role: 'system', content: systemPrompt },
 					{ role: 'user', content: userMessage }
 				],
 				stream: false,

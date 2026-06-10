@@ -10,7 +10,8 @@
 
 import type { RequestHandler } from '@sveltejs/kit';
 import { requireAuth } from '$lib/auth-middleware';
-import { getUserSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { clientProfiles } from '$lib/db/schema';
 import type { LaunchPadData } from '$lib/launchpad-store';
 
 // ── Budget range derivation ──
@@ -73,13 +74,11 @@ export const POST: RequestHandler = async ({ request }) => {
 	};
 
 	// ── Upsert with user context for audit triggers ──
-	const supabase = await getUserSupabase(auth.userId);
-
-	const { error } = await supabase
-		.from('client_profiles')
-		.upsert(payload, { onConflict: 'user_id' });
-
-	if (error) {
+	try {
+		await db.insert(clientProfiles)
+			.values({ userId: auth.userId, data: payload })
+			.onConflictDoUpdate({ target: clientProfiles.userId, set: { data: payload } });
+	} catch (error: any) {
 		console.error('[profile-sync] upsert failed:', error.message, error.code);
 		return new Response(JSON.stringify({ error: error.message }), {
 			status: 500,

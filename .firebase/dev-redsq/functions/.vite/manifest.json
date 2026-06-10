@@ -1,0 +1,2482 @@
+{
+  ".svelte-kit/generated/server/internal.js": {
+    "file": "internal.js",
+    "name": "internal",
+    "src": ".svelte-kit/generated/server/internal.js",
+    "isEntry": true,
+    "imports": [
+      "_root.js",
+      "_environment.js",
+      "_internal.js",
+      "_private.js"
+    ]
+  },
+  "_CoPilotChat.DVpui7zq.css": {
+    "file": "_app/immutable/assets/CoPilotChat.DVpui7zq.css",
+    "src": "_CoPilotChat.DVpui7zq.css"
+  },
+  "_DisclaimerBanner.M7SIPslP.css": {
+    "file": "_app/immutable/assets/DisclaimerBanner.M7SIPslP.css",
+    "src": "_DisclaimerBanner.M7SIPslP.css"
+  },
+  "_DisclaimerBanner.js": {
+    "file": "chunks/DisclaimerBanner.js",
+    "name": "DisclaimerBanner",
+    "css": [
+      "_app/immutable/assets/DisclaimerBanner.M7SIPslP.css"
+    ]
+  },
+  "_EMC2Button.De9WBL1g.css": {
+    "file": "_app/immutable/assets/EMC2Button.De9WBL1g.css",
+    "src": "_EMC2Button.De9WBL1g.css"
+  },
+  "_MapView.DHP_j4kC.css": {
+    "file": "_app/immutable/assets/MapView.DHP_j4kC.css",
+    "src": "_MapView.DHP_j4kC.css"
+  },
+  "_NavigationDrawer.CO_g1_C7.css": {
+    "file": "_app/immutable/assets/NavigationDrawer.CO_g1_C7.css",
+    "src": "_NavigationDrawer.CO_g1_C7.css"
+  },
+  "_NavigationDrawer.js": {
+    "file": "chunks/NavigationDrawer.js",
+    "name": "NavigationDrawer",
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_stores.js"
+    ],
+    "css": [
+      "_app/immutable/assets/NavigationDrawer.CO_g1_C7.css"
+    ]
+  },
+  "_PageNav.j8pwKQpr.css": {
+    "file": "_app/immutable/assets/PageNav.j8pwKQpr.css",
+    "src": "_PageNav.j8pwKQpr.css"
+  },
+  "_PageNav.js": {
+    "file": "chunks/PageNav.js",
+    "name": "PageNav",
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/PageNav.j8pwKQpr.css"
+    ]
+  },
+  "_SiteNav.BtMZwhpi.css": {
+    "file": "_app/immutable/assets/SiteNav.BtMZwhpi.css",
+    "src": "_SiteNav.BtMZwhpi.css"
+  },
+  "_SiteNav.js": {
+    "file": "chunks/SiteNav.js",
+    "name": "SiteNav",
+    "imports": [
+      "_index2.js",
+      "_stores.js"
+    ],
+    "css": [
+      "_app/immutable/assets/SiteNav.BtMZwhpi.css"
+    ]
+  },
+  "__server.js": {
+    "file": "chunks/_server.js",
+    "name": "_server",
+    "imports": [
+      "_auth-middleware.js"
+    ]
+  },
+  "_aiConfig.js": {
+    "file": "chunks/aiConfig.js",
+    "name": "aiConfig",
+    "imports": [
+      "_modules.js"
+    ]
+  },
+  "_app.B8awCFW-.css": {
+    "file": "_app/immutable/assets/app.B8awCFW-.css",
+    "src": "_app.B8awCFW-.css"
+  },
+  "_auth-middleware.js": {
+    "file": "chunks/auth-middleware.js",
+    "name": "auth-middleware"
+  },
+  "_authed-fetch.js": {
+    "file": "chunks/authed-fetch.js",
+    "name": "authed-fetch"
+  },
+  "_block-group.js": {
+    "file": "chunks/block-group.js",
+    "name": "block-group",
+    "imports": [
+      "_db-server.js",
+      "_business-type-registry.js"
+    ]
+  },
+  "_borough-bounds.js": {
+    "file": "chunks/borough-bounds.js",
+    "name": "borough-bounds"
+  },
+  "_bundle-builder.js": {
+    "file": "chunks/bundle-builder.js",
+    "name": "bundle-builder",
+    "imports": [
+      "_index3.js",
+      "_six-index.js",
+      "_business-type-registry.js",
+      "_data-quality-gate.js",
+      "_dynamic-concept-config.js",
+      "_block-group.js",
+      "_borough-bounds.js",
+      "_db-server.js",
+      "_survival-rate.js",
+      "_location-iq.js"
+    ]
+  },
+  "_business-case-store.svelte.js": {
+    "file": "chunks/business-case-store.svelte.js",
+    "name": "business-case-store.svelte",
+    "imports": [
+      "_index2.js",
+      "_conceptKPIs.js",
+      "_concepts.js",
+      "_conceptDefaults.js",
+      "_vital-rules.js",
+      "_editorial-signals.js"
+    ]
+  },
+  "_business-type-registry.js": {
+    "file": "chunks/business-type-registry.js",
+    "name": "business-type-registry"
+  },
+  "_cache.js": {
+    "file": "chunks/cache.js",
+    "name": "cache",
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "_checklist-engine.js": {
+    "file": "chunks/checklist-engine.js",
+    "name": "checklist-engine"
+  },
+  "_client.js": {
+    "file": "chunks/client.js",
+    "name": "client"
+  },
+  "_client2.js": {
+    "file": "chunks/client2.js",
+    "name": "client",
+    "imports": [
+      "_state.svelte.js",
+      "_exports.js",
+      "_utils.js",
+      "_index.js",
+      "_root.js"
+    ]
+  },
+  "_conceptDefaults.js": {
+    "file": "chunks/conceptDefaults.js",
+    "name": "conceptDefaults"
+  },
+  "_conceptKPIs.js": {
+    "file": "chunks/conceptKPIs.js",
+    "name": "conceptKPIs"
+  },
+  "_conceptNames.js": {
+    "file": "chunks/conceptNames.js",
+    "name": "conceptNames"
+  },
+  "_concepts.js": {
+    "file": "chunks/concepts.js",
+    "name": "concepts"
+  },
+  "_copilot-sanitize.js": {
+    "file": "chunks/copilot-sanitize.js",
+    "name": "copilot-sanitize"
+  },
+  "_data-quality-gate.js": {
+    "file": "chunks/data-quality-gate.js",
+    "name": "data-quality-gate",
+    "imports": [
+      "_private.js",
+      "_retry.js",
+      "_db-server.js"
+    ]
+  },
+  "_db-server.js": {
+    "file": "chunks/db-server.js",
+    "name": "db-server",
+    "isDynamicEntry": true,
+    "imports": [
+      "_private.js"
+    ]
+  },
+  "_decision-engine.js": {
+    "file": "chunks/decision-engine.js",
+    "name": "decision-engine",
+    "imports": [
+      "_conceptKPIs.js",
+      "_scoring-thresholds.js"
+    ]
+  },
+  "_dynamic-concept-config.js": {
+    "file": "chunks/dynamic-concept-config.js",
+    "name": "dynamic-concept-config",
+    "imports": [
+      "_business-type-registry.js"
+    ]
+  },
+  "_editorial-signals.js": {
+    "file": "chunks/editorial-signals.js",
+    "name": "editorial-signals",
+    "imports": [
+      "_neighborhoodBuzz.js"
+    ]
+  },
+  "_email.js": {
+    "file": "chunks/email.js",
+    "name": "email",
+    "imports": [
+      "_private.js",
+      "_modules.js"
+    ]
+  },
+  "_environment.js": {
+    "file": "chunks/environment.js",
+    "name": "environment"
+  },
+  "_exports.js": {
+    "file": "chunks/exports.js",
+    "name": "exports"
+  },
+  "_failure-tracker.js": {
+    "file": "chunks/failure-tracker.js",
+    "name": "failure-tracker"
+  },
+  "_false.js": {
+    "file": "chunks/false.js",
+    "name": "false"
+  },
+  "_financial-projections.js": {
+    "file": "chunks/financial-projections.js",
+    "name": "financial-projections",
+    "imports": [
+      "_industry-benchmarks.js"
+    ]
+  },
+  "_fit-iq-engine.js": {
+    "file": "chunks/fit-iq-engine.js",
+    "name": "fit-iq-engine",
+    "imports": [
+      "_db-server.js",
+      "_dynamic-concept-config.js",
+      "_six-index.js",
+      "_primitives.js",
+      "_geo-math.js"
+    ]
+  },
+  "_foursquare.js": {
+    "file": "chunks/foursquare.js",
+    "name": "foursquare",
+    "imports": [
+      "_modules.js",
+      "_cache.js",
+      "_private.js",
+      "_geo-math.js"
+    ],
+    "dynamicImports": [
+      "_retry.js",
+      "_retry.js",
+      "_db-server.js",
+      "_retry.js",
+      "_retry.js",
+      "_retry.js"
+    ]
+  },
+  "_geo-math.js": {
+    "file": "chunks/geo-math.js",
+    "name": "geo-math"
+  },
+  "_html.js": {
+    "file": "chunks/html.js",
+    "name": "html"
+  },
+  "_index-server.js": {
+    "file": "chunks/index-server.js",
+    "name": "index-server",
+    "imports": [
+      "_index2.js"
+    ]
+  },
+  "_index.js": {
+    "file": "chunks/index.js",
+    "name": "index",
+    "imports": [
+      "_index2.js"
+    ]
+  },
+  "_index2.js": {
+    "file": "chunks/index2.js",
+    "name": "index",
+    "imports": [
+      "_false.js"
+    ]
+  },
+  "_index3.js": {
+    "file": "chunks/index3.js",
+    "name": "index",
+    "imports": [
+      "_yelp.js",
+      "_foursquare.js",
+      "_cache.js",
+      "_private.js",
+      "_retry.js",
+      "_nyc-schools.js",
+      "_six-index.js",
+      "_db-server.js",
+      "_data-quality-gate.js",
+      "_street-side.js",
+      "_resilient-fetch.js"
+    ],
+    "dynamicImports": [
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/location-history.ts"
+    ]
+  },
+  "_index4.js": {
+    "file": "chunks/index4.js",
+    "name": "index",
+    "imports": [
+      "_client2.js",
+      "_index2.js"
+    ]
+  },
+  "_industry-benchmarks.js": {
+    "file": "chunks/industry-benchmarks.js",
+    "name": "industry-benchmarks"
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "name": "internal",
+    "imports": [
+      "_root.js",
+      "_environment.js",
+      "_private.js"
+    ],
+    "dynamicImports": [
+      "src/hooks.server.ts"
+    ]
+  },
+  "_location-iq.js": {
+    "file": "chunks/location-iq.js",
+    "name": "location-iq",
+    "imports": [
+      "_primitives.js",
+      "_borough-bounds.js",
+      "_scoring-thresholds.js",
+      "_vital-rules.js",
+      "_business-type-registry.js"
+    ]
+  },
+  "_modules.js": {
+    "file": "chunks/modules.js",
+    "name": "modules"
+  },
+  "_neighborhoodBuzz.js": {
+    "file": "chunks/neighborhoodBuzz.js",
+    "name": "neighborhoodBuzz"
+  },
+  "_nyc-schools.js": {
+    "file": "chunks/nyc-schools.js",
+    "name": "nyc-schools",
+    "imports": [
+      "_cache.js",
+      "_geo-math.js"
+    ],
+    "dynamicImports": [
+      "src/lib/intel/socrata-fetch.ts"
+    ]
+  },
+  "_openrouter-llm.js": {
+    "file": "chunks/openrouter-llm.js",
+    "name": "openrouter-llm"
+  },
+  "_outcome-checkins.js": {
+    "file": "chunks/outcome-checkins.js",
+    "name": "outcome-checkins",
+    "imports": [
+      "_private.js",
+      "_modules.js",
+      "_db-server.js"
+    ]
+  },
+  "_primitives.js": {
+    "file": "chunks/primitives.js",
+    "name": "primitives"
+  },
+  "_private.js": {
+    "file": "chunks/private.js",
+    "name": "private",
+    "isDynamicEntry": true
+  },
+  "_rate-limit.js": {
+    "file": "chunks/rate-limit.js",
+    "name": "rate-limit"
+  },
+  "_resilient-fetch.js": {
+    "file": "chunks/resilient-fetch.js",
+    "name": "resilient-fetch",
+    "imports": [
+      "_failure-tracker.js"
+    ]
+  },
+  "_retry.js": {
+    "file": "chunks/retry.js",
+    "name": "retry",
+    "isDynamicEntry": true
+  },
+  "_root.js": {
+    "file": "chunks/root.js",
+    "name": "root",
+    "imports": [
+      "_index2.js"
+    ]
+  },
+  "_scoreUtils.js": {
+    "file": "chunks/scoreUtils.js",
+    "name": "scoreUtils"
+  },
+  "_scoring-thresholds.js": {
+    "file": "chunks/scoring-thresholds.js",
+    "name": "scoring-thresholds"
+  },
+  "_scoring-utils.B3of6Q8M.css": {
+    "file": "_app/immutable/assets/scoring-utils.B3of6Q8M.css",
+    "src": "_scoring-utils.B3of6Q8M.css"
+  },
+  "_scoring-utils.svelte.js": {
+    "file": "chunks/scoring-utils.svelte.js",
+    "name": "scoring-utils.svelte",
+    "imports": [
+      "_scoring-thresholds.js"
+    ],
+    "css": [
+      "_app/immutable/assets/scoring-utils.B3of6Q8M.css"
+    ]
+  },
+  "_server.js": {
+    "file": "chunks/server.js",
+    "name": "server"
+  },
+  "_shared.js": {
+    "file": "chunks/shared.js",
+    "name": "shared",
+    "imports": [
+      "_utils.js"
+    ]
+  },
+  "_six-index.js": {
+    "file": "chunks/six-index.js",
+    "name": "six-index",
+    "imports": [
+      "_geo-math.js",
+      "_primitives.js",
+      "_business-type-registry.js"
+    ]
+  },
+  "_state.svelte.js": {
+    "file": "chunks/state.svelte.js",
+    "name": "state.svelte",
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_root.js"
+    ]
+  },
+  "_stores.js": {
+    "file": "chunks/stores.js",
+    "name": "stores",
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ]
+  },
+  "_street-side.js": {
+    "file": "chunks/street-side.js",
+    "name": "street-side",
+    "imports": [
+      "_cache.js",
+      "_db-server.js",
+      "_geo-math.js"
+    ]
+  },
+  "_survival-rate.js": {
+    "file": "chunks/survival-rate.js",
+    "name": "survival-rate",
+    "imports": [
+      "_db-server.js",
+      "_scoring-thresholds.js",
+      "_cache.js"
+    ]
+  },
+  "_utils.js": {
+    "file": "chunks/utils.js",
+    "name": "utils"
+  },
+  "_vital-rules.js": {
+    "file": "chunks/vital-rules.js",
+    "name": "vital-rules",
+    "imports": [
+      "_industry-benchmarks.js",
+      "_conceptKPIs.js"
+    ]
+  },
+  "_yelp.js": {
+    "file": "chunks/yelp.js",
+    "name": "yelp",
+    "imports": [
+      "_cache.js",
+      "_modules.js",
+      "_private.js",
+      "_borough-bounds.js",
+      "_geo-math.js",
+      "_scoring-thresholds.js"
+    ],
+    "dynamicImports": [
+      "_retry.js",
+      "_retry.js",
+      "_retry.js",
+      "_retry.js",
+      "_db-server.js",
+      "_retry.js",
+      "_retry.js",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "_retry.js",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "_db-server.js",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "src/lib/intel/socrata-fetch.ts",
+      "_retry.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
+    "file": "remote-entry.js",
+    "name": "remote-entry",
+    "src": "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
+    "isEntry": true,
+    "imports": [
+      "_shared.js",
+      "_false.js",
+      "_environment.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "name": "index",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "isEntry": true,
+    "imports": [
+      "_false.js",
+      "_environment.js",
+      "_shared.js",
+      "_exports.js",
+      "_utils.js",
+      "_index.js",
+      "_private.js",
+      "_internal.js"
+    ]
+  },
+  "src/hooks.server.ts": {
+    "file": "entries/hooks.server.js",
+    "name": "entries/hooks.server",
+    "src": "src/hooks.server.ts",
+    "isEntry": true,
+    "isDynamicEntry": true,
+    "imports": [
+      "_private.js",
+      "_db-server.js",
+      "_modules.js",
+      "_email.js",
+      "_server.js"
+    ]
+  },
+  "src/lib/ai/budget-guard.ts": {
+    "file": "chunks/budget-guard.js",
+    "name": "budget-guard",
+    "src": "src/lib/ai/budget-guard.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/lib/ai/llm-cache.ts": {
+    "file": "chunks/llm-cache.js",
+    "name": "llm-cache",
+    "src": "src/lib/ai/llm-cache.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/lib/ai/telemetry.ts",
+      "_db-server.js"
+    ]
+  },
+  "src/lib/ai/telemetry.ts": {
+    "file": "chunks/telemetry.js",
+    "name": "telemetry",
+    "src": "src/lib/ai/telemetry.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/lib/intel/location-history.ts": {
+    "file": "chunks/location-history.js",
+    "name": "location-history",
+    "src": "src/lib/intel/location-history.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_cache.js",
+      "src/lib/intel/socrata-fetch.ts"
+    ]
+  },
+  "src/lib/intel/socrata-fetch.ts": {
+    "file": "chunks/socrata-fetch.js",
+    "name": "socrata-fetch",
+    "src": "src/lib/intel/socrata-fetch.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_retry.js"
+    ]
+  },
+  "src/lib/launchpad-store.ts": {
+    "file": "chunks/launchpad-store.js",
+    "name": "launchpad-store",
+    "src": "src/lib/launchpad-store.ts",
+    "isDynamicEntry": true
+  },
+  "src/lib/snowflake.ts": {
+    "file": "chunks/snowflake.js",
+    "name": "snowflake",
+    "src": "src/lib/snowflake.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_private.js"
+    ]
+  },
+  "src/routes/+error.svelte": {
+    "file": "entries/pages/_error.svelte.js",
+    "name": "entries/pages/_error.svelte",
+    "src": "src/routes/+error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_stores.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_error.ByA5JaVO.css"
+    ]
+  },
+  "src/routes/+layout.server.ts": {
+    "file": "entries/pages/_layout.server.ts.js",
+    "name": "entries/pages/_layout.server.ts",
+    "src": "src/routes/+layout.server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js"
+    ]
+  },
+  "src/routes/+layout.svelte": {
+    "file": "entries/pages/_layout.svelte.js",
+    "name": "entries/pages/_layout.svelte",
+    "src": "src/routes/+layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_stores.js",
+      "_index-server.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "src/lib/launchpad-store.ts",
+      "_client.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_layout.Arn8l6np.css",
+      "_app/immutable/assets/app.B8awCFW-.css"
+    ]
+  },
+  "src/routes/+layout.ts": {
+    "file": "entries/pages/_layout.ts.js",
+    "name": "entries/pages/_layout.ts",
+    "src": "src/routes/+layout.ts",
+    "isEntry": true
+  },
+  "src/routes/+page.svelte": {
+    "file": "entries/pages/_page.svelte.js",
+    "name": "entries/pages/_page.svelte",
+    "src": "src/routes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.2YcpYEEz.css"
+    ]
+  },
+  "src/routes/about/+page.svelte": {
+    "file": "entries/pages/about/_page.svelte.js",
+    "name": "entries/pages/about/_page.svelte",
+    "src": "src/routes/about/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_modules.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DTFBf6lk.css"
+    ]
+  },
+  "src/routes/admin/+page.server.ts": {
+    "file": "entries/pages/admin/_page.server.ts.js",
+    "name": "entries/pages/admin/_page.server.ts",
+    "src": "src/routes/admin/+page.server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_modules.js"
+    ]
+  },
+  "src/routes/admin/+page.svelte": {
+    "file": "entries/pages/admin/_page.svelte.js",
+    "name": "entries/pages/admin/_page.svelte",
+    "src": "src/routes/admin/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.uTkPqk0G.css"
+    ]
+  },
+  "src/routes/api/admin/+server.ts": {
+    "file": "entries/endpoints/api/admin/_server.ts.js",
+    "name": "entries/endpoints/api/admin/_server.ts",
+    "src": "src/routes/api/admin/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_email.js",
+      "_modules.js"
+    ]
+  },
+  "src/routes/api/admin/score-stats/+server.ts": {
+    "file": "entries/endpoints/api/admin/score-stats/_server.ts.js",
+    "name": "entries/endpoints/api/admin/score-stats/_server.ts",
+    "src": "src/routes/api/admin/score-stats/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/admin/waitlist/+server.ts": {
+    "file": "entries/endpoints/api/admin/waitlist/_server.ts.js",
+    "name": "entries/endpoints/api/admin/waitlist/_server.ts",
+    "src": "src/routes/api/admin/waitlist/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_db-server.js",
+      "_email.js",
+      "_modules.js"
+    ]
+  },
+  "src/routes/api/ai/+server.ts": {
+    "file": "entries/endpoints/api/ai/_server.ts.js",
+    "name": "entries/endpoints/api/ai/_server.ts",
+    "src": "src/routes/api/ai/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_rate-limit.js",
+      "_conceptNames.js",
+      "_private.js"
+    ],
+    "dynamicImports": [
+      "src/lib/ai/llm-cache.ts",
+      "src/lib/ai/telemetry.ts",
+      "src/lib/ai/telemetry.ts",
+      "src/lib/ai/telemetry.ts",
+      "src/lib/ai/budget-guard.ts",
+      "_private.js"
+    ]
+  },
+  "src/routes/api/analyze-concept/+server.ts": {
+    "file": "entries/endpoints/api/analyze-concept/_server.ts.js",
+    "name": "entries/endpoints/api/analyze-concept/_server.ts",
+    "src": "src/routes/api/analyze-concept/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_aiConfig.js"
+    ]
+  },
+  "src/routes/api/block-group-intel/+server.ts": {
+    "file": "entries/endpoints/api/block-group-intel/_server.ts.js",
+    "name": "entries/endpoints/api/block-group-intel/_server.ts",
+    "src": "src/routes/api/block-group-intel/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_block-group.js",
+      "_business-type-registry.js",
+      "_rate-limit.js",
+      "_db-server.js",
+      "_street-side.js"
+    ]
+  },
+  "src/routes/api/brokers/+server.ts": {
+    "file": "entries/endpoints/api/brokers/_server.ts.js",
+    "name": "entries/endpoints/api/brokers/_server.ts",
+    "src": "src/routes/api/brokers/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/business-case-model/+server.ts": {
+    "file": "entries/endpoints/api/business-case-model/_server.ts.js",
+    "name": "entries/endpoints/api/business-case-model/_server.ts",
+    "src": "src/routes/api/business-case-model/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_business-case-store.svelte.js"
+    ]
+  },
+  "src/routes/api/business-case-summary/+server.ts": {
+    "file": "entries/endpoints/api/business-case-summary/_server.ts.js",
+    "name": "entries/endpoints/api/business-case-summary/_server.ts",
+    "src": "src/routes/api/business-case-summary/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_rate-limit.js",
+      "_financial-projections.js",
+      "_conceptKPIs.js",
+      "_business-type-registry.js",
+      "_decision-engine.js",
+      "_scoring-thresholds.js"
+    ]
+  },
+  "src/routes/api/cache-health/+server.ts": {
+    "file": "entries/endpoints/api/cache-health/_server.ts.js",
+    "name": "entries/endpoints/api/cache-health/_server.ts",
+    "src": "src/routes/api/cache-health/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_cache.js"
+    ]
+  },
+  "src/routes/api/checklist-sync/+server.ts": {
+    "file": "entries/endpoints/api/checklist-sync/_server.ts.js",
+    "name": "entries/endpoints/api/checklist-sync/_server.ts",
+    "src": "src/routes/api/checklist-sync/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/checklist/+server.ts": {
+    "file": "entries/endpoints/api/checklist/_server.ts.js",
+    "name": "entries/endpoints/api/checklist/_server.ts",
+    "src": "src/routes/api/checklist/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_checklist-engine.js"
+    ]
+  },
+  "src/routes/api/checklist/cost-summary/+server.ts": {
+    "file": "entries/endpoints/api/checklist/cost-summary/_server.ts.js",
+    "name": "entries/endpoints/api/checklist/cost-summary/_server.ts",
+    "src": "src/routes/api/checklist/cost-summary/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_checklist-engine.js"
+    ]
+  },
+  "src/routes/api/circuit-health/+server.ts": {
+    "file": "entries/endpoints/api/circuit-health/_server.ts.js",
+    "name": "entries/endpoints/api/circuit-health/_server.ts",
+    "src": "src/routes/api/circuit-health/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_retry.js",
+      "_resilient-fetch.js"
+    ]
+  },
+  "src/routes/api/compare/+server.ts": {
+    "file": "entries/endpoints/api/compare/_server.ts.js",
+    "name": "entries/endpoints/api/compare/_server.ts",
+    "src": "src/routes/api/compare/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_index3.js",
+      "_location-iq.js",
+      "_db-server.js",
+      "_block-group.js",
+      "_business-type-registry.js",
+      "_geo-math.js",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/concept-config/+server.ts": {
+    "file": "entries/endpoints/api/concept-config/_server.ts.js",
+    "name": "entries/endpoints/api/concept-config/_server.ts",
+    "src": "src/routes/api/concept-config/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_dynamic-concept-config.js"
+    ]
+  },
+  "src/routes/api/concepts/+server.ts": {
+    "file": "entries/endpoints/api/concepts/_server.ts.js",
+    "name": "entries/endpoints/api/concepts/_server.ts",
+    "src": "src/routes/api/concepts/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_block-group.js"
+    ]
+  },
+  "src/routes/api/copilot/business/+server.ts": {
+    "file": "entries/endpoints/api/copilot/business/_server.ts.js",
+    "name": "entries/endpoints/api/copilot/business/_server.ts",
+    "src": "src/routes/api/copilot/business/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_openrouter-llm.js",
+      "_db-server.js",
+      "_industry-benchmarks.js",
+      "_business-type-registry.js",
+      "_financial-projections.js",
+      "_conceptKPIs.js"
+    ]
+  },
+  "src/routes/api/copilot/checklist/+server.ts": {
+    "file": "entries/endpoints/api/copilot/checklist/_server.ts.js",
+    "name": "entries/endpoints/api/copilot/checklist/_server.ts",
+    "src": "src/routes/api/copilot/checklist/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_openrouter-llm.js",
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/copilot/location/+server.ts": {
+    "file": "entries/endpoints/api/copilot/location/_server.ts.js",
+    "name": "entries/endpoints/api/copilot/location/_server.ts",
+    "src": "src/routes/api/copilot/location/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_openrouter-llm.js",
+      "_db-server.js",
+      "_fit-iq-engine.js",
+      "_business-type-registry.js",
+      "_editorial-signals.js",
+      "_conceptKPIs.js",
+      "_decision-engine.js"
+    ],
+    "dynamicImports": [
+      "src/lib/ai/budget-guard.ts"
+    ]
+  },
+  "src/routes/api/deals/+server.ts": {
+    "file": "entries/endpoints/api/deals/_server.ts.js",
+    "name": "entries/endpoints/api/deals/_server.ts",
+    "src": "src/routes/api/deals/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/deals/[id]/+server.ts": {
+    "file": "entries/endpoints/api/deals/_id_/_server.ts.js",
+    "name": "entries/endpoints/api/deals/_id_/_server.ts",
+    "src": "src/routes/api/deals/[id]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/deals/[id]/events/+server.ts": {
+    "file": "entries/endpoints/api/deals/_id_/events/_server.ts.js",
+    "name": "entries/endpoints/api/deals/_id_/events/_server.ts",
+    "src": "src/routes/api/deals/[id]/events/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/deals/remove-location/+server.ts": {
+    "file": "entries/endpoints/api/deals/remove-location/_server.ts.js",
+    "name": "entries/endpoints/api/deals/remove-location/_server.ts",
+    "src": "src/routes/api/deals/remove-location/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/deals/save-location/+server.ts": {
+    "file": "entries/endpoints/api/deals/save-location/_server.ts.js",
+    "name": "entries/endpoints/api/deals/save-location/_server.ts",
+    "src": "src/routes/api/deals/save-location/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/deals/update-location/+server.ts": {
+    "file": "entries/endpoints/api/deals/update-location/_server.ts.js",
+    "name": "entries/endpoints/api/deals/update-location/_server.ts",
+    "src": "src/routes/api/deals/update-location/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/export-operations/+server.ts": {
+    "file": "entries/endpoints/api/export-operations/_server.ts.js",
+    "name": "entries/endpoints/api/export-operations/_server.ts",
+    "src": "src/routes/api/export-operations/+server.ts",
+    "isEntry": true
+  },
+  "src/routes/api/export-plan/+server.ts": {
+    "file": "entries/endpoints/api/export-plan/_server.ts.js",
+    "name": "entries/endpoints/api/export-plan/_server.ts",
+    "src": "src/routes/api/export-plan/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_modules.js",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/feedback/+server.ts": {
+    "file": "entries/endpoints/api/feedback/_server.ts.js",
+    "name": "entries/endpoints/api/feedback/_server.ts",
+    "src": "src/routes/api/feedback/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/fit-iq/compute/+server.ts": {
+    "file": "entries/endpoints/api/fit-iq/compute/_server.ts.js",
+    "name": "entries/endpoints/api/fit-iq/compute/_server.ts",
+    "src": "src/routes/api/fit-iq/compute/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_fit-iq-engine.js",
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/generate-brief/+server.ts": {
+    "file": "entries/endpoints/api/generate-brief/_server.ts.js",
+    "name": "entries/endpoints/api/generate-brief/_server.ts",
+    "src": "src/routes/api/generate-brief/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_rate-limit.js",
+      "_db-server.js",
+      "_aiConfig.js"
+    ]
+  },
+  "src/routes/api/generate-operations/+server.ts": {
+    "file": "entries/endpoints/api/generate-operations/_server.ts.js",
+    "name": "entries/endpoints/api/generate-operations/_server.ts",
+    "src": "src/routes/api/generate-operations/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js"
+    ]
+  },
+  "src/routes/api/generate-playbook/+server.ts": {
+    "file": "entries/endpoints/api/generate-playbook/_server.ts.js",
+    "name": "entries/endpoints/api/generate-playbook/_server.ts",
+    "src": "src/routes/api/generate-playbook/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/generate-questions/+server.ts": {
+    "file": "entries/endpoints/api/generate-questions/_server.ts.js",
+    "name": "entries/endpoints/api/generate-questions/_server.ts",
+    "src": "src/routes/api/generate-questions/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_rate-limit.js",
+      "_aiConfig.js"
+    ]
+  },
+  "src/routes/api/geo/+server.ts": {
+    "file": "entries/endpoints/api/geo/_server.ts.js",
+    "name": "entries/endpoints/api/geo/_server.ts",
+    "src": "src/routes/api/geo/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_modules.js",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/geocode/+server.ts": {
+    "file": "entries/endpoints/api/geocode/_server.ts.js",
+    "name": "entries/endpoints/api/geocode/_server.ts",
+    "src": "src/routes/api/geocode/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "__server.js"
+    ]
+  },
+  "src/routes/api/health/+server.ts": {
+    "file": "entries/endpoints/api/health/_server.ts.js",
+    "name": "entries/endpoints/api/health/_server.ts",
+    "src": "src/routes/api/health/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_private.js",
+      "_nyc-schools.js",
+      "_retry.js",
+      "_resilient-fetch.js",
+      "_cache.js"
+    ]
+  },
+  "src/routes/api/location-history/+server.ts": {
+    "file": "entries/endpoints/api/location-history/_server.ts.js",
+    "name": "entries/endpoints/api/location-history/_server.ts",
+    "src": "src/routes/api/location-history/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "src/lib/intel/location-history.ts",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/location-intel/+server.ts": {
+    "file": "entries/endpoints/api/location-intel/_server.ts.js",
+    "name": "entries/endpoints/api/location-intel/_server.ts",
+    "src": "src/routes/api/location-intel/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_index3.js",
+      "_rate-limit.js",
+      "_business-type-registry.js",
+      "_cache.js",
+      "_block-group.js"
+    ]
+  },
+  "src/routes/api/location-iq/+server.ts": {
+    "file": "entries/endpoints/api/location-iq/_server.ts.js",
+    "name": "entries/endpoints/api/location-iq/_server.ts",
+    "src": "src/routes/api/location-iq/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_cache.js",
+      "_borough-bounds.js",
+      "_scoring-thresholds.js",
+      "_retry.js",
+      "_six-index.js",
+      "_db-server.js",
+      "_dynamic-concept-config.js",
+      "_data-quality-gate.js",
+      "_block-group.js",
+      "_survival-rate.js",
+      "_rate-limit.js",
+      "_decision-engine.js"
+    ],
+    "dynamicImports": [
+      "src/lib/snowflake.ts"
+    ]
+  },
+  "src/routes/api/nearby-businesses/+server.ts": {
+    "file": "entries/endpoints/api/nearby-businesses/_server.ts.js",
+    "name": "entries/endpoints/api/nearby-businesses/_server.ts",
+    "src": "src/routes/api/nearby-businesses/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_foursquare.js"
+    ]
+  },
+  "src/routes/api/neighborhood-intelligence/+server.ts": {
+    "file": "entries/endpoints/api/neighborhood-intelligence/_server.ts.js",
+    "name": "entries/endpoints/api/neighborhood-intelligence/_server.ts",
+    "src": "src/routes/api/neighborhood-intelligence/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/notify/+server.ts": {
+    "file": "entries/endpoints/api/notify/_server.ts.js",
+    "name": "entries/endpoints/api/notify/_server.ts",
+    "src": "src/routes/api/notify/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_email.js"
+    ]
+  },
+  "src/routes/api/onboarding-chat/+server.ts": {
+    "file": "entries/endpoints/api/onboarding-chat/_server.ts.js",
+    "name": "entries/endpoints/api/onboarding-chat/_server.ts",
+    "src": "src/routes/api/onboarding-chat/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_aiConfig.js"
+    ]
+  },
+  "src/routes/api/outcomes/+server.ts": {
+    "file": "entries/endpoints/api/outcomes/_server.ts.js",
+    "name": "entries/endpoints/api/outcomes/_server.ts",
+    "src": "src/routes/api/outcomes/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_rate-limit.js",
+      "_outcome-checkins.js"
+    ]
+  },
+  "src/routes/api/outcomes/process-checkins/+server.ts": {
+    "file": "entries/endpoints/api/outcomes/process-checkins/_server.ts.js",
+    "name": "entries/endpoints/api/outcomes/process-checkins/_server.ts",
+    "src": "src/routes/api/outcomes/process-checkins/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_outcome-checkins.js"
+    ]
+  },
+  "src/routes/api/probability/compute/+server.ts": {
+    "file": "entries/endpoints/api/probability/compute/_server.ts.js",
+    "name": "entries/endpoints/api/probability/compute/_server.ts",
+    "src": "src/routes/api/probability/compute/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_industry-benchmarks.js",
+      "_auth-middleware.js"
+    ]
+  },
+  "src/routes/api/profile-sync/+server.ts": {
+    "file": "entries/endpoints/api/profile-sync/_server.ts.js",
+    "name": "entries/endpoints/api/profile-sync/_server.ts",
+    "src": "src/routes/api/profile-sync/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/re-score/+server.ts": {
+    "file": "entries/endpoints/api/re-score/_server.ts.js",
+    "name": "entries/endpoints/api/re-score/_server.ts",
+    "src": "src/routes/api/re-score/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_bundle-builder.js",
+      "_db-server.js",
+      "_business-type-registry.js"
+    ]
+  },
+  "src/routes/api/re2d2/check-harm/+server.ts": {
+    "file": "entries/endpoints/api/re2d2/check-harm/_server.ts.js",
+    "name": "entries/endpoints/api/re2d2/check-harm/_server.ts",
+    "src": "src/routes/api/re2d2/check-harm/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_openrouter-llm.js"
+    ]
+  },
+  "src/routes/api/re2d2/respond/+server.ts": {
+    "file": "entries/endpoints/api/re2d2/respond/_server.ts.js",
+    "name": "entries/endpoints/api/re2d2/respond/_server.ts",
+    "src": "src/routes/api/re2d2/respond/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_openrouter-llm.js",
+      "_db-server.js",
+      "__server.js"
+    ]
+  },
+  "src/routes/api/request-failures/+server.ts": {
+    "file": "entries/endpoints/api/request-failures/_server.ts.js",
+    "name": "entries/endpoints/api/request-failures/_server.ts",
+    "src": "src/routes/api/request-failures/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_auth-middleware.js",
+      "_failure-tracker.js"
+    ]
+  },
+  "src/routes/api/score/preview/+server.ts": {
+    "file": "entries/endpoints/api/score/preview/_server.ts.js",
+    "name": "entries/endpoints/api/score/preview/_server.ts",
+    "src": "src/routes/api/score/preview/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_six-index.js",
+      "_dynamic-concept-config.js",
+      "_rate-limit.js",
+      "_decision-engine.js",
+      "_scoring-thresholds.js",
+      "_bundle-builder.js"
+    ]
+  },
+  "src/routes/api/session-intelligence/+server.ts": {
+    "file": "entries/endpoints/api/session-intelligence/_server.ts.js",
+    "name": "entries/endpoints/api/session-intelligence/_server.ts",
+    "src": "src/routes/api/session-intelligence/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_aiConfig.js"
+    ]
+  },
+  "src/routes/api/session-sync/+server.ts": {
+    "file": "entries/endpoints/api/session-sync/_server.ts.js",
+    "name": "entries/endpoints/api/session-sync/_server.ts",
+    "src": "src/routes/api/session-sync/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/session/+server.ts": {
+    "file": "entries/endpoints/api/session/_server.ts.js",
+    "name": "entries/endpoints/api/session/_server.ts",
+    "src": "src/routes/api/session/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_server.js"
+    ]
+  },
+  "src/routes/api/shortlist/compare/+server.ts": {
+    "file": "entries/endpoints/api/shortlist/compare/_server.ts.js",
+    "name": "entries/endpoints/api/shortlist/compare/_server.ts",
+    "src": "src/routes/api/shortlist/compare/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_rate-limit.js",
+      "_scoring-thresholds.js",
+      "_decision-engine.js"
+    ]
+  },
+  "src/routes/api/street-side-test/+server.ts": {
+    "file": "entries/endpoints/api/street-side-test/_server.ts.js",
+    "name": "entries/endpoints/api/street-side-test/_server.ts",
+    "src": "src/routes/api/street-side-test/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_street-side.js"
+    ]
+  },
+  "src/routes/api/street-view-history/+server.ts": {
+    "file": "entries/endpoints/api/street-view-history/_server.ts.js",
+    "name": "entries/endpoints/api/street-view-history/_server.ts",
+    "src": "src/routes/api/street-view-history/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_private.js",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/vacancies/+server.ts": {
+    "file": "entries/endpoints/api/vacancies/_server.ts.js",
+    "name": "entries/endpoints/api/vacancies/_server.ts",
+    "src": "src/routes/api/vacancies/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_cache.js",
+      "_private.js",
+      "_geo-math.js",
+      "_rate-limit.js"
+    ]
+  },
+  "src/routes/api/validate-sources/+server.ts": {
+    "file": "entries/endpoints/api/validate-sources/_server.ts.js",
+    "name": "entries/endpoints/api/validate-sources/_server.ts",
+    "src": "src/routes/api/validate-sources/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_yelp.js",
+      "_foursquare.js"
+    ]
+  },
+  "src/routes/api/vault/+server.ts": {
+    "file": "entries/endpoints/api/vault/_server.ts.js",
+    "name": "entries/endpoints/api/vault/_server.ts",
+    "src": "src/routes/api/vault/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/api/vault/upload/+server.ts": {
+    "file": "entries/endpoints/api/vault/upload/_server.ts.js",
+    "name": "entries/endpoints/api/vault/upload/_server.ts",
+    "src": "src/routes/api/vault/upload/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js",
+      "_server.js"
+    ]
+  },
+  "src/routes/app/+error.svelte": {
+    "file": "entries/pages/app/_error.svelte.js",
+    "name": "entries/pages/app/_error.svelte",
+    "src": "src/routes/app/+error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_stores.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_error.DShl0POZ.css"
+    ]
+  },
+  "src/routes/app/+page.svelte": {
+    "file": "entries/pages/app/_page.svelte.js",
+    "name": "entries/pages/app/_page.svelte",
+    "src": "src/routes/app/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ]
+  },
+  "src/routes/app/about/+page.server.ts": {
+    "file": "entries/pages/app/about/_page.server.ts.js",
+    "name": "entries/pages/app/about/_page.server.ts",
+    "src": "src/routes/app/about/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/about/+page.svelte": {
+    "file": "entries/pages/app/about/_page.svelte.js",
+    "name": "entries/pages/app/about/_page.svelte",
+    "src": "src/routes/app/about/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "src/lib/launchpad-store.ts"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.EyIa--dO.css"
+    ]
+  },
+  "src/routes/app/app/+page.server.ts": {
+    "file": "entries/pages/app/app/_page.server.ts.js",
+    "name": "entries/pages/app/app/_page.server.ts",
+    "src": "src/routes/app/app/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/app/+page.svelte": {
+    "file": "entries/pages/app/app/_page.svelte.js",
+    "name": "entries/pages/app/app/_page.svelte",
+    "src": "src/routes/app/app/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DMSwesLj.css"
+    ]
+  },
+  "src/routes/app/brain/+page.server.ts": {
+    "file": "entries/pages/app/brain/_page.server.ts.js",
+    "name": "entries/pages/app/brain/_page.server.ts",
+    "src": "src/routes/app/brain/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/brain/compare/+page.svelte": {
+    "file": "entries/pages/app/brain/compare/_page.svelte.js",
+    "name": "entries/pages/app/brain/compare/_page.svelte",
+    "src": "src/routes/app/brain/compare/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index4.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.55SF-U5y.css"
+    ]
+  },
+  "src/routes/app/brain/daypart/+page.svelte": {
+    "file": "entries/pages/app/brain/daypart/_page.svelte.js",
+    "name": "entries/pages/app/brain/daypart/_page.svelte",
+    "src": "src/routes/app/brain/daypart/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index4.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BM9-jI9P.css"
+    ]
+  },
+  "src/routes/app/brain/segments/+page.svelte": {
+    "file": "entries/pages/app/brain/segments/_page.svelte.js",
+    "name": "entries/pages/app/brain/segments/_page.svelte",
+    "src": "src/routes/app/brain/segments/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index4.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.lVhEomIO.css"
+    ]
+  },
+  "src/routes/app/brain/street/+page.server.ts": {
+    "file": "entries/pages/app/brain/street/_page.server.ts.js",
+    "name": "entries/pages/app/brain/street/_page.server.ts",
+    "src": "src/routes/app/brain/street/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/brain/street/+page.svelte": {
+    "file": "entries/pages/app/brain/street/_page.svelte.js",
+    "name": "entries/pages/app/brain/street/_page.svelte",
+    "src": "src/routes/app/brain/street/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index4.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.D4LvYFtn.css"
+    ]
+  },
+  "src/routes/app/brain/success-map/+page.svelte": {
+    "file": "entries/pages/app/brain/success-map/_page.svelte.js",
+    "name": "entries/pages/app/brain/success-map/_page.svelte",
+    "src": "src/routes/app/brain/success-map/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index4.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.dClV0C8j.css",
+      "_app/immutable/assets/MapView.DHP_j4kC.css"
+    ]
+  },
+  "src/routes/app/brain/transparency/+page.server.ts": {
+    "file": "entries/pages/app/brain/transparency/_page.server.ts.js",
+    "name": "entries/pages/app/brain/transparency/_page.server.ts",
+    "src": "src/routes/app/brain/transparency/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/brain/transparency/+page.svelte": {
+    "file": "entries/pages/app/brain/transparency/_page.svelte.js",
+    "name": "entries/pages/app/brain/transparency/_page.svelte",
+    "src": "src/routes/app/brain/transparency/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index4.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.C5JNW3UF.css"
+    ]
+  },
+  "src/routes/app/business-plan/+page.server.ts": {
+    "file": "entries/pages/app/business-plan/_page.server.ts.js",
+    "name": "entries/pages/app/business-plan/_page.server.ts",
+    "src": "src/routes/app/business-plan/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/business-plan/+page.svelte": {
+    "file": "entries/pages/app/business-plan/_page.svelte.js",
+    "name": "entries/pages/app/business-plan/_page.svelte",
+    "src": "src/routes/app/business-plan/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_PageNav.js",
+      "_business-case-store.svelte.js",
+      "_decision-engine.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.ByncNZqC.css",
+      "_app/immutable/assets/CoPilotChat.DVpui7zq.css"
+    ]
+  },
+  "src/routes/app/business-plan/+page.ts": {
+    "file": "entries/pages/app/business-plan/_page.ts.js",
+    "name": "entries/pages/app/business-plan/_page.ts",
+    "src": "src/routes/app/business-plan/+page.ts",
+    "isEntry": true
+  },
+  "src/routes/app/checklist/+page.svelte": {
+    "file": "entries/pages/app/checklist/_page.svelte.js",
+    "name": "entries/pages/app/checklist/_page.svelte",
+    "src": "src/routes/app/checklist/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_PageNav.js",
+      "_NavigationDrawer.js",
+      "_copilot-sanitize.js",
+      "_html.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DL0v2dit.css",
+      "_app/immutable/assets/CoPilotChat.DVpui7zq.css"
+    ]
+  },
+  "src/routes/app/checklist/+page.ts": {
+    "file": "entries/pages/app/checklist/_page.ts.js",
+    "name": "entries/pages/app/checklist/_page.ts",
+    "src": "src/routes/app/checklist/+page.ts",
+    "isEntry": true
+  },
+  "src/routes/app/dashboard/+page.svelte": {
+    "file": "entries/pages/app/dashboard/_page.svelte.js",
+    "name": "entries/pages/app/dashboard/_page.svelte",
+    "src": "src/routes/app/dashboard/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_NavigationDrawer.js",
+      "_decision-engine.js",
+      "_scoring-utils.svelte.js",
+      "_conceptNames.js",
+      "_authed-fetch.js",
+      "_conceptKPIs.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.R_1G3hav.css"
+    ]
+  },
+  "src/routes/app/financials/+page.server.ts": {
+    "file": "entries/pages/app/financials/_page.server.ts.js",
+    "name": "entries/pages/app/financials/_page.server.ts",
+    "src": "src/routes/app/financials/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/financials/+page.svelte": {
+    "file": "entries/pages/app/financials/_page.svelte.js",
+    "name": "entries/pages/app/financials/_page.svelte",
+    "src": "src/routes/app/financials/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ]
+  },
+  "src/routes/app/financials/+page.ts": {
+    "file": "entries/pages/app/financials/_page.ts.js",
+    "name": "entries/pages/app/financials/_page.ts",
+    "src": "src/routes/app/financials/+page.ts",
+    "isEntry": true
+  },
+  "src/routes/app/financials/docs/+page.svelte": {
+    "file": "entries/pages/app/financials/docs/_page.svelte.js",
+    "name": "entries/pages/app/financials/docs/_page.svelte",
+    "src": "src/routes/app/financials/docs/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.LN6CcrEJ.css"
+    ]
+  },
+  "src/routes/app/financials/grants/+page.svelte": {
+    "file": "entries/pages/app/financials/grants/_page.svelte.js",
+    "name": "entries/pages/app/financials/grants/_page.svelte",
+    "src": "src/routes/app/financials/grants/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CLNC3gLJ.css"
+    ]
+  },
+  "src/routes/app/financials/sba/+page.svelte": {
+    "file": "entries/pages/app/financials/sba/_page.svelte.js",
+    "name": "entries/pages/app/financials/sba/_page.svelte",
+    "src": "src/routes/app/financials/sba/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DdmcdL5-.css"
+    ]
+  },
+  "src/routes/app/kanban/+page.server.ts": {
+    "file": "entries/pages/app/kanban/_page.server.ts.js",
+    "name": "entries/pages/app/kanban/_page.server.ts",
+    "src": "src/routes/app/kanban/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/kanban/+page.svelte": {
+    "file": "entries/pages/app/kanban/_page.svelte.js",
+    "name": "entries/pages/app/kanban/_page.svelte",
+    "src": "src/routes/app/kanban/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.D-ugZYZm.css"
+    ]
+  },
+  "src/routes/app/launch-pack/+page.server.ts": {
+    "file": "entries/pages/app/launch-pack/_page.server.ts.js",
+    "name": "entries/pages/app/launch-pack/_page.server.ts",
+    "src": "src/routes/app/launch-pack/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/launch-pack/+page.svelte": {
+    "file": "entries/pages/app/launch-pack/_page.svelte.js",
+    "name": "entries/pages/app/launch-pack/_page.svelte",
+    "src": "src/routes/app/launch-pack/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.I6TirwJn.css"
+    ]
+  },
+  "src/routes/app/loans/+page.server.ts": {
+    "file": "entries/pages/app/loans/_page.server.ts.js",
+    "name": "entries/pages/app/loans/_page.server.ts",
+    "src": "src/routes/app/loans/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/loans/+page.svelte": {
+    "file": "entries/pages/app/loans/_page.svelte.js",
+    "name": "entries/pages/app/loans/_page.svelte",
+    "src": "src/routes/app/loans/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_DisclaimerBanner.js",
+      "_PageNav.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.gL3IIv8O.css"
+    ]
+  },
+  "src/routes/app/location/+page.server.ts": {
+    "file": "entries/pages/app/location/_page.server.ts.js",
+    "name": "entries/pages/app/location/_page.server.ts",
+    "src": "src/routes/app/location/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/location/+page.svelte": {
+    "file": "entries/pages/app/location/_page.svelte.js",
+    "name": "entries/pages/app/location/_page.svelte",
+    "src": "src/routes/app/location/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_index-server.js",
+      "_index4.js",
+      "_decision-engine.js",
+      "_copilot-sanitize.js",
+      "_html.js",
+      "_conceptNames.js",
+      "_business-type-registry.js",
+      "_scoring-thresholds.js",
+      "src/lib/launchpad-store.ts",
+      "_NavigationDrawer.js",
+      "_authed-fetch.js",
+      "_conceptDefaults.js",
+      "_concepts.js",
+      "_conceptKPIs.js",
+      "_neighborhoodBuzz.js",
+      "_scoring-utils.svelte.js",
+      "_PageNav.js",
+      "_primitives.js"
+    ],
+    "dynamicImports": [
+      "src/lib/launchpad-store.ts"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.D24TxxY4.css",
+      "_app/immutable/assets/MapView.DHP_j4kC.css"
+    ]
+  },
+  "src/routes/app/location/report/+page.svelte": {
+    "file": "entries/pages/app/location/report/_page.svelte.js",
+    "name": "entries/pages/app/location/report/_page.svelte",
+    "src": "src/routes/app/location/report/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_client2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CMtiL3Mt.css"
+    ]
+  },
+  "src/routes/app/locations/+page.svelte": {
+    "file": "entries/pages/app/locations/_page.svelte.js",
+    "name": "entries/pages/app/locations/_page.svelte",
+    "src": "src/routes/app/locations/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_index4.js",
+      "_concepts.js",
+      "_NavigationDrawer.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BSjPoD-N.css"
+    ]
+  },
+  "src/routes/app/model/+page.svelte": {
+    "file": "entries/pages/app/model/_page.svelte.js",
+    "name": "entries/pages/app/model/_page.svelte",
+    "src": "src/routes/app/model/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_PageNav.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page._b_I-9AW.css",
+      "_app/immutable/assets/EMC2Button.De9WBL1g.css"
+    ]
+  },
+  "src/routes/app/onboarding/+page.svelte": {
+    "file": "entries/pages/app/onboarding/_page.svelte.js",
+    "name": "entries/pages/app/onboarding/_page.svelte",
+    "src": "src/routes/app/onboarding/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_client2.js",
+      "_NavigationDrawer.js",
+      "_copilot-sanitize.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DXXiLNa0.css"
+    ]
+  },
+  "src/routes/app/operations/+page.server.ts": {
+    "file": "entries/pages/app/operations/_page.server.ts.js",
+    "name": "entries/pages/app/operations/_page.server.ts",
+    "src": "src/routes/app/operations/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/operations/+page.svelte": {
+    "file": "entries/pages/app/operations/_page.svelte.js",
+    "name": "entries/pages/app/operations/_page.svelte",
+    "src": "src/routes/app/operations/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "src/lib/launchpad-store.ts"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Ct5yynFw.css",
+      "_app/immutable/assets/PageNav.j8pwKQpr.css"
+    ]
+  },
+  "src/routes/app/outcomes/+page.server.ts": {
+    "file": "entries/pages/app/outcomes/_page.server.ts.js",
+    "name": "entries/pages/app/outcomes/_page.server.ts",
+    "src": "src/routes/app/outcomes/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/outcomes/+page.svelte": {
+    "file": "entries/pages/app/outcomes/_page.svelte.js",
+    "name": "entries/pages/app/outcomes/_page.svelte",
+    "src": "src/routes/app/outcomes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CrjEBAeh.css"
+    ]
+  },
+  "src/routes/app/overview/+page.server.ts": {
+    "file": "entries/pages/app/overview/_page.server.ts.js",
+    "name": "entries/pages/app/overview/_page.server.ts",
+    "src": "src/routes/app/overview/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/overview/+page.svelte": {
+    "file": "entries/pages/app/overview/_page.svelte.js",
+    "name": "entries/pages/app/overview/_page.svelte",
+    "src": "src/routes/app/overview/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "src/lib/launchpad-store.ts",
+      "_concepts.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BEkMh85a.css"
+    ]
+  },
+  "src/routes/app/pipeline/+page.svelte": {
+    "file": "entries/pages/app/pipeline/_page.svelte.js",
+    "name": "entries/pages/app/pipeline/_page.svelte",
+    "src": "src/routes/app/pipeline/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_NavigationDrawer.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CpvaswAI.css"
+    ]
+  },
+  "src/routes/app/recommendations/+page.server.ts": {
+    "file": "entries/pages/app/recommendations/_page.server.ts.js",
+    "name": "entries/pages/app/recommendations/_page.server.ts",
+    "src": "src/routes/app/recommendations/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/recommendations/+page.svelte": {
+    "file": "entries/pages/app/recommendations/_page.svelte.js",
+    "name": "entries/pages/app/recommendations/_page.svelte",
+    "src": "src/routes/app/recommendations/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_stores.js",
+      "_PageNav.js",
+      "_DisclaimerBanner.js",
+      "_NavigationDrawer.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Crbg7l7N.css"
+    ]
+  },
+  "src/routes/app/recommendations/+page.ts": {
+    "file": "entries/pages/app/recommendations/_page.ts.js",
+    "name": "entries/pages/app/recommendations/_page.ts",
+    "src": "src/routes/app/recommendations/+page.ts",
+    "isEntry": true
+  },
+  "src/routes/app/route/+page.server.ts": {
+    "file": "entries/pages/app/route/_page.server.ts.js",
+    "name": "entries/pages/app/route/_page.server.ts",
+    "src": "src/routes/app/route/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/route/+page.svelte": {
+    "file": "entries/pages/app/route/_page.svelte.js",
+    "name": "entries/pages/app/route/_page.svelte",
+    "src": "src/routes/app/route/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.V31g1pyz.css"
+    ]
+  },
+  "src/routes/app/rwa/+page.server.ts": {
+    "file": "entries/pages/app/rwa/_page.server.ts.js",
+    "name": "entries/pages/app/rwa/_page.server.ts",
+    "src": "src/routes/app/rwa/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/rwa/+page.svelte": {
+    "file": "entries/pages/app/rwa/_page.svelte.js",
+    "name": "entries/pages/app/rwa/_page.svelte",
+    "src": "src/routes/app/rwa/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "src/lib/launchpad-store.ts"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BWdYjwG6.css"
+    ]
+  },
+  "src/routes/app/space/+page.svelte": {
+    "file": "entries/pages/app/space/_page.svelte.js",
+    "name": "entries/pages/app/space/_page.svelte",
+    "src": "src/routes/app/space/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_DisclaimerBanner.js",
+      "_PageNav.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.ny8731mB.css"
+    ]
+  },
+  "src/routes/app/space/compare/+page.svelte": {
+    "file": "entries/pages/app/space/compare/_page.svelte.js",
+    "name": "entries/pages/app/space/compare/_page.svelte",
+    "src": "src/routes/app/space/compare/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_scoreUtils.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DJ1N2w5G.css"
+    ]
+  },
+  "src/routes/app/vault/+page.svelte": {
+    "file": "entries/pages/app/vault/_page.svelte.js",
+    "name": "entries/pages/app/vault/_page.svelte",
+    "src": "src/routes/app/vault/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_PageNav.js",
+      "_DisclaimerBanner.js",
+      "_authed-fetch.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Dy6DkEWN.css"
+    ]
+  },
+  "src/routes/app/vision/+page.server.ts": {
+    "file": "entries/pages/app/vision/_page.server.ts.js",
+    "name": "entries/pages/app/vision/_page.server.ts",
+    "src": "src/routes/app/vision/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/vision/calibration/+page.server.ts": {
+    "file": "entries/pages/app/vision/calibration/_page.server.ts.js",
+    "name": "entries/pages/app/vision/calibration/_page.server.ts",
+    "src": "src/routes/app/vision/calibration/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/vision/calibration/+page.svelte": {
+    "file": "entries/pages/app/vision/calibration/_page.svelte.js",
+    "name": "entries/pages/app/vision/calibration/_page.svelte",
+    "src": "src/routes/app/vision/calibration/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "src/lib/launchpad-store.ts"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CZecDuTw.css",
+      "_app/immutable/assets/EMC2Button.De9WBL1g.css"
+    ]
+  },
+  "src/routes/app/vision/concept/+page.server.ts": {
+    "file": "entries/pages/app/vision/concept/_page.server.ts.js",
+    "name": "entries/pages/app/vision/concept/_page.server.ts",
+    "src": "src/routes/app/vision/concept/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/vision/concept/+page.svelte": {
+    "file": "entries/pages/app/vision/concept/_page.svelte.js",
+    "name": "entries/pages/app/vision/concept/_page.svelte",
+    "src": "src/routes/app/vision/concept/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_conceptDefaults.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B75Ub50Q.css"
+    ]
+  },
+  "src/routes/app/vision/financial/+page.server.ts": {
+    "file": "entries/pages/app/vision/financial/_page.server.ts.js",
+    "name": "entries/pages/app/vision/financial/_page.server.ts",
+    "src": "src/routes/app/vision/financial/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/vision/financial/+page.svelte": {
+    "file": "entries/pages/app/vision/financial/_page.svelte.js",
+    "name": "entries/pages/app/vision/financial/_page.svelte",
+    "src": "src/routes/app/vision/financial/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.4WxXeGgF.css"
+    ]
+  },
+  "src/routes/app/vision/founder/+page.server.ts": {
+    "file": "entries/pages/app/vision/founder/_page.server.ts.js",
+    "name": "entries/pages/app/vision/founder/_page.server.ts",
+    "src": "src/routes/app/vision/founder/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/vision/founder/+page.svelte": {
+    "file": "entries/pages/app/vision/founder/_page.svelte.js",
+    "name": "entries/pages/app/vision/founder/_page.svelte",
+    "src": "src/routes/app/vision/founder/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BRCgypH9.css"
+    ]
+  },
+  "src/routes/app/vision/review/+page.server.ts": {
+    "file": "entries/pages/app/vision/review/_page.server.ts.js",
+    "name": "entries/pages/app/vision/review/_page.server.ts",
+    "src": "src/routes/app/vision/review/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/vision/review/+page.svelte": {
+    "file": "entries/pages/app/vision/review/_page.svelte.js",
+    "name": "entries/pages/app/vision/review/_page.svelte",
+    "src": "src/routes/app/vision/review/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CWOZzv8H.css"
+    ]
+  },
+  "src/routes/app/website/+page.server.ts": {
+    "file": "entries/pages/app/website/_page.server.ts.js",
+    "name": "entries/pages/app/website/_page.server.ts",
+    "src": "src/routes/app/website/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/app/website/+page.svelte": {
+    "file": "entries/pages/app/website/_page.svelte.js",
+    "name": "entries/pages/app/website/_page.svelte",
+    "src": "src/routes/app/website/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "src/lib/launchpad-store.ts"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BcoWpTlC.css"
+    ]
+  },
+  "src/routes/app/welcome-back/+page.server.ts": {
+    "file": "entries/pages/app/welcome-back/_page.server.ts.js",
+    "name": "entries/pages/app/welcome-back/_page.server.ts",
+    "src": "src/routes/app/welcome-back/+page.server.ts",
+    "isEntry": true,
+    "imports": [
+      "_db-server.js"
+    ]
+  },
+  "src/routes/app/welcome-back/+page.svelte": {
+    "file": "entries/pages/app/welcome-back/_page.svelte.js",
+    "name": "entries/pages/app/welcome-back/_page.svelte",
+    "src": "src/routes/app/welcome-back/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_stores.js",
+      "_scoreUtils.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BajoNXUW.css"
+    ]
+  },
+  "src/routes/contact/+page.svelte": {
+    "file": "entries/pages/contact/_page.svelte.js",
+    "name": "entries/pages/contact/_page.svelte",
+    "src": "src/routes/contact/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_modules.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DryWUgxu.css"
+    ]
+  },
+  "src/routes/demo/+page.svelte": {
+    "file": "entries/pages/demo/_page.svelte.js",
+    "name": "entries/pages/demo/_page.svelte",
+    "src": "src/routes/demo/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Cc89gwfO.css"
+    ]
+  },
+  "src/routes/login/+layout.svelte": {
+    "file": "entries/pages/login/_layout.svelte.js",
+    "name": "entries/pages/login/_layout.svelte",
+    "src": "src/routes/login/+layout.svelte",
+    "isEntry": true,
+    "css": [
+      "_app/immutable/assets/app.B8awCFW-.css"
+    ]
+  },
+  "src/routes/login/+page.svelte": {
+    "file": "entries/pages/login/_page.svelte.js",
+    "name": "entries/pages/login/_page.svelte",
+    "src": "src/routes/login/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_client.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.DYE70jpA.css"
+    ]
+  },
+  "src/routes/methodology/+page.svelte": {
+    "file": "entries/pages/methodology/_page.svelte.js",
+    "name": "entries/pages/methodology/_page.svelte",
+    "src": "src/routes/methodology/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B4VBrWl_.css"
+    ]
+  },
+  "src/routes/pending/+page.svelte": {
+    "file": "entries/pages/pending/_page.svelte.js",
+    "name": "entries/pages/pending/_page.svelte",
+    "src": "src/routes/pending/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_modules.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.B2_EPZ2s.css"
+    ]
+  },
+  "src/routes/personal/health/+page.svelte": {
+    "file": "entries/pages/personal/health/_page.svelte.js",
+    "name": "entries/pages/personal/health/_page.svelte",
+    "src": "src/routes/personal/health/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.CbEBO2Pj.css"
+    ]
+  },
+  "src/routes/personal/social/+page.svelte": {
+    "file": "entries/pages/personal/social/_page.svelte.js",
+    "name": "entries/pages/personal/social/_page.svelte",
+    "src": "src/routes/personal/social/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Wj5joa0V.css"
+    ]
+  },
+  "src/routes/personal/suggestions/+page.svelte": {
+    "file": "entries/pages/personal/suggestions/_page.svelte.js",
+    "name": "entries/pages/personal/suggestions/_page.svelte",
+    "src": "src/routes/personal/suggestions/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.E6GUY5nu.css"
+    ]
+  },
+  "src/routes/personal/upcoming/+page.svelte": {
+    "file": "entries/pages/personal/upcoming/_page.svelte.js",
+    "name": "entries/pages/personal/upcoming/_page.svelte",
+    "src": "src/routes/personal/upcoming/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Cmwigwnq.css"
+    ]
+  },
+  "src/routes/pricing/+page.svelte": {
+    "file": "entries/pages/pricing/_page.svelte.js",
+    "name": "entries/pages/pricing/_page.svelte",
+    "src": "src/routes/pricing/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_modules.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.o1tHvtf_.css"
+    ]
+  },
+  "src/routes/privacy/+page.svelte": {
+    "file": "entries/pages/privacy/_page.svelte.js",
+    "name": "entries/pages/privacy/_page.svelte",
+    "src": "src/routes/privacy/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js",
+      "_modules.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.BP5wV40h.css"
+    ]
+  },
+  "src/routes/sign-in/+page.server.ts": {
+    "file": "entries/pages/sign-in/_page.server.ts.js",
+    "name": "entries/pages/sign-in/_page.server.ts",
+    "src": "src/routes/sign-in/+page.server.ts",
+    "isEntry": true
+  },
+  "src/routes/terms/+page.svelte": {
+    "file": "entries/pages/terms/_page.svelte.js",
+    "name": "entries/pages/terms/_page.svelte",
+    "src": "src/routes/terms/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js",
+      "_SiteNav.js",
+      "_modules.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.0lQF1MVQ.css"
+    ]
+  },
+  "src/routes/work/commentary/+page.svelte": {
+    "file": "entries/pages/work/commentary/_page.svelte.js",
+    "name": "entries/pages/work/commentary/_page.svelte",
+    "src": "src/routes/work/commentary/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.ztc_iaKS.css"
+    ]
+  },
+  "src/routes/work/daily/+page.svelte": {
+    "file": "entries/pages/work/daily/_page.svelte.js",
+    "name": "entries/pages/work/daily/_page.svelte",
+    "src": "src/routes/work/daily/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.ChX5fjXy.css"
+    ]
+  },
+  "src/routes/work/weekly/+page.svelte": {
+    "file": "entries/pages/work/weekly/_page.svelte.js",
+    "name": "entries/pages/work/weekly/_page.svelte",
+    "src": "src/routes/work/weekly/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index2.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.D7CRXOSW.css"
+    ]
+  }
+}

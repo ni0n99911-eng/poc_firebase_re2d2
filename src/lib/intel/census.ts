@@ -51,7 +51,7 @@ async function latLngToFIPS(lat: number, lng: number): Promise<{ state: string; 
 	try {
 		const url = `https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=${lng}&y=${lat}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
 		const { resilientFetch } = await import('./retry');
-		const res = await resilientFetch(url, { timeout: 10000, label: 'Census' });
+		const res = await resilientFetch(url, { timeout: 10000, label: 'Census', signal });
 
 		if (!res.ok) return null;
 		const data = await res.json();
@@ -73,7 +73,7 @@ async function latLngToFIPS(lat: number, lng: number): Promise<{ state: string; 
 /**
  * Fetch ACS demographic data for a census tract.
  */
-export async function fetchCensusData(lat: number, lng: number): Promise<CensusData | null> {
+export async function fetchCensusData(lat: number, lng: number, signal?: AbortSignal): Promise<CensusData | null> {
 	// Check cache first
 	const cacheKey = IntelCache.locationKey(lat, lng, 'census');
 	const cached = await intelCache.getAsync<CensusData>(cacheKey);
@@ -90,7 +90,7 @@ export async function fetchCensusData(lat: number, lng: number): Promise<CensusD
 		// Step 2: Fetch ACS data for this tract
 		const url = `${ACS_BASE}?get=${VARIABLES}&for=tract:${fips.tract}&in=state:${fips.state}%20county:${fips.county}`;
 		const { resilientFetch } = await import('./retry');
-		const res = await resilientFetch(url, { timeout: 15000, label: 'Census' });
+		const res = await resilientFetch(url, { timeout: 15000, label: 'Census', signal });
 
 		if (!res.ok) {
 			console.error('[Census] ACS query failed:', res.status);

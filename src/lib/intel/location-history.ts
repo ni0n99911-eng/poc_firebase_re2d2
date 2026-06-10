@@ -210,11 +210,9 @@ function mergeAndDedupe(
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export async function fetchLocationHistory(
-	address: string,
+export async function fetchLocationHistory(address: string,
 	lat: number,
-	lng: number
-): Promise<LocationHistoryData | null> {
+	lng: number, signal?: AbortSignal): Promise<LocationHistoryData | null> {
 	// lat/lng reserved for future geo-fallback; address is the primary key
 	void lat; void lng;
 

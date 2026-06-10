@@ -330,11 +330,9 @@ async function fetchRealRidership(
  * Fetch MTA station data + real ridership near a location.
  * Uses bounding box filter on latitude/longitude fields.
  */
-export async function fetchMTARidership(
-	lat: number,
+export async function fetchMTARidership(lat: number,
 	lng: number,
-	radiusMeters: number = 800
-): Promise<MTARidershipData | null> {
+	radiusMeters: number = 800, signal?: AbortSignal): Promise<MTARidershipData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'mta-ridership');
 	const cached = await intelCache.getAsync<MTARidershipData>(cacheKey);
 	if (cached?.fresh) return cached.data;
@@ -342,15 +340,15 @@ export async function fetchMTARidership(
 	// ── DB-FIRST: Query seeded nyc_mta_stations for nearby stations ──────────────
 	// Fast (<10ms) and works even when Socrata is down.
 	try {
-		const { createClient } = await import('@supabase/supabase-js');
-		const { env } = await import('$env/dynamic/private');
-		if (!env.PUBLIC_SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Supabase env not set');
-		const supabase = createClient(env.PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+		const { db } = await import('$lib/db-server');
+		const { sql } = await import('drizzle-orm');
 
-		const { data: nearbyStations, error } = await supabase
-			.rpc('nearby_mta_stations', { lat, lng, radius_meters: radiusMeters });
+		const dbRes = await db.execute(sql`
+			SELECT * FROM nearby_mta_stations(${lat}, ${lng}, ${radiusMeters})
+		`);
+		const nearbyStations = Array.isArray(dbRes) ? dbRes : (dbRes as any).rows;
 
-		if (!error && nearbyStations && nearbyStations.length > 0) {
+		if (nearbyStations && nearbyStations.length > 0) {
 			const stationCount   = nearbyStations.length;
 			const totalRidership = nearbyStations.reduce(
 				(sum: number, s: { estimated_daily_ridership: number }) =>

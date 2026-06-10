@@ -5,7 +5,8 @@
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getServiceSupabase } from '$lib/supabase-server';
+import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 
 const VALID_TYPES = [
 	'saved', 'viewed', 'toured', 'broker_intro',
@@ -27,27 +28,20 @@ export const POST: RequestHandler = async ({ request, locals, params }) => {
 		throw error(400, `event_type must be one of: ${VALID_TYPES.join(', ')}`);
 	}
 
-	const supabase = getServiceSupabase();
+	try {
+		// Verify ownership
+		const resDeal = await db.execute(sql`
+			SELECT id FROM deal_pipeline 
+			WHERE id = ${dealId} AND user_id = ${user.id} LIMIT 1
+		`);
 
-	// Verify ownership
-	const { data: deal } = await supabase
-		.from('deal_pipeline')
-		.select('id')
-		.eq('id', dealId)
-		.eq('user_id', user.id)
-		.single();
+		if (!resDeal.rows.length) throw error(404, 'Deal not found');
 
-	if (!deal) throw error(404, 'Deal not found');
-
-	const { error: insertErr } = await supabase.from('deal_events').insert({
-		deal_id: dealId,
-		user_id: user.id,
-		event_type,
-		notes: notes ?? null,
-		event_data,
-	});
-
-	if (insertErr) {
+		await db.execute(sql`
+			INSERT INTO deal_events (deal_id, user_id, event_type, notes, event_data)
+			VALUES (${dealId}, ${user.id}, ${event_type}, ${notes ?? null}, ${JSON.stringify(event_data)})
+		`);
+	} catch (insertErr: any) {
 		console.error('[deals/events POST] error:', insertErr);
 		return json({ ok: false, error: insertErr.message }, { status: 500 });
 	}

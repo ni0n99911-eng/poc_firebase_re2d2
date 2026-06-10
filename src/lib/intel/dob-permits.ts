@@ -58,11 +58,9 @@ const HIGH_SEVERITY_TYPES = new Set([
 /**
  * Fetch DOB permits and violations near a location.
  */
-export async function fetchDOBData(
-	lat: number,
+export async function fetchDOBData(lat: number,
 	lng: number,
-	radiusMeters: number = 300
-): Promise<DOBData | null> {
+	radiusMeters: number = 300, signal?: AbortSignal): Promise<DOBData | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'dob');
 	const cached = await intelCache.getAsync<DOBData>(cacheKey);
 	if (cached?.fresh) return cached.data;

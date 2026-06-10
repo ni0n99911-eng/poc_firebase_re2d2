@@ -59,11 +59,9 @@ const SAFETY_TYPES = new Set([
 /**
  * Fetch 311 complaint data near a location.
  */
-export async function fetch311Complaints(
-	lat: number,
+export async function fetch311Complaints(lat: number,
 	lng: number,
-	radiusMeters: number = 500
-): Promise<NYC311Data | null> {
+	radiusMeters: number = 500, signal?: AbortSignal): Promise<NYC311Data | null> {
 	const cacheKey = IntelCache.locationKey(lat, lng, 'nyc-311');
 	const cached = await intelCache.getAsync<NYC311Data>(cacheKey);
 	if (cached?.fresh) return cached.data;
