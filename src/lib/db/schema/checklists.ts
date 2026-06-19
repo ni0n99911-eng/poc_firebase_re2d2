@@ -26,7 +26,7 @@ export const checklistProgress = pgTable('checklist_progress', {
   createdAt: timestamp('created_at').defaultNow()
 });
 
-export const enrichedEntities = pgTable('enriched_entities', {
+export const enrichedEntities = pgTable('checklist_enriched_entities', {
   id: text('id').primaryKey(),
   entityType: text('entity_type'),
   data: jsonb('data'),
