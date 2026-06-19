@@ -47,6 +47,7 @@ export const GET: RequestHandler = async ({ url, request }) => {
 		conceptType = normalizeBusinessType(conceptType);
 	}
 	const address = url.searchParams.get('address') || undefined; // Address for street-type bonus
+	const debugMode = url.searchParams.get('debug') === 'true';
 
 	if (!geoidParam && (isNaN(lat) || isNaN(lng))) {
 		return new Response(JSON.stringify({
@@ -122,12 +123,60 @@ export const GET: RequestHandler = async ({ url, request }) => {
 			`);
 		} catch { /* non-critical */ }
 
+		// ── V2: Debug envelope — compare stored vs live Python scores ──
+		let debugEnvelope: Record<string, unknown> | undefined;
+		if (debugMode && result?.geoid) {
+			try {
+				const locationId = `bg_${result.geoid}`;
+				const pythonUrl = `http://localhost:8000/api/v1/locations/${locationId}/score?business_type=${conceptType || 'generic'}&debug=true`;
+				const controller = new AbortController();
+				const timeout = setTimeout(() => controller.abort(), 5000);
+				const pyRes = await fetch(pythonUrl, { signal: controller.signal }).catch(() => null);
+				clearTimeout(timeout);
+
+				if (pyRes?.ok) {
+					const pyData = await pyRes.json();
+					const storedIQ = result.scores?.location_iq ?? null;
+					const liveIQ = pyData.composite_location_iq ?? null;
+					const drift = storedIQ != null && liveIQ != null ? liveIQ - storedIQ : null;
+
+					debugEnvelope = {
+						_postgres_scores: {
+							location_iq: storedIQ,
+							serving_mode: result.serving_mode,
+						},
+						_live_python_scores: {
+							location_iq: liveIQ,
+							grade: pyData.grade,
+							trace_id: pyData._trace_id,
+						},
+						_drift: {
+							location_iq_delta: drift,
+							stale_by_hours: pyData._debug?.['⑥_data_health']?.snowflake_row_age_hours ?? null,
+						},
+						_python_debug: pyData._debug || null,
+						_recommendation: drift != null && Math.abs(drift) > 3
+							? `PostgreSQL score drifted ${drift > 0 ? '+' : ''}${drift} points from live Python engine. Consider re-running Dagster export.`
+							: 'Scores are in sync.',
+					};
+				} else {
+					debugEnvelope = {
+						_note: 'Python API not reachable — debug comparison unavailable.',
+						_postgres_scores: { location_iq: result.scores?.location_iq ?? null },
+					};
+				}
+			} catch (debugErr) {
+				debugEnvelope = { _error: 'Debug comparison failed', _detail: debugErr instanceof Error ? debugErr.message : 'unknown' };
+			}
+		}
+
 		return new Response(JSON.stringify({
 			...result,
 			_meta: {
 				duration_ms: durationMs,
 				cached: result.serving_mode === 'stored',
-			}
+			},
+			...(debugEnvelope ? { _debug: debugEnvelope } : {}),
 		}), {
 			status: 200,
 			headers: {

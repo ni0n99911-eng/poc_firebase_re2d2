@@ -71,6 +71,8 @@
 	import ScoreMetaLine from "$lib/components/ScoreMetaLine.svelte";
 	// UX-FIX-1 (Emergency Fix April 11): single composite for grade + verdict + PRELIM
 	import ScoreHeader from "$lib/components/ScoreHeader.svelte";
+	// V2: Score Debuggability — download button + auto-capture + serving mode badge
+	import ScoreTraceDownload from "$lib/components/ScoreTraceDownload.svelte";
 	import { computeInputsHashBrowser } from "$lib/utils/inputs-hash-browser";
 	import {
 		getDecisionState,
@@ -1640,6 +1642,20 @@
 		gradeCapped?: string | null;
 		gradeCapReason?: string | null;
 		verdict?: string | null;
+		// V2: Score debuggability transparency fields
+		_serving_mode?: string;
+		_trace_id?: string | null;
+		_engine_version?: string;
+		locationIQ?: number;
+		grade?: string;
+		businessType?: string;
+		lat?: number;
+		lng?: number;
+		sixIndex?: Record<string, unknown>;
+		threeScores?: Record<string, unknown>;
+		confidence?: Record<string, unknown>;
+		rawIntelErrors?: string[];
+		_debug?: Record<string, unknown>;
 	};
 
 	// R6-2: Persist lens cache to sessionStorage so back-nav doesn't re-fetch
@@ -1743,6 +1759,20 @@
 				confidenceBySource:
 					(data.confidenceBySource as ConfidenceBySource) ||
 					undefined,
+				// V2: Pass through transparency fields for ScoreTraceDownload
+				_serving_mode: data._serving_mode,
+				_trace_id: data._trace_id,
+				_engine_version: data._engine_version,
+				locationIQ: data.locationIQ,
+				grade: data.grade,
+				businessType: data.businessType,
+				lat: data.lat,
+				lng: data.lng,
+				sixIndex: data.sixIndex,
+				threeScores: data.threeScores,
+				confidence: data.confidence,
+				rawIntelErrors: data.rawIntelErrors,
+				_debug: data._debug,
 			};
 			locationIqCache = { ...locationIqCache, [cacheKey]: payload };
 			try {
@@ -7334,6 +7364,12 @@
 							confidence={scoreConfidence}
 							confidenceReason={scoreConfidenceReason}
 						/>
+						<!-- V2: Score Trace Download + Serving Mode Badge -->
+						{#if locationIqPayload}
+							<div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+								<ScoreTraceDownload scoreData={locationIqPayload} />
+							</div>
+						{/if}
 						<div class="v3-hero-addr">
 							{_addrShort}
 							{#if _addrRest}<span class="v3-hero-addr-sub">
@@ -7604,7 +7640,7 @@
 		{/if}
 
 		<!-- V3 SPLIT: Left tabs + Right map -->
-		{#if hasResult && fitIQ > 0}
+		{#if hasResult && locationIQ > 0}
 			<div class="v3-split">
 				<!-- ═══ LEFT PANEL: TABS ═══ -->
 				<div class="v3-left">

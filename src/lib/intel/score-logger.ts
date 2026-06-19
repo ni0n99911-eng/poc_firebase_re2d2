@@ -23,6 +23,7 @@ import type { LocationIntelReport } from './types';
 import type { LocationIQReport } from './location-iq';
 import type { ConfidenceReport } from './confidence';
 import { db } from '$lib/db-server';
+import { sql } from 'drizzle-orm';
 import { scoreEvents } from '$lib/db/schema';
 
 // ─────────────────────────────────────────────────
@@ -460,7 +461,7 @@ export async function logScoreEvent(
 		const line = JSON.stringify(event) + '\n';
 		await appendFile(getLogFileName(), line, 'utf-8');
 
-		// ── Supabase ML training log (fire-and-forget) ──────────────────────
+		// ── Cloud SQL ML training log (fire-and-forget) ──────────────────────
 		// score_events table: one row per Location IQ computation.
 		// Keyed by geoid+concept for future outcome label joins.
 		// Never blocks scoring — insert failure is logged only.
@@ -480,6 +481,35 @@ export async function logScoreEvent(
 			errors_count:        report.errors.length,
 			computation_ms:      computationTimeMs,
 		} as any)).catch((err: unknown) => console.error('[ScoreLogger] DB insert failed:', err));
+
+		// ── V2: Score Audit Log (Cloud SQL) — full debug trace for DEs ─────
+		// score_audit_log table: captures the complete debug envelope for
+		// every score computation. DEs query by address/geoid to investigate
+		// "score is wrong" reports. 10-day auto-expiry via expires_at column.
+		const traceId = `score_${event.timestamp}_${opts?.geoid || 'unknown'}_${report.businessType}`;
+		const debugEnvelope = {
+			scores: event.scores,
+			features: event.features,
+			sourceAvailability: event.sourceAvailability,
+			errors: event.errors,
+			signalCount: event.signalCount,
+			positiveSignals: event.positiveSignals,
+			negativeSignals: event.negativeSignals,
+		};
+		db.execute(sql`
+			INSERT INTO score_audit_log
+				(trace_id, address, lat, lng, geoid, business_type,
+				 location_iq, grade, vision_iq, fit_iq,
+				 debug_envelope, serving_mode, engine_version, computation_ms)
+			VALUES (
+				${traceId}, ${report.address || null}, ${report.lat}, ${report.lng},
+				${opts?.geoid || null}, ${report.businessType},
+				${event.scores.locationIQ}, ${event.scores.grade},
+				${opts?.visionIQ ?? null}, ${opts?.fitIQ ?? null},
+				${JSON.stringify(debugEnvelope)}::jsonb,
+				'sveltekit_location_iq', 'ts-v1', ${computationTimeMs}
+			)
+		`).catch((err: unknown) => console.error('[ScoreLogger] audit_log insert failed:', err));
 
 		// Upsert neighborhood intelligence (fire-and-forget)
 		upsertNeighborhoodIntel(event).catch(err => {

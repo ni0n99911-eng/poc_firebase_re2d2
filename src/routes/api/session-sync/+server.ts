@@ -1,15 +1,18 @@
 /**
  * ═══════════════════════════════════════════════════════
- * RE² Session Sync API — Cloud SQL L2 Persistence
+ * RE² Session Sync API — Cloud SQL (Drizzle) L2 Persistence
  * ═══════════════════════════════════════════════════════
  *
  * Server-side endpoint that bridges client localStorage (L1)
- * to Cloud SQL (L2).
+ * to Cloud SQL via Drizzle ORM (L2).
  *
- * POST: Upsert session data (chat store, session, or both)
- * GET:  Load session data for authenticated user (device switch / empty localStorage)
+ * POST: Upsert launchpad/session data for the authenticated user
+ * GET:  Load session data (device switch / empty localStorage)
  *
- * Auth: Requires Clerk/Firebase session (verified in hooks.server.ts)
+ * Auth: Firebase session cookie (__session) verified in hooks.server.ts.
+ *       Unauthenticated requests receive a graceful 200 no-op so the
+ *       client-side store doesn't spam the console with 401 errors.
+ *       LocalStorage (L1) is always the source of truth for anon users.
  */
 
 import { json, error } from '@sveltejs/kit';
@@ -21,7 +24,9 @@ import { eq } from 'drizzle-orm';
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const user = locals.user;
 	if (!user?.id) {
-		throw error(401, 'Authentication required');
+		// Graceful no-op for unauthenticated users — localStorage (L1) is the source of truth.
+		// Returning 200 prevents console spam when the launchpad store syncs before login.
+		return json({ ok: true, noop: true });
 	}
 
 	const body = await request.json();
@@ -78,7 +83,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 export const GET: RequestHandler = async ({ locals }) => {
 	const user = locals.user;
 	if (!user?.id) {
-		throw error(401, 'Authentication required');
+		// Graceful no-op for unauthenticated users — return empty found so localStorage stays primary.
+		return json({ found: false, data: null });
 	}
 
 	try {

@@ -797,7 +797,8 @@
 	async function doSearch() {
 		if (store.searching) return;
 		// Profile guard — must fire before touching any store state so input/map are preserved
-		if (!canAnalyze) return;
+		// Skip in searchOnly mode: user came via URL ?addr= param (bot-handoff), already onboarded
+		if (!canAnalyze && !searchOnly) return;
 		const addr = store.searchAddr.trim();
 		if (!addr) {
 			alert("Enter a NYC address");
@@ -938,7 +939,7 @@
 				.then((bg) => {
 					blockGroupData = bg;
 					blockGroupLoading = false;
-					if (bg?.scores) {
+					if (bg?.scores && bg.scores.location_iq > 0) {
 						// Immediately populate compass scores from stored data
 						compassScores = {
 							transit: bg.scores.six_index.transit,
@@ -1068,8 +1069,11 @@
 			}
 
 			const sc = blockScore(data, liveIntel);
-			store.searchResult = { addr, geo, data, score: sc, liveIntel };
-			if (searchAborted) return; // Guard after result is stored — user may have typed a new address
+			// §FIX-BLANK: Don't set store.searchResult here — doing so makes hasResult=true
+			// which destroys this component before onScoresReady fires at line ~1416.
+			// Instead, save the full result and assign it AFTER the callback fires.
+			const _fullResult: typeof store.searchResult = { addr, geo, data, score: sc, liveIntel } as any;
+			if (searchAborted) return;
 			store.layerScores = {
 				...store.layerScores,
 				L2: buildL2FromScan(data, sc, liveIntel),
@@ -1341,7 +1345,7 @@
 					//
 					// The parent page MUST overwrite these preview scores when the full
 					// GET /api/location-iq response arrives (via loadLocationIqEnvelope).
-					// Do NOT persist these preview scores to localStorage or Supabase
+					// Do NOT persist these preview scores to localStorage or Cloud SQL
 					// as the user's canonical score.
 					//
 					// TODO: When loadLocationIqEnvelope response arrives, overwrite
@@ -1433,6 +1437,10 @@
 							dataVintage: _dataVintage, // BR-14
 							scoringTimedOut: scoreTimedOut, // Pass timeout flag so parent can show error state
 						});
+
+						// §FIX-BLANK: Now that onScoresReady has fired with real scores,
+						// set the full result so hasResult flips to true with locationIQ already > 0.
+						if (!store.searchResult) store.searchResult = _fullResult;
 
 						// Addendum §2.3 Step 3: Cache coffee score after fresh computation
 						if (
@@ -1585,6 +1593,18 @@
 			} catch (e) {
 				/* ignore */
 			}
+			// §FIX-BLANK: Fallback — if scoring path never set store.searchResult
+			// (e.g. liveIntel=null, sixReport.indices falsy, or compass try-catch swallowed error),
+			// set it now so the user at least sees the scored state (even with blank scores).
+			if (!store.searchResult) {
+				store.searchResult = _fullResult;
+				onScoresReady?.({
+					compassScores: compassScores || {},
+					compassComposite: compassComposite || 0,
+					address: addr,
+					scoringTimedOut: true,
+				});
+			}
 		} catch (e: unknown) {
 			if (!searchAborted)
 				store.stepBad(
@@ -1613,7 +1633,10 @@
 		}
 	});
 
-	let canAnalyze = $derived(profileComplete && conceptComplete);
+	// In searchOnly mode (bot-handoff via ?addr= URL), bypass the profile/concept guard.
+	// The user already completed onboarding to land here — blocking on localStorage state
+	// causes a blank page when session data hasn't hydrated yet on a fresh prod load.
+	let canAnalyze = $derived(searchOnly || (profileComplete && conceptComplete));
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === "Enter") doSearch();

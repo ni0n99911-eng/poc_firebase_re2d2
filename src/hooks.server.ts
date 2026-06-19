@@ -100,7 +100,15 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	}
 
 	const isApiRoute = path.startsWith('/api/');
-	if (isApiRoute && (path === '/api/geo' || path === '/api/notify' || path === '/api/session' || path === '/api/location-intel' || path === '/api/location-iq')) {
+	if (isApiRoute && (
+		path === '/api/geo' ||
+		path === '/api/notify' ||
+		path === '/api/session' ||
+		path === '/api/location-intel' ||
+		path === '/api/location-iq' ||
+		path === '/api/block-group-intel' ||   // pre-computed location scores — not user-specific
+		path === '/api/session-sync'            // has its own auth logic internally
+	)) {
 		return resolve(event);
 	}
 

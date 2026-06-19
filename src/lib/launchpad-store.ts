@@ -1,12 +1,12 @@
 /**
- * Launch Pad persistent store — uses localStorage as L1 cache with Supabase write-through.
+ * Launch Pad persistent store — uses localStorage as L1 cache with Cloud SQL write-through.
  *
  * Architecture:
  * - L1 (localStorage): Fast reads, no auth needed, instant access
- * - L2 (Supabase): Persistent, synced across devices
+ * - L2 (Cloud SQL): Persistent, synced across devices
  *
- * Writing: localStorage immediately, then Supabase async (fire-and-forget)
- * Reading: localStorage first, fallback to Supabase if empty, fallback to defaults
+ * Writing: localStorage immediately, then Cloud SQL async (fire-and-forget)
+ * Reading: localStorage first, fallback to Cloud SQL if empty, fallback to defaults
  *
  * Session ID: Generated once, stored in localStorage. If user authenticates (Clerk),
  * use their user_id instead. This enables anon users without auth.
@@ -191,10 +191,10 @@ export function loadLaunchPadData(): LaunchPadData {
 			return mergeWithDefaults(parsed);
 		}
 
-		// L1 miss — try L2 cache (Supabase) in background
+		// L1 miss — try L2 (Cloud SQL) in background when authenticated
 		// This is async, so we return defaults immediately but start the fetch
-		loadFromSupabase().catch((err) => {
-			console.debug('[Launchpad] Supabase load failed:', err);
+		loadFromCloudSQL().catch((err) => {
+			console.debug('[Launchpad] Cloud SQL load failed:', err);
 		});
 
 		return { ...DEFAULTS };
@@ -226,10 +226,11 @@ function mergeWithDefaults(parsed: any): LaunchPadData {
 }
 
 /**
- * Load data from Supabase and populate localStorage if found.
+ * Load launchpad data from Cloud SQL (L2) and populate localStorage if found.
  * Called async from loadLaunchPadData() to avoid blocking the initial render.
+ * Only syncs if the user is authenticated (session-sync returns noop otherwise).
  */
-async function loadFromSupabase(): Promise<void> {
+async function loadFromCloudSQL(): Promise<void> {
 	if (typeof window === 'undefined') return;
 
 	try {
@@ -264,7 +265,7 @@ async function loadFromSupabase(): Promise<void> {
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(launchpadData));
 		}
 	} catch (err) {
-		console.debug('[Launchpad] API load error:', err);
+		console.debug('[Launchpad] Cloud SQL load error:', err);
 	}
 }
 
@@ -299,11 +300,11 @@ export function saveLaunchPadData(data: Partial<LaunchPadData>): void {
 		// Signal cross-tab state change
 		bumpVersion();
 
-		// Write-through to Supabase (async, fire-and-forget)
-		// This doesn't block the save, and gracefully handles Supabase unavailability
-		syncToSupabase(merged).catch((err) => {
+		// Write-through to Cloud SQL (async, fire-and-forget)
+		// This doesn't block the save, and gracefully handles cases where the user isn't logged in
+		syncToCloudSQL(merged).catch((err) => {
 			// Silently log — localStorage is the source of truth
-			console.debug('[Launchpad] Supabase sync failed:', err);
+			console.debug('[Launchpad] Cloud SQL sync failed:', err);
 		});
 	} catch (e) {
 		console.error('Failed to save Launch Pad data:', e);
@@ -311,10 +312,11 @@ export function saveLaunchPadData(data: Partial<LaunchPadData>): void {
 }
 
 /**
- * Sync localStorage data to Supabase `founder_sessions` table.
- * Handles both authenticated (Clerk) and anonymous users.
+ * Sync localStorage data to Cloud SQL via /api/session-sync.
+ * Handles both authenticated (Firebase) and anonymous users.
+ * Anonymous users get a graceful 200 no-op — no error thrown.
  */
-async function syncToSupabase(data: LaunchPadData): Promise<void> {
+async function syncToCloudSQL(data: LaunchPadData): Promise<void> {
 	if (typeof window === 'undefined') return;
 	try {
 		await fetch('/api/session-sync', {

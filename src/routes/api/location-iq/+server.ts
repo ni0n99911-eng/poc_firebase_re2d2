@@ -451,12 +451,134 @@ export const GET: RequestHandler = async ({ url, request }) => {
 	const lat = parseFloat(url.searchParams.get('lat') || '');
 	const lng = parseFloat(url.searchParams.get('lng') || '');
 	const businessType = url.searchParams.get('type') || 'specialty_coffee';
+	const debugMode = url.searchParams.get('debug') === 'true';
 
 	if (isNaN(lat) || isNaN(lng)) {
 		return new Response(JSON.stringify({ error: 'Missing or invalid lat/lng parameters' }), { status: 400 });
 	}
 
+	// ── V2: Try Python FastAPI backend first, fallback to getGoldenRecord ──
+	let servingMode: 'python_api' | 'fallback_golden_record' = 'python_api';
+	let pythonApiDebug: Record<string, unknown> | null = null;
+	let fallbackReason: string | null = null;
+	let pythonApiLatencyMs: number | null = null;
+
 	try {
+		// Step 1: Resolve coordinates to a census block group geoid
+		const geoid = await latLngToGeoid(lat, lng);
+		const locationId = geoid ? `bg_${geoid}` : null;
+
+		if (locationId) {
+			// Step 2: Call the Python FastAPI scoring backend
+			const pythonApiUrl = `http://localhost:8000/api/v1/locations/${locationId}/score?business_type=${encodeURIComponent(businessType)}&debug=${debugMode}`;
+			const pythonStart = Date.now();
+
+			try {
+				const controller = new AbortController();
+				const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
+				const pythonRes = await fetch(pythonApiUrl, { signal: controller.signal });
+				clearTimeout(timeout);
+				pythonApiLatencyMs = Date.now() - pythonStart;
+
+				if (pythonRes.ok) {
+					const pyData = await pythonRes.json();
+					console.log(`[LocationIQ] [SCORE_TRACE] ${pyData._trace_id || 'no-trace'} — served via python_api (${pythonApiLatencyMs}ms)`);
+
+					// Map Python API response to SvelteKit frontend shape
+					const iqScore = Math.round(pyData.composite_location_iq || 50);
+					const grade = pyData.grade || 'C';
+					const staticScores = pyData.static_scores || {};
+					const signals = pyData.signals || [];
+					const rawMetrics = pyData.raw_metrics || {};
+
+					const responseBody: Record<string, unknown> = {
+						lat, lng, businessType,
+						locationIQ: iqScore,
+						grade: grade,
+						verdict: `Scored ${iqScore}/100. Powered by Python Scoring Engine v2.`,
+						sixIndex: {
+							locationIQ: iqScore, grade: grade, conceptType: businessType, conceptLabel: businessType.replace(/_/g, ' '),
+							indices: {
+								competition: { score: staticScores.competition ?? 50, weight: 10, label: "Competition Context", description: "Direct competitor density within 400m", dataSources: 1, totalSources: 1 },
+								vibrancy: { score: staticScores.vibrancy ?? 50, weight: 15, label: "Vibrancy", description: "Commercial energy and daily population flow", dataSources: 1, totalSources: 1 },
+								demographics: { score: staticScores.demographics ?? 50, weight: 8, label: "Demographics Fit", description: "Median income and housing rent tier alignment", dataSources: 1, totalSources: 1 },
+								safety: { score: staticScores.safety ?? 50, weight: 8, label: "Safety", description: "NYPD crime rate and health inspection results", dataSources: 1, totalSources: 1 },
+								transit: { score: staticScores.transit ?? 50, weight: 25, label: "Transit & Foot Traffic", description: "MTA ridership, pedestrian counts, Walk Score", dataSources: 1, totalSources: 1 },
+								momentum: { score: staticScores.momentum ?? 50, weight: 10, label: "Momentum", description: "6-month DCA license growth trajectory", dataSources: 1, totalSources: 1 },
+							},
+							signals: signals,
+							coffeeDimensions: businessType === 'specialty_coffee' ? {
+								morningFootTraffic: staticScores.transit ?? 50,
+								dailyRitualDensity: staticScores.daily_ritual_density ?? 50,
+								competitionContext: staticScores.competition ?? 50,
+								streetSide: staticScores.street_side ?? 50,
+								demographicsFit: staticScores.demographics ?? 50,
+								baseViability: staticScores.survival_rate ?? 50,
+								visionMultiplier: 1.0,
+								rawComposite: iqScore
+							} : undefined,
+						},
+						lenses: [
+							{ dimension: "competition", label: "Competitors", uxLabel: "Competitors", score: staticScores.competition ?? 50, verdictLine: `Active competitors: ${rawMetrics.total_competitors || 0}`, topSignals: signals.filter((s: any) => s.index === 'competition').slice(0, 3), mapHighlights: ['competitor', 'similar_business'] },
+							{ dimension: "vibrancy", label: "Concept Pulse", uxLabel: "Concept Pulse", score: staticScores.vibrancy ?? 50, verdictLine: `Estimated morning passersby: ${rawMetrics.estimated_morning_passersby || 0}`, topSignals: signals.filter((s: any) => s.index === 'vibrancy').slice(0, 3), mapHighlights: ['foot_traffic', 'sidewalk_cafe'] },
+							{ dimension: "demographics", label: "Demographics", uxLabel: "Who lives here", score: staticScores.demographics ?? 50, verdictLine: `Median Household Income: $${(rawMetrics.median_household_income || 0).toLocaleString()}`, topSignals: signals.filter((s: any) => s.index === 'demographics').slice(0, 3), mapHighlights: ['census_block'] },
+							{ dimension: "safety", label: "Safety", uxLabel: "Safety", score: staticScores.safety ?? 50, verdictLine: `Crime incidents nearby: ${rawMetrics.crime_count || 0}`, topSignals: signals.filter((s: any) => s.index === 'safety').slice(0, 3), mapHighlights: ['crime_incident'] },
+							{ dimension: "transit", label: "Transit", uxLabel: "Transit & Access", score: staticScores.transit ?? 50, verdictLine: `Daily ridership: ${(rawMetrics.total_daily_ridership || 0).toLocaleString()}`, topSignals: signals.filter((s: any) => s.index === 'transit').slice(0, 3), mapHighlights: ['subway', 'bus_stop'] },
+							{ dimension: "momentum", label: "Momentum", uxLabel: "Momentum", score: staticScores.momentum ?? 50, verdictLine: `Neighborhood growth trajectory`, topSignals: signals.filter((s: any) => s.index === 'momentum').slice(0, 3), mapHighlights: ['new_permits'] },
+						],
+						threeScores: {
+							locationIQ: { score: iqScore, grade: grade },
+							visionIQ: pyData.dynamic_vision_iq ? { available: true, score: pyData.dynamic_vision_iq.score, grade: pyData.dynamic_vision_iq.score >= 80 ? 'A' : pyData.dynamic_vision_iq.score >= 60 ? 'B' : 'C' } : { available: false },
+							fitIQ: { available: false },
+						},
+						confidence: { level: 'CONFIDENT', scoreAgreement: 0.9 },
+						confidenceBySource: { transit: 100, safety: 100, demographics: 100, competition: 100, vibrancy: 100, momentum: 100, vision: 0 },
+						dataSourceQuality: { competitors: 'verified' },
+						dataFreshness: { ageLabel: 'Live from Python Engine v2', sources: [] },
+						reconciled: { totalEntities: 0 },
+						rawIntelErrors: [],
+						// V2 transparency fields — always present
+						_serving_mode: 'python_api' as const,
+						_trace_id: pyData._trace_id || null,
+						_engine_version: pyData._engine_version || 'unknown',
+					};
+
+					// Append debug envelope when requested
+					if (debugMode && pyData._debug) {
+						responseBody._debug = {
+							...pyData._debug,
+							_sveltekit_proxy: {
+								_python_api_url: pythonApiUrl,
+								_python_api_status: pythonRes.status,
+								_python_api_latency_ms: pythonApiLatencyMs,
+								_geoid_resolved: geoid,
+								_geoid_source: `latLngToGeoid(${lat}, ${lng})`,
+								_fallback_reason: null,
+							},
+						};
+					}
+
+					return new Response(JSON.stringify(responseBody), {
+						status: 200,
+						headers: { 'Content-Type': 'application/json' }
+					});
+				} else {
+					// Python API returned an error — fall through to fallback
+					fallbackReason = `python_api_error_${pythonRes.status}`;
+					console.warn(`[LocationIQ] Python API returned ${pythonRes.status}, falling back to getGoldenRecord`);
+				}
+			} catch (fetchErr: any) {
+				pythonApiLatencyMs = Date.now() - pythonStart;
+				fallbackReason = fetchErr.name === 'AbortError' ? 'python_api_timeout' : 'python_api_unreachable';
+				console.warn(`[LocationIQ] Python API unreachable (${fallbackReason}), falling back to getGoldenRecord`);
+			}
+		} else {
+			fallbackReason = 'geoid_resolution_failed';
+			console.warn(`[LocationIQ] Could not resolve geoid for (${lat}, ${lng}), falling back to getGoldenRecord`);
+		}
+
+		// ── FALLBACK: Use getGoldenRecord from Snowflake ──
+		servingMode = 'fallback_golden_record';
 		const { getGoldenRecord } = await import('$lib/snowflake');
 		const record = await getGoldenRecord(lat, lng, businessType);
 
@@ -465,14 +587,16 @@ export const GET: RequestHandler = async ({ url, request }) => {
 		}
 
 		const iqScore = Math.round(record.FINAL_LOCATION_IQ || 50);
-        let grade = 'C';
-        if (iqScore >= 90) grade = 'A+';
-        else if (iqScore >= 80) grade = 'A';
-        else if (iqScore >= 70) grade = 'B';
-        else if (iqScore >= 60) grade = 'C';
-        else grade = 'D';
+		let grade = 'C';
+		if (iqScore >= 90) grade = 'A+';
+		else if (iqScore >= 80) grade = 'A';
+		else if (iqScore >= 70) grade = 'B';
+		else if (iqScore >= 60) grade = 'C';
+		else grade = 'D';
 
-		const responseBody = {
+		console.log(`[LocationIQ] Served via fallback_golden_record — LocationIQ=${iqScore} (reason: ${fallbackReason})`);
+
+		const responseBody: Record<string, unknown> = {
 			lat, lng, businessType,
 			locationIQ: iqScore,
 			grade: grade,
@@ -487,34 +611,48 @@ export const GET: RequestHandler = async ({ url, request }) => {
 					transit: { score: record.MORNING_FOOT_TRAFFIC_SCORE, weight: 10, label: "Transit" },
 					momentum: { score: record.BUSINESS_SURVIVAL_SCORE, weight: 10, label: "Momentum" }
 				},
-                signals: [],
-                coffeeDimensions: businessType === 'specialty_coffee' ? {
-                    morningFootTraffic: record.MORNING_FOOT_TRAFFIC_SCORE,
-                    dailyRitualDensity: record.DAILY_RITUAL_DENSITY_SCORE,
-                    competitionContext: record.COMPETITION_CONTEXT_SCORE,
-                    streetSide: record.STREET_SIDE_SCORE,
-                    demographicsFit: record.DEMOGRAPHICS_FIT_SCORE,
-                    baseViability: record.BUSINESS_SURVIVAL_SCORE,
-                    visionMultiplier: 1.0,
-                    rawComposite: iqScore
-                } : undefined
+				signals: [],
+				coffeeDimensions: businessType === 'specialty_coffee' ? {
+					morningFootTraffic: record.MORNING_FOOT_TRAFFIC_SCORE,
+					dailyRitualDensity: record.DAILY_RITUAL_DENSITY_SCORE,
+					competitionContext: record.COMPETITION_CONTEXT_SCORE,
+					streetSide: record.STREET_SIDE_SCORE,
+					demographicsFit: record.DEMOGRAPHICS_FIT_SCORE,
+					baseViability: record.BUSINESS_SURVIVAL_SCORE,
+					visionMultiplier: 1.0,
+					rawComposite: iqScore
+				} : undefined
 			},
 			lenses: [
 				{ dimension: "competition", label: "Competitors", uxLabel: "Competitors", score: record.COMPETITION_CONTEXT_SCORE, verdictLine: `Active competitors: ${record.TOTAL_COMPETITORS || 0}`, topSignals: [], mapHighlights: [] },
 				{ dimension: "vibrancy", label: "Concept Pulse", uxLabel: "Concept Pulse", score: record.MORNING_FOOT_TRAFFIC_SCORE, verdictLine: `Estimated morning passersby: ${record.ESTIMATED_MORNING_PASSERSBY || 0}`, topSignals: [], mapHighlights: [] },
 				{ dimension: "demographics", label: "Demographics", uxLabel: "Who lives here", score: record.DEMOGRAPHICS_FIT_SCORE, verdictLine: `Median Household Income: $${record.MEDIAN_HOUSEHOLD_INCOME || 0}`, topSignals: [], mapHighlights: [] },
-				{ dimension: "safety", label: "Safety", uxLabel: "Safety", score: record.SAFETY_SCORE, verdictLine: "Powered by Snowflake", topSignals: [], mapHighlights: [] },
-				{ dimension: "transit", label: "Transit", uxLabel: "Transit & Access", score: record.MORNING_FOOT_TRAFFIC_SCORE, verdictLine: "Powered by Snowflake", topSignals: [], mapHighlights: [] },
-				{ dimension: "momentum", label: "Momentum", uxLabel: "Momentum", score: record.BUSINESS_SURVIVAL_SCORE, verdictLine: "Powered by Snowflake", topSignals: [], mapHighlights: [] },
+				{ dimension: "safety", label: "Safety", uxLabel: "Safety", score: record.SAFETY_SCORE, verdictLine: "Powered by Snowflake (fallback)", topSignals: [], mapHighlights: [] },
+				{ dimension: "transit", label: "Transit", uxLabel: "Transit & Access", score: record.MORNING_FOOT_TRAFFIC_SCORE, verdictLine: "Powered by Snowflake (fallback)", topSignals: [], mapHighlights: [] },
+				{ dimension: "momentum", label: "Momentum", uxLabel: "Momentum", score: record.BUSINESS_SURVIVAL_SCORE, verdictLine: "Powered by Snowflake (fallback)", topSignals: [], mapHighlights: [] },
 			],
 			threeScores: { locationIQ: { score: iqScore, grade: grade }, visionIQ: { available: false }, fitIQ: { available: false } },
 			confidence: { level: 'CONFIDENT', scoreAgreement: 0.8 },
 			confidenceBySource: { transit: 100, safety: 100, demographics: 100, competition: 100, vibrancy: 100, momentum: 100, vision: 100 },
 			dataSourceQuality: { competitors: 'verified' },
-			dataFreshness: { ageLabel: 'Live from Snowflake', sources: [] },
+			dataFreshness: { ageLabel: 'Snowflake fallback', sources: [] },
 			reconciled: { totalEntities: 0 },
 			rawIntelErrors: [],
+			// V2 transparency fields
+			_serving_mode: 'fallback_golden_record' as const,
+			_trace_id: null,
+			_engine_version: 'snowflake_legacy',
 		};
+
+		// Debug envelope for fallback mode
+		if (debugMode) {
+			responseBody._debug = {
+				_serving_mode: 'fallback_golden_record',
+				_fallback_reason: fallbackReason,
+				_python_api_latency_ms: pythonApiLatencyMs,
+				_note: 'Score came from legacy Snowflake getGoldenRecord — Python API was not reachable. Debug envelope ①–⑥ is only available when served via python_api.',
+			};
+		}
 
 		return new Response(JSON.stringify(responseBody), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	} catch (e: any) {
